@@ -1,9 +1,16 @@
 spring:
+  profiles:
+    active: prod
+  servlet:
+    multipart:
+      max-file-size: 10GB
+      max-request-size: 10GB
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${PDB_URL} #RDS DB url
-    username: ${PDB_USER} #RDS DB username
-    password: ${PDB_PASSWORD} #RDS DB password
+    url: ${PDB_URL}
+    username: ${PDB_USER}
+    password: ${PDB_PASSWORD}
 
   jpa:
     hibernate:

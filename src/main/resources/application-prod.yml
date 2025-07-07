@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${PDB_URL} #RDS DB url
+    username: ${PDB_USER} #RDS DB username
+    password: ${PDB_PASSWORD} #RDS DB password
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+        default_batch_fetch_size: 100
+
+server:
+  port: 8080
+
+logging:
+  level:
+    com.indayvidual: INFO

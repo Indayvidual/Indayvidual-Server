@@ -75,4 +75,9 @@ public class TempController {
         tempCommandService.deleteTemp(tempId);
         return ApiResponse.onSuccess("임시 데이터가 성공적으로 삭제되었습니다.");
     }
+
+    @GetMapping("/health")
+    public String healthCheck(){
+        return "I am healthy";
+    }
 }

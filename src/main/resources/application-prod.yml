@@ -1,3 +1,7 @@
+auth:
+  jwt:
+    secret: ${JWT_SECRET}
+
 spring:
   servlet:
     multipart:

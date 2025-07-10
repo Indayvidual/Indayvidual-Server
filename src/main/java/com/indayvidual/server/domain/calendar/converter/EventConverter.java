@@ -1,7 +1,9 @@
 package com.indayvidual.server.domain.calendar.converter;
 
 import com.indayvidual.server.domain.calendar.dto.request.CreateEventRequestDto;
+import com.indayvidual.server.domain.calendar.dto.request.UpdateEventRequestDto;
 import com.indayvidual.server.domain.calendar.dto.response.CreateEventResponseDto;
+import com.indayvidual.server.domain.calendar.dto.response.UpdateEventResponseDto;
 import com.indayvidual.server.domain.calendar.entity.Event;
 import org.springframework.stereotype.Component;
 
@@ -27,4 +29,34 @@ public class EventConverter {
                 .eventId(entity.getId())
                 .build();
     }
+
+    public UpdateEventResponseDto toUpdateResponse(Event entity) {
+        return UpdateEventResponseDto.builder()
+                .eventId(entity.getId())
+                .title(entity.getTitle())
+                .startTime(entity.getStartTime())
+                .endTime(entity.getEndTime())
+                .color(entity.getColorCode())
+                .build();
+    }
+
+    public void updateEntityFromRequest(Event entity, UpdateEventRequestDto request) {
+        if (request.getTitle() != null) {
+            entity.setTitle(request.getTitle());
+        }
+        if (request.getStartTime() != null) {
+            entity.setStartTime(request.getStartTime());
+        }
+        if (request.getEndTime() != null) {
+            entity.setEndTime(request.getEndTime());
+            entity.setUserEndTime(true);
+        } else if (request.getEndTime() == null && request.getEndTime() != entity.getEndTime()) {
+            entity.setEndTime(null);
+            entity.setUserEndTime(false);
+        }
+        if (request.getColor() != null) {
+            entity.setColorCode(request.getColor());
+        }
+    }
+
 }

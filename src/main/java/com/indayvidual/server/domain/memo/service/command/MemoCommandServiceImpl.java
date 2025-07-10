@@ -1,13 +1,13 @@
 package com.indayvidual.server.domain.memo.service.command;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.indayvidual.server.domain.memo.dto.request.CreateMemoRequestDTO;
 import com.indayvidual.server.domain.memo.entity.Memo;
 import com.indayvidual.server.domain.memo.repository.MemoRepository;
 import com.indayvidual.server.domain.user.entity.User;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

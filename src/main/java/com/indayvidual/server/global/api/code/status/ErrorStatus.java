@@ -21,7 +21,9 @@ public enum ErrorStatus implements BaseErrorCode {
     TEMP_EXCEPTION(HttpStatus.BAD_REQUEST, "TEMP4001", "테스트 에러입니다."),
 
     // 일정 관련 응답
-    CREATE_EVENT_FAILED(HttpStatus.BAD_REQUEST, "CREATE_EVENT_FAILED", "일정 등록에 실패했습니다.")
+    CREATE_EVENT_FAILED(HttpStatus.BAD_REQUEST, "CREATE_EVENT_FAILED", "일정 등록에 실패했습니다."),
+    UPDATE_EVENT_FAILED(HttpStatus.BAD_REQUEST, "UPDATE_EVENT_FAILED", "일정 수정에 실패했습니다."),
+    DELETE_EVENT_FAILED(HttpStatus.BAD_REQUEST, "DELETE_EVENT_FAILED", "일정 삭제에 실패했습니다.")
     ;
 
     private final HttpStatus httpStatus;

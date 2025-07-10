@@ -44,4 +44,12 @@ public class EventCommandServiceImpl implements EventCommandService {
         eventConverter.updateEntityFromRequest(existingEvent, request);
         return eventRepository.save(existingEvent);
     }
+
+    @Override
+    public void deleteEvent(Long eventId, Long userId) {
+        if (!eventQueryService.existsByIdAndUserId(eventId, userId)) {
+            throw new RuntimeException("해당 일정을 찾을 수 없습니다.");
+        }
+        eventRepository.deleteByIdAndUserId(eventId, userId);
+    }
 }

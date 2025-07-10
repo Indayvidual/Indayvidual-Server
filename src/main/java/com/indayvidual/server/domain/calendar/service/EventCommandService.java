@@ -7,4 +7,5 @@ import com.indayvidual.server.domain.calendar.entity.Event;
 public interface EventCommandService {
     Event createEvent(CreateEventRequestDto request, Long userId);
     Event updateEvent(Long eventId, UpdateEventRequestDto request, Long userId);
+    void deleteEvent(Long eventId, Long userId);
 }

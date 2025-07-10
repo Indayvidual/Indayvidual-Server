@@ -7,6 +7,8 @@ import com.indayvidual.server.domain.calendar.dto.response.CreateEventResponseDt
 import com.indayvidual.server.domain.calendar.dto.response.UpdateEventResponseDto;
 import com.indayvidual.server.domain.calendar.entity.Event;
 import com.indayvidual.server.domain.calendar.service.EventCommandService;
+import com.indayvidual.server.global.api.code.status.ErrorStatus;
+import com.indayvidual.server.global.api.code.status.SuccessStatus;
 import com.indayvidual.server.global.api.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,12 +36,17 @@ public class CalendarEventController {
             CreateEventResponseDto response = eventConverter.toCreateResponse(createdEvent);
 
             return ResponseEntity.ok(
-                    ApiResponse.onSuccess(response, "CREATE_EVENT_SUCCESS", "일정 등록 성공")
+                    ApiResponse.onSuccess(response,
+                            SuccessStatus.CREATE_EVENT_SUCCESS.getCode(),
+                            SuccessStatus.CREATE_EVENT_SUCCESS.getMessage())
             );
         } catch (Exception e) {
             log.error("일정 등록 실패", e);
             return ResponseEntity.badRequest().body(
-                    ApiResponse.onFailure("CREATE_EVENT_FAILED", "일정 등록에 실패했습니다: " + e.getMessage(), null)
+                    ApiResponse.onFailure(
+                            ErrorStatus.CREATE_EVENT_FAILED.getCode(),
+                            ErrorStatus.CREATE_EVENT_FAILED.getMessage() + ": " + e.getMessage(),
+                            null)
             );
         }
     }
@@ -57,17 +64,45 @@ public class CalendarEventController {
 
             ApiResponse<UpdateEventResponseDto> apiResponse = ApiResponse.onSuccess(
                     response,
-                    "UPDATE_EVENT_SUCCESS", "일정 수정 성공"
+                    SuccessStatus.UPDATE_EVENT_SUCCESS.getCode(),
+                    SuccessStatus.UPDATE_EVENT_SUCCESS.getMessage()
             );
 
             return ResponseEntity.ok(apiResponse);
         } catch (Exception e) {
             log.error("일정 수정 실패", e);
             ApiResponse<UpdateEventResponseDto> apiResponse = ApiResponse.onFailure(
-                    "UPDATE_EVENT_FAILED", "일정 수정에 실패했습니다: " + e.getMessage(), null
+                    ErrorStatus.UPDATE_EVENT_FAILED.getCode(),
+                    ErrorStatus.UPDATE_EVENT_FAILED.getMessage() + ": " + e.getMessage(),
+                    null
             );
             return ResponseEntity.badRequest().body(apiResponse);
         }
     }
 
+    @DeleteMapping("/{eventId}")
+    public ResponseEntity<ApiResponse<Void>> deleteEvent(@PathVariable Long eventId) {
+
+        Long userId = 1L; // TODO: JWT에서 사용자 ID 추출
+
+        try {
+            eventCommandService.deleteEvent(eventId, userId);
+
+            ApiResponse<Void> apiResponse = ApiResponse.onSuccess(
+                    null,
+                    SuccessStatus.DELETE_EVENT_SUCCESS.getCode(),
+                    SuccessStatus.DELETE_EVENT_SUCCESS.getMessage()
+            );
+            return ResponseEntity.ok(apiResponse);
+        } catch (Exception e) {
+            log.error("일정 삭제 실패", e);
+
+            ApiResponse<Void> apiResponse = ApiResponse.onFailure(
+                    ErrorStatus.DELETE_EVENT_FAILED.getCode(),
+                    ErrorStatus.DELETE_EVENT_FAILED.getMessage() + ": " + e.getMessage(),
+                    null
+            );
+            return ResponseEntity.badRequest().body(apiResponse);
+        }
+    }
 }

@@ -13,7 +13,10 @@ public enum SuccessStatus implements BaseCode {
     _OK(HttpStatus.OK, "COMMON200", "성공입니다."),
 
     // Temp 관련 응답
-    TEMP_OK(HttpStatus.OK, "TEMP200", "임시 데이터 조회 성공")
+    TEMP_OK(HttpStatus.OK, "TEMP200", "임시 데이터 조회 성공"),
+
+    // 일정 관련 응답
+    CREATE_EVENT_SUCCESS(HttpStatus.OK, "CREATE_EVENT_SUCCESS", "일정 등록 성공")
     ;
 
     private final HttpStatus httpStatus;

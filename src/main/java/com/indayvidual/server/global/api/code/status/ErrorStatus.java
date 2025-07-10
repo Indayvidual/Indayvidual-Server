@@ -18,7 +18,10 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // Temp 관련 에러
     TEMP_NOT_FOUND(HttpStatus.NOT_FOUND, "TEMP4041", "임시 데이터가 존재하지 않습니다."),
-    TEMP_EXCEPTION(HttpStatus.BAD_REQUEST, "TEMP4001", "테스트 에러입니다.")
+    TEMP_EXCEPTION(HttpStatus.BAD_REQUEST, "TEMP4001", "테스트 에러입니다."),
+
+    // 일정 관련 응답
+    CREATE_EVENT_FAILED(HttpStatus.BAD_REQUEST, "CREATE_EVENT_FAILED", "일정 등록에 실패했습니다.")
     ;
 
     private final HttpStatus httpStatus;

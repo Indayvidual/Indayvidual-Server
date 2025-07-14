@@ -69,6 +69,16 @@ public class MemoController {
 		return ApiResponse.onSuccess(memoQueryService.getMemoDetail(userId, memoId));
 	}
 
+	public ApiResponse<Void> deleteMemo(
+		@AuthenticationPrincipal UserAuthentication userAuthentication,
+
+		@Parameter(description = "메모 ID", example = "1")
+		@PathVariable(required = true) Long memoId
+	) {
+		Long userId = Long.valueOf((String)userAuthentication.getPrincipal());
+		return ApiResponse.onSuccess(memoCommandService.deleteMemo(userId, memoId));
+	}
+
 	@PostMapping
 	@Operation(
 		summary = "메모 생성",
@@ -89,7 +99,6 @@ public class MemoController {
 			description = "서버 내부 오류"
 		)
 	})
-
 	public ApiResponse<Void> createMemo(
 		@AuthenticationPrincipal UserAuthentication userAuthentication,
 		@RequestBody CreateMemoRequestDTO request

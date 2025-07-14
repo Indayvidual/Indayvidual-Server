@@ -5,6 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.indayvidual.server.domain.memo.dto.request.CreateMemoRequestDTO;
 import com.indayvidual.server.domain.memo.entity.Memo;
+import com.indayvidual.server.domain.memo.exception.MemoException;
 import com.indayvidual.server.domain.memo.repository.MemoRepository;
 import com.indayvidual.server.domain.user.entity.User;
 import com.indayvidual.server.domain.user.exception.UserException;
@@ -34,5 +35,22 @@ public class MemoCommandServiceImpl implements MemoCommandService {
 
 		return null;
 
+	}
+
+	@Override
+	public Void deleteMemo(Long userId, Long memoId) {
+		User currentUser = userRepository.findById(userId)
+			.orElseThrow(() -> new UserException(ErrorStatus.USER_NOT_FOUND));
+
+		Memo memo = memoRepository.findById(memoId)
+			.orElseThrow(() -> new MemoException(ErrorStatus.MEMO_NOT_FOUND));
+
+		if (!memo.getUser().equals(currentUser)) {
+			throw new MemoException(ErrorStatus.MEMO_OWNER_MISMATCH);
+		}
+
+		memoRepository.delete(memo);
+
+		return null;
 	}
 }

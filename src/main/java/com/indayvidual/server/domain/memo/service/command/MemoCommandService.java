@@ -6,4 +6,6 @@ public interface MemoCommandService {
 
 	Void createMemo(Long userId, CreateMemoRequestDTO requestDTO);
 
+	Void deleteMemo(Long userId, Long memoId);
+
 }

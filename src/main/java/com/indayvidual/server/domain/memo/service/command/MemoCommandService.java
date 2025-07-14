@@ -4,6 +4,6 @@ import com.indayvidual.server.domain.memo.dto.request.CreateMemoRequestDTO;
 
 public interface MemoCommandService {
 
-	Void createMemo(CreateMemoRequestDTO requestDTO);
+	Void createMemo(Long userId, CreateMemoRequestDTO requestDTO);
 
 }

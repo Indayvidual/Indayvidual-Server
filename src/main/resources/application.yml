@@ -1,11 +1,37 @@
 spring:
-  # settings for profile
-  profiles:
-    active: prod  # if you want to have the environment of the develop server, then it should be local not dev
-    #include: secret
-  # settings for multipart data such as image
 
-  servlet:
-    multipart:
-      max-file-size: 10GB
-      max-request-size: 10GB
+  datasource:
+    url: jdbc:mysql://localhost:3306/indayvidual_db?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+        default_batch_fetch_size: 100
+
+  cloud:
+    aws:
+      s3:
+        bucket: ${BUCKET_NAME}
+      region:
+        static: ap-northeast-2
+      stack:
+        auto: false
+      credentials:
+        accessKey: ${AWS_ACCESS_KEY_ID}
+        secretKey: ${AWS_SECRET_ACCESS_KEY}
+
+
+server:
+  port: 8080
+
+logging:
+  level:
+    com.indayvidual: INFO

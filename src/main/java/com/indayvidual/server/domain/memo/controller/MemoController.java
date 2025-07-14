@@ -1,6 +1,8 @@
 package com.indayvidual.server.domain.memo.controller;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,9 +11,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.indayvidual.server.domain.memo.dto.request.CreateMemoRequestDTO;
 import com.indayvidual.server.domain.memo.dto.request.MemoSliceResponseDTO;
+import com.indayvidual.server.domain.memo.dto.response.MemoDetailResponseDTO;
 import com.indayvidual.server.domain.memo.service.command.MemoCommandService;
 import com.indayvidual.server.domain.memo.service.query.MemoQueryService;
 import com.indayvidual.server.global.api.response.ApiResponse;
+import com.indayvidual.server.global.config.security.UserAuthentication;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -42,9 +46,7 @@ public class MemoController {
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 내부 오류")
 	})
 	public ApiResponse<MemoSliceResponseDTO> getMemos(
-		// TODO: @AuthenticationPrincipal User user 추가
-		@Parameter(description = "사용자 ID", example = "1")
-		@RequestParam Long userId,
+		@AuthenticationPrincipal UserAuthentication userAuthentication,
 
 		@Parameter(description = "페이지 번호 (0부터 시작)", example = "0")
 		@RequestParam(required = false, defaultValue = "0") Integer page,
@@ -52,8 +54,19 @@ public class MemoController {
 		@Parameter(description = "페이지 크기 (기본: 20, 최대: 100)", example = "20")
 		@RequestParam(required = false) Integer size
 	) {
-		MemoSliceResponseDTO response = memoQueryService.getMemosWithSlice(userId, page, size);
-		return ApiResponse.onSuccess(response);
+		Long userId = Long.valueOf((String)userAuthentication.getPrincipal());
+		return ApiResponse.onSuccess(memoQueryService.getMemosWithSlice(userId, page, size));
+
+	}
+
+	public ApiResponse<MemoDetailResponseDTO> getMemoDetail(
+		@AuthenticationPrincipal UserAuthentication userAuthentication,
+
+		@Parameter(description = "메모 ID", example = "1")
+		@PathVariable(required = true) Long memoId
+	) {
+		Long userId = Long.valueOf((String)userAuthentication.getPrincipal());
+		return ApiResponse.onSuccess(memoQueryService.getMemoDetail(userId, memoId));
 	}
 
 	@PostMapping
@@ -76,10 +89,12 @@ public class MemoController {
 			description = "서버 내부 오류"
 		)
 	})
+
 	public ApiResponse<Void> createMemo(
-		// TODO: @AuthenticationPrincipal를 추가해서 등록자가 누군지 구분하도록 함
+		@AuthenticationPrincipal UserAuthentication userAuthentication,
 		@RequestBody CreateMemoRequestDTO request
 	) {
-		return ApiResponse.onSuccess(memoCommandService.createMemo(request));
+		Long userId = Long.valueOf((String)userAuthentication.getPrincipal());
+		return ApiResponse.onSuccess(memoCommandService.createMemo(userId, request));
 	}
 }

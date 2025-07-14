@@ -1,6 +1,7 @@
 package com.indayvidual.server.domain.memo.controller;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,42 +38,113 @@ public class MemoController {
 	@GetMapping
 	@Operation(
 		summary = "메모 목록 조회 (무한 스크롤)",
-		description = "생성일자 또는 수정일자 기준으로 내림차순 정렬된 메모 목록 조회"
+		description = "생성일자 또는 수정일자 기준으로 내림차순 정렬된 메모 목록을 페이지네이션으로 조회합니다."
 	)
 	@ApiResponses(value = {
-		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "메모 목록 조회 성공"),
-		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청 파라미터"),
-		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 실패"),
-		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 내부 오류")
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "200",
+			description = "메모 목록 조회 성공",
+			content = @Content(schema = @Schema(implementation = MemoSliceResponseDTO.class))
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "400",
+			description = "잘못된 요청 파라미터"
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "401",
+			description = "인증 실패"
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "500",
+			description = "서버 내부 오류"
+		)
 	})
 	public ApiResponse<MemoSliceResponseDTO> getMemos(
+		@Parameter(hidden = true)
 		@AuthenticationPrincipal UserAuthentication userAuthentication,
 
 		@Parameter(description = "페이지 번호 (0부터 시작)", example = "0")
 		@RequestParam(required = false, defaultValue = "0") Integer page,
 
 		@Parameter(description = "페이지 크기 (기본: 20, 최대: 100)", example = "20")
-		@RequestParam(required = false) Integer size
+		@RequestParam(required = false, defaultValue = "20") Integer size
 	) {
 		Long userId = Long.valueOf((String)userAuthentication.getPrincipal());
 		return ApiResponse.onSuccess(memoQueryService.getMemosWithSlice(userId, page, size));
-
 	}
 
+	@GetMapping("/{memoId}")
+	@Operation(
+		summary = "메모 상세 조회",
+		description = "특정 메모의 상세 정보를 조회합니다. 본인이 작성한 메모만 조회 가능합니다."
+	)
+	@ApiResponses(value = {
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "200",
+			description = "메모 상세 조회 성공",
+			content = @Content(schema = @Schema(implementation = MemoDetailResponseDTO.class))
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "401",
+			description = "인증 실패"
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "403",
+			description = "권한 없음 (다른 사용자의 메모에 접근 시도)"
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "404",
+			description = "메모를 찾을 수 없음"
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "500",
+			description = "서버 내부 오류"
+		)
+	})
 	public ApiResponse<MemoDetailResponseDTO> getMemoDetail(
+		@Parameter(hidden = true)
 		@AuthenticationPrincipal UserAuthentication userAuthentication,
 
-		@Parameter(description = "메모 ID", example = "1")
+		@Parameter(description = "메모 ID", required = true, example = "1")
 		@PathVariable(required = true) Long memoId
 	) {
 		Long userId = Long.valueOf((String)userAuthentication.getPrincipal());
 		return ApiResponse.onSuccess(memoQueryService.getMemoDetail(userId, memoId));
 	}
 
+	@DeleteMapping("/{memoId}")
+	@Operation(
+		summary = "메모 삭제",
+		description = "특정 메모를 삭제합니다. 본인이 작성한 메모만 삭제 가능합니다."
+	)
+	@ApiResponses(value = {
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "200",
+			description = "메모 삭제 성공",
+			content = @Content(schema = @Schema(implementation = Void.class))
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "401",
+			description = "인증 실패"
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "403",
+			description = "권한 없음 (다른 사용자의 메모 삭제 시도)"
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "404",
+			description = "메모를 찾을 수 없음"
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "500",
+			description = "서버 내부 오류"
+		)
+	})
 	public ApiResponse<Void> deleteMemo(
+		@Parameter(hidden = true)
 		@AuthenticationPrincipal UserAuthentication userAuthentication,
 
-		@Parameter(description = "메모 ID", example = "1")
+		@Parameter(description = "메모 ID", required = true, example = "1")
 		@PathVariable(required = true) Long memoId
 	) {
 		Long userId = Long.valueOf((String)userAuthentication.getPrincipal());
@@ -82,17 +154,21 @@ public class MemoController {
 	@PostMapping
 	@Operation(
 		summary = "메모 생성",
-		description = "새로운 메모를 생성합니다."
+		description = "새로운 메모를 생성합니다. 제목과 내용을 입력받아 메모를 저장합니다."
 	)
 	@ApiResponses(value = {
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
 			responseCode = "200",
 			description = "메모 생성 성공",
-			content = @Content(schema = @Schema(implementation = ApiResponse.class))
+			content = @Content(schema = @Schema(implementation = Void.class))
 		),
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
 			responseCode = "400",
-			description = "잘못된 요청 데이터"
+			description = "잘못된 요청 데이터 (필수 필드 누락, 유효성 검증 실패 등)"
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "401",
+			description = "인증 실패"
 		),
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
 			responseCode = "500",
@@ -100,7 +176,14 @@ public class MemoController {
 		)
 	})
 	public ApiResponse<Void> createMemo(
+		@Parameter(hidden = true)
 		@AuthenticationPrincipal UserAuthentication userAuthentication,
+
+		@io.swagger.v3.oas.annotations.parameters.RequestBody(
+			description = "메모 생성 요청 데이터",
+			required = true,
+			content = @Content(schema = @Schema(implementation = CreateMemoRequestDTO.class))
+		)
 		@RequestBody CreateMemoRequestDTO request
 	) {
 		Long userId = Long.valueOf((String)userAuthentication.getPrincipal());

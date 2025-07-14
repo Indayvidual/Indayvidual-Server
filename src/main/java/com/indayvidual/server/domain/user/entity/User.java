@@ -1,5 +1,8 @@
 package com.indayvidual.server.domain.user.entity;
 
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
+
 import com.indayvidual.server.common.BaseEntity;
 import com.indayvidual.server.domain.user.entity.enums.Provider;
 import com.indayvidual.server.domain.user.entity.enums.Role;
@@ -9,15 +12,18 @@ import lombok.*;
 
 @Entity
 @Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@DynamicUpdate
+@DynamicInsert
+@Table(name = "`user`")
 public class User extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "user_id")
+	private Long id;
     private String email;
     private String password;
 

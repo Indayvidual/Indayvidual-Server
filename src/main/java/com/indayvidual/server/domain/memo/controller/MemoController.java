@@ -175,7 +175,7 @@ public class MemoController {
 			description = "서버 내부 오류"
 		)
 	})
-	public ApiResponse<Void> createMemo(
+	public ApiResponse<MemoDetailResponseDTO> createMemo(
 		@Parameter(hidden = true)
 		@AuthenticationPrincipal UserAuthentication userAuthentication,
 

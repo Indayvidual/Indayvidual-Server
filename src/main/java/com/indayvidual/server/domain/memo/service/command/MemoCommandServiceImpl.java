@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.indayvidual.server.domain.memo.dto.request.CreateMemoRequestDTO;
+import com.indayvidual.server.domain.memo.dto.response.MemoDetailResponseDTO;
 import com.indayvidual.server.domain.memo.entity.Memo;
 import com.indayvidual.server.domain.memo.exception.MemoException;
 import com.indayvidual.server.domain.memo.repository.MemoRepository;
@@ -25,7 +26,7 @@ public class MemoCommandServiceImpl implements MemoCommandService {
 	private final MemoRepository memoRepository;
 
 	@Override
-	public Void createMemo(Long userId, CreateMemoRequestDTO requestDTO) {
+	public MemoDetailResponseDTO createMemo(Long userId, CreateMemoRequestDTO requestDTO) {
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new UserException(ErrorStatus.USER_NOT_FOUND));
 
@@ -33,7 +34,7 @@ public class MemoCommandServiceImpl implements MemoCommandService {
 
 		memoRepository.save(newMemo);
 
-		return null;
+		return MemoDetailResponseDTO.from(newMemo);
 
 	}
 

@@ -1,9 +1,10 @@
 name: Indayvidual Develop CI/CD
 
 on:
-  pull_request:
+  push:
     branches:
       - develop
+  pull_request:
     types: [ closed ]
   workflow_dispatch: # (2).수동 실행도 가능하도록
 

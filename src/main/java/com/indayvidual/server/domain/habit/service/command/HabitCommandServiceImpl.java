@@ -58,4 +58,21 @@ public class HabitCommandServiceImpl implements HabitCommandService {
 
 		return HabitResponseDTO.from(habit);
 	}
+
+	@Override
+	public Void deleteHabit(Long userId, Long habitId) {
+		User currentUser = userRepository.findById(userId)
+			.orElseThrow(() -> new UserException(ErrorStatus.USER_NOT_FOUND));
+
+		Habit habit = habitRepository.findById(habitId)
+			.orElseThrow(() -> new HabitException(ErrorStatus.HABIT_NOT_FOUND));
+
+		if (!habit.getUser().equals(currentUser)) {
+			throw new HabitException(ErrorStatus.HABIT_OWNER_MISMATCH);
+		}
+
+		habitRepository.delete(habit);
+
+		return null;
+	}
 }

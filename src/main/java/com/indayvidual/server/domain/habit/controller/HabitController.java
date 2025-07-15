@@ -1,6 +1,7 @@
 package com.indayvidual.server.domain.habit.controller;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -68,6 +69,17 @@ public class HabitController {
 	) {
 		Long userId = Long.valueOf((String)userAuthentication.getPrincipal());
 		return ApiResponse.onSuccess(habitCommandService.updateHabit(userId, habitId, request));
+	}
+
+	@DeleteMapping("/{habitId}")
+	public ApiResponse<Void> deleteHabit(
+		@AuthenticationPrincipal UserAuthentication userAuthentication,
+
+		@Parameter(description = "습관 ID", required = true, example = "1")
+		@PathVariable Long habitId
+	) {
+		Long userId = Long.valueOf((String)userAuthentication.getPrincipal());
+		return ApiResponse.onSuccess(habitCommandService.deleteHabit(userId, habitId));
 	}
 
 }

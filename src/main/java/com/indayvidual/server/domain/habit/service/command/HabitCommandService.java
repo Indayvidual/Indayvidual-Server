@@ -9,4 +9,6 @@ public interface HabitCommandService {
 	HabitResponseDTO createHabit(Long userId, CreateHabitRequestDTO request);
 
 	HabitResponseDTO updateHabit(Long userId, Long habitId, UpdateHabitRequestDTO request);
+
+	Void deleteHabit(Long userId, Long habitId);
 }

@@ -4,9 +4,12 @@ import com.indayvidual.server.domain.calendar.converter.EventConverter;
 import com.indayvidual.server.domain.calendar.dto.request.CreateEventRequestDto;
 import com.indayvidual.server.domain.calendar.dto.request.UpdateEventRequestDto;
 import com.indayvidual.server.domain.calendar.dto.response.CreateEventResponseDto;
+import com.indayvidual.server.domain.calendar.dto.response.GetDayEventResponseDto;
+import com.indayvidual.server.domain.calendar.dto.response.GetMonthlyCalendarResponseDto;
 import com.indayvidual.server.domain.calendar.dto.response.UpdateEventResponseDto;
 import com.indayvidual.server.domain.calendar.entity.Event;
 import com.indayvidual.server.domain.calendar.service.EventCommandService;
+import com.indayvidual.server.domain.calendar.service.EventQueryService;
 import com.indayvidual.server.global.api.code.status.ErrorStatus;
 import com.indayvidual.server.global.api.code.status.SuccessStatus;
 import com.indayvidual.server.global.api.response.ApiResponse;
@@ -16,6 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/calendar/events")
 @RequiredArgsConstructor
@@ -24,6 +30,7 @@ public class CalendarEventController {
 
     private final EventCommandService eventCommandService;
     private final EventConverter eventConverter;
+    private final EventQueryService eventQueryService;
 
     @PostMapping
     public ResponseEntity<ApiResponse<CreateEventResponseDto>> createEvent(
@@ -44,8 +51,8 @@ public class CalendarEventController {
             log.error("일정 등록 실패", e);
             return ResponseEntity.badRequest().body(
                     ApiResponse.onFailure(
-                            ErrorStatus.CREATE_EVENT_FAILED.getCode(),
-                            ErrorStatus.CREATE_EVENT_FAILED.getMessage() + ": " + e.getMessage(),
+                            ErrorStatus.EVENT_CREATE_FAILED.getCode(),
+                            ErrorStatus.EVENT_CREATE_FAILED.getMessage() + ": " + e.getMessage(),
                             null)
             );
         }
@@ -72,8 +79,8 @@ public class CalendarEventController {
         } catch (Exception e) {
             log.error("일정 수정 실패", e);
             ApiResponse<UpdateEventResponseDto> apiResponse = ApiResponse.onFailure(
-                    ErrorStatus.UPDATE_EVENT_FAILED.getCode(),
-                    ErrorStatus.UPDATE_EVENT_FAILED.getMessage() + ": " + e.getMessage(),
+                    ErrorStatus.EVENT_UPDATE_FAILED.getCode(),
+                    ErrorStatus.EVENT_UPDATE_FAILED.getMessage() + ": " + e.getMessage(),
                     null
             );
             return ResponseEntity.badRequest().body(apiResponse);
@@ -98,8 +105,61 @@ public class CalendarEventController {
             log.error("일정 삭제 실패", e);
 
             ApiResponse<Void> apiResponse = ApiResponse.onFailure(
-                    ErrorStatus.DELETE_EVENT_FAILED.getCode(),
-                    ErrorStatus.DELETE_EVENT_FAILED.getMessage() + ": " + e.getMessage(),
+                    ErrorStatus.EVENT_DELETE_FAILED.getCode(),
+                    ErrorStatus.EVENT_DELETE_FAILED.getMessage() + ": " + e.getMessage(),
+                    null
+            );
+            return ResponseEntity.badRequest().body(apiResponse);
+        }
+    }
+
+    @GetMapping("/{year}/{month}")
+    public ResponseEntity<ApiResponse<List<GetMonthlyCalendarResponseDto>>> getMonthlyCalendar(
+            @PathVariable int year,
+            @PathVariable int month) {
+
+        Long userId = 1L; // TODO: JWT에서 사용자 ID 추출
+
+        try {
+            List<GetMonthlyCalendarResponseDto> calendar = eventQueryService.getMonthlyCalendar(year, month, userId);
+
+            return ResponseEntity.ok(ApiResponse.onSuccess(
+                    calendar,
+                    SuccessStatus.GET_CALENDAR_SUCCESS.getCode(),
+                    SuccessStatus.GET_CALENDAR_SUCCESS.getMessage())
+            );
+        } catch (Exception e) {
+            log.error("월별 캘린더 조회 실패", e);
+
+            ApiResponse<List<GetMonthlyCalendarResponseDto>> apiResponse = ApiResponse.onFailure(
+                    ErrorStatus.CALENDAR_FETCH_FAILED.getCode(),
+                    ErrorStatus.CALENDAR_FETCH_FAILED.getMessage() + ": " + e.getMessage(),
+                    null
+            );
+            return ResponseEntity.badRequest().body(apiResponse);
+        }
+    }
+
+    @GetMapping("/events/{date}")
+    public ResponseEntity<ApiResponse<List<GetDayEventResponseDto>>>  getDayEvents(@PathVariable String date) {
+
+        Long userId = 1L; // TODO: JWT에서 사용자 ID 추출
+
+        try {
+            LocalDate eventDate = LocalDate.parse(date);
+            List<GetDayEventResponseDto> events = eventQueryService.getDayEvents(eventDate, userId);
+
+            return ResponseEntity.ok(
+                    ApiResponse.onSuccess(events,
+                            SuccessStatus.GET_DAY_EVENTS_SUCCESS.getCode(),
+                            SuccessStatus.GET_DAY_EVENTS_SUCCESS.getMessage())
+            );
+        } catch (Exception e) {
+            log.error("특정 날짜 일정 조회 실패", e);
+
+            ApiResponse<List<GetDayEventResponseDto>> apiResponse = ApiResponse.onFailure(
+                    ErrorStatus.EVENT_GET_BY_DATE_FAILED.getCode(),
+                    ErrorStatus.EVENT_GET_BY_DATE_FAILED.getMessage() + ": " + e.getMessage(),
                     null
             );
             return ResponseEntity.badRequest().body(apiResponse);

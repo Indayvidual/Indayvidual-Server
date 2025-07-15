@@ -68,7 +68,7 @@ public class Habit extends BaseEntity {
 
 	}
 
-	//== 수정 메서드 ==//
+	//== 더티체킹 메서드 ==//
 	public void updateTitle(String title) {
 		this.title = title;
 	}

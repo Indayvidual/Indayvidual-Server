@@ -27,10 +27,9 @@ public class MemoCommandServiceImpl implements MemoCommandService {
 
 	@Override
 	public MemoDetailResponseDTO createMemo(Long userId, CreateMemoRequestDTO requestDTO) {
-		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new UserException(ErrorStatus.USER_NOT_FOUND));
+		User currentUser = getCurrentUser(userId);
 
-		Memo newMemo = Memo.createMemo(requestDTO.getTitle(), requestDTO.getContent(), user);
+		Memo newMemo = Memo.createMemo(requestDTO.getTitle(), requestDTO.getContent(), currentUser);
 
 		memoRepository.save(newMemo);
 
@@ -40,18 +39,20 @@ public class MemoCommandServiceImpl implements MemoCommandService {
 
 	@Override
 	public Void deleteMemo(Long userId, Long memoId) {
-		User currentUser = userRepository.findById(userId)
-			.orElseThrow(() -> new UserException(ErrorStatus.USER_NOT_FOUND));
+		User currentUser = getCurrentUser(userId);
 
 		Memo memo = memoRepository.findById(memoId)
 			.orElseThrow(() -> new MemoException(ErrorStatus.MEMO_NOT_FOUND));
 
-		if (!memo.getUser().equals(currentUser)) {
-			throw new MemoException(ErrorStatus.MEMO_OWNER_MISMATCH);
+		if (memo.canDeleteMemo(currentUser)) {
+			memoRepository.delete(memo);
 		}
 
-		memoRepository.delete(memo);
-
 		return null;
+	}
+
+	private User getCurrentUser(Long userId) {
+		return userRepository.findById(userId)
+			.orElseThrow(() -> new UserException(ErrorStatus.USER_NOT_FOUND));
 	}
 }

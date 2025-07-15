@@ -102,4 +102,12 @@ public class Habit extends BaseEntity {
 		updateColorCode(colorCode);
 
 	}
+
+	public boolean canDeleteBy(User user) {
+		ensureOwnership(user);
+
+		user.getHabits().remove(this);
+
+		return true;
+	}
 }

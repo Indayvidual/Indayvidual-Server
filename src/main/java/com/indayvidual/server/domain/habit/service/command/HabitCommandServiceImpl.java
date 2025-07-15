@@ -57,11 +57,9 @@ public class HabitCommandServiceImpl implements HabitCommandService {
 		Habit habit = habitRepository.findById(habitId)
 			.orElseThrow(() -> new HabitException(ErrorStatus.HABIT_NOT_FOUND));
 
-		if (!habit.getUser().equals(currentUser)) {
-			throw new HabitException(ErrorStatus.HABIT_OWNER_MISMATCH);
+		if (habit.canDeleteBy(currentUser)) {
+			habitRepository.delete(habit);
 		}
-
-		habitRepository.delete(habit);
 
 		return null;
 	}

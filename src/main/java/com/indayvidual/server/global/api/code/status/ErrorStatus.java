@@ -74,6 +74,11 @@ public enum ErrorStatus implements BaseErrorCode {
 	EVENT_PAST_DATE_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "EVENT4005", "과거 날짜에는 일정을 생성할 수 없습니다."),
 	EVENT_GET_BY_DATE_FAILED(HttpStatus.BAD_REQUEST, "EVENT4006", "특정 날짜 일정 조회에 실패했습니다."),
 
+	// ===== 시간표 관련 에러 (TIMETABLE) =====
+	TIMETABLE_CREATE_FAILED(HttpStatus.BAD_REQUEST, "TIMETABLE4001", "시간표 등록에 실패했습니다."),
+	TIMETABLE_DUPLICATE_SEMESTER(HttpStatus.CONFLICT, "TIMETABLE4091", "이미 해당 학기의 시간표가 존재합니다."),
+	TIMETABLE_FETCH_FAILED(HttpStatus.BAD_REQUEST, "TIMETABLE4002", "시간표 조회에 실패했습니다."),
+
 	// ===== 파일 관련 에러 (FILE) =====
 	FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "FILE4041", "파일을 찾을 수 없습니다."),
 	FILE_UPLOAD_FAILED(HttpStatus.BAD_REQUEST, "FILE4001", "파일 업로드에 실패했습니다."),

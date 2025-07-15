@@ -1,8 +1,10 @@
 package com.indayvidual.server.domain.calendar.service;
 
+import com.indayvidual.server.domain.calendar.dto.response.GetDayEventResponseDto;
 import com.indayvidual.server.domain.calendar.dto.response.GetMonthlyCalendarResponseDto;
 import com.indayvidual.server.domain.calendar.entity.Event;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface EventQueryService {
@@ -10,4 +12,5 @@ public interface EventQueryService {
     boolean existsByIdAndUserId(Long eventId, Long userId);
 
     List<GetMonthlyCalendarResponseDto> getMonthlyCalendar(int year, int month, Long userId);
+    List<GetDayEventResponseDto> getDayEvents(LocalDate date, Long userId);
 }

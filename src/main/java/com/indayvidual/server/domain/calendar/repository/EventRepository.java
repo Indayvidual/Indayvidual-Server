@@ -23,4 +23,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<LocalDate> findEventDatesByUserIdAndDateRange(@Param("userId") Long userId,
                                                        @Param("startDate") LocalDate startDate,
                                                        @Param("endDate") LocalDate endDate);
+
+    List<Event> findByUserIdAndEventDateOrderByStartTimeAsc(Long userId, LocalDate eventDate);
 }

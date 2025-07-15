@@ -59,7 +59,7 @@ public enum ErrorStatus implements BaseErrorCode {
 	USER_INVALID_PASSWORD_FORMAT(HttpStatus.BAD_REQUEST, "USER4003", "비밀번호 형식이 올바르지 않습니다."),
 
 	// ===== 캘린더 관련 에러 (CALENDAR) =====
-	CALENDAR_FETCH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "CAL5001", "월별 캘린더 정보 조회에 실패했습니다."),
+	CALENDAR_FETCH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "CAL4001", "월별 캘린더 정보 조회에 실패했습니다."),
 
 	// ===== 일정 관련 에러 (EVENT) =====
 	EVENT_NOT_FOUND(HttpStatus.NOT_FOUND, "EVENT4041", "일정을 찾을 수 없습니다."),
@@ -72,6 +72,7 @@ public enum ErrorStatus implements BaseErrorCode {
 	EVENT_DELETE_FAILED(HttpStatus.BAD_REQUEST, "EVENT4003", "일정 삭제에 실패했습니다."),
 	EVENT_INVALID_DATE_RANGE(HttpStatus.BAD_REQUEST, "EVENT4004", "유효하지 않은 날짜 범위입니다."),
 	EVENT_PAST_DATE_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "EVENT4005", "과거 날짜에는 일정을 생성할 수 없습니다."),
+	EVENT_GET_BY_DATE_FAILED(HttpStatus.BAD_REQUEST, "EVENT4006", "특정 날짜 일정 조회에 실패했습니다."),
 
 	// ===== 파일 관련 에러 (FILE) =====
 	FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "FILE4041", "파일을 찾을 수 없습니다."),

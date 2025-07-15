@@ -1,5 +1,7 @@
 package com.indayvidual.server.domain.calendar.service;
 
+import com.indayvidual.server.domain.calendar.converter.EventConverter;
+import com.indayvidual.server.domain.calendar.dto.response.GetDayEventResponseDto;
 import com.indayvidual.server.domain.calendar.dto.response.GetMonthlyCalendarResponseDto;
 import com.indayvidual.server.domain.calendar.entity.Event;
 import com.indayvidual.server.domain.calendar.repository.EventRepository;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 public class EventQueryServiceImpl implements EventQueryService {
 
     private final EventRepository eventRepository;
+    private final EventConverter eventConverter;
 
     @Override
     public Event findByIdAndUserId(Long eventId, Long userId) {
@@ -56,5 +59,14 @@ public class EventQueryServiceImpl implements EventQueryService {
             currentDate = currentDate.plusDays(1);
         }
         return result;
+    }
+
+    @Override
+    public List<GetDayEventResponseDto> getDayEvents(LocalDate date, Long userId) {
+        List<Event> events = eventRepository.findByUserIdAndEventDateOrderByStartTimeAsc(userId, date);
+
+        return events.stream()
+                .map(eventConverter::toGetDayEventResponse)
+                .collect(Collectors.toList());
     }
 }

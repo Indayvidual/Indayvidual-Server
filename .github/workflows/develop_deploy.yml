@@ -2,7 +2,9 @@ name: Indayvidual Develop CI/CD
 
 on:
   pull_request:
-    types: [closed]
+    branches:
+      - develop
+    types: [ closed ]
   workflow_dispatch: # (2).수동 실행도 가능하도록
 
 jobs:

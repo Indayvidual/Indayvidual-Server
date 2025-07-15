@@ -1,7 +1,11 @@
 package com.indayvidual.server.domain.calendar.controller;
 
+import java.time.LocalDate;
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,9 +31,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.time.LocalDate;
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/calendar/events")
 @RequiredArgsConstructor
@@ -38,7 +39,7 @@ public class CalendarEventController {
 
 	private final EventCommandService eventCommandService;
 	private final EventConverter eventConverter;
-    private final EventQueryService eventQueryService;
+	private final EventQueryService eventQueryService;
 
 	@PostMapping
 	public ResponseEntity<ApiResponse<CreateEventResponseDto>> createEvent(
@@ -112,65 +113,65 @@ public class CalendarEventController {
 		} catch (Exception e) {
 			log.error("일정 삭제 실패", e);
 
-            ApiResponse<Void> apiResponse = ApiResponse.onFailure(
-                    ErrorStatus.EVENT_DELETE_FAILED.getCode(),
-                    ErrorStatus.EVENT_DELETE_FAILED.getMessage() + ": " + e.getMessage(),
-                    null
-            );
-            return ResponseEntity.badRequest().body(apiResponse);
-        }
-    }
+			ApiResponse<Void> apiResponse = ApiResponse.onFailure(
+				ErrorStatus.EVENT_DELETE_FAILED.getCode(),
+				ErrorStatus.EVENT_DELETE_FAILED.getMessage() + ": " + e.getMessage(),
+				null
+			);
+			return ResponseEntity.badRequest().body(apiResponse);
+		}
+	}
 
-    @GetMapping("/{year}/{month}")
-    public ResponseEntity<ApiResponse<List<GetMonthlyCalendarResponseDto>>> getMonthlyCalendar(
-            @PathVariable int year,
-            @PathVariable int month) {
+	@GetMapping("/{year}/{month}")
+	public ResponseEntity<ApiResponse<List<GetMonthlyCalendarResponseDto>>> getMonthlyCalendar(
+		@PathVariable int year,
+		@PathVariable int month) {
 
-        Long userId = 1L; // TODO: JWT에서 사용자 ID 추출
+		Long userId = 1L; // TODO: JWT에서 사용자 ID 추출
 
-        try {
-            List<GetMonthlyCalendarResponseDto> calendar = eventQueryService.getMonthlyCalendar(year, month, userId);
+		try {
+			List<GetMonthlyCalendarResponseDto> calendar = eventQueryService.getMonthlyCalendar(year, month, userId);
 
-            return ResponseEntity.ok(ApiResponse.onSuccess(
-                    calendar,
-                    SuccessStatus.GET_CALENDAR_SUCCESS.getCode(),
-                    SuccessStatus.GET_CALENDAR_SUCCESS.getMessage())
-            );
-        } catch (Exception e) {
-            log.error("월별 캘린더 조회 실패", e);
+			return ResponseEntity.ok(ApiResponse.onSuccess(
+				calendar,
+				SuccessStatus.GET_CALENDAR_SUCCESS.getCode(),
+				SuccessStatus.GET_CALENDAR_SUCCESS.getMessage())
+			);
+		} catch (Exception e) {
+			log.error("월별 캘린더 조회 실패", e);
 
-            ApiResponse<List<GetMonthlyCalendarResponseDto>> apiResponse = ApiResponse.onFailure(
-                    ErrorStatus.CALENDAR_FETCH_FAILED.getCode(),
-                    ErrorStatus.CALENDAR_FETCH_FAILED.getMessage() + ": " + e.getMessage(),
-                    null
-            );
-            return ResponseEntity.badRequest().body(apiResponse);
-        }
-    }
+			ApiResponse<List<GetMonthlyCalendarResponseDto>> apiResponse = ApiResponse.onFailure(
+				ErrorStatus.CALENDAR_FETCH_FAILED.getCode(),
+				ErrorStatus.CALENDAR_FETCH_FAILED.getMessage() + ": " + e.getMessage(),
+				null
+			);
+			return ResponseEntity.badRequest().body(apiResponse);
+		}
+	}
 
-    @GetMapping("/events/{date}")
-    public ResponseEntity<ApiResponse<List<GetDayEventResponseDto>>>  getDayEvents(@PathVariable String date) {
+	@GetMapping("/events/{date}")
+	public ResponseEntity<ApiResponse<List<GetDayEventResponseDto>>> getDayEvents(@PathVariable String date) {
 
-        Long userId = 1L; // TODO: JWT에서 사용자 ID 추출
+		Long userId = 1L; // TODO: JWT에서 사용자 ID 추출
 
-        try {
-            LocalDate eventDate = LocalDate.parse(date);
-            List<GetDayEventResponseDto> events = eventQueryService.getDayEvents(eventDate, userId);
+		try {
+			LocalDate eventDate = LocalDate.parse(date);
+			List<GetDayEventResponseDto> events = eventQueryService.getDayEvents(eventDate, userId);
 
-            return ResponseEntity.ok(
-                    ApiResponse.onSuccess(events,
-                            SuccessStatus.GET_DAY_EVENTS_SUCCESS.getCode(),
-                            SuccessStatus.GET_DAY_EVENTS_SUCCESS.getMessage())
-            );
-        } catch (Exception e) {
-            log.error("특정 날짜 일정 조회 실패", e);
+			return ResponseEntity.ok(
+				ApiResponse.onSuccess(events,
+					SuccessStatus.GET_DAY_EVENTS_SUCCESS.getCode(),
+					SuccessStatus.GET_DAY_EVENTS_SUCCESS.getMessage())
+			);
+		} catch (Exception e) {
+			log.error("특정 날짜 일정 조회 실패", e);
 
-            ApiResponse<List<GetDayEventResponseDto>> apiResponse = ApiResponse.onFailure(
-                    ErrorStatus.EVENT_GET_BY_DATE_FAILED.getCode(),
-                    ErrorStatus.EVENT_GET_BY_DATE_FAILED.getMessage() + ": " + e.getMessage(),
-                    null
-            );
-            return ResponseEntity.badRequest().body(apiResponse);
-        }
-    }
+			ApiResponse<List<GetDayEventResponseDto>> apiResponse = ApiResponse.onFailure(
+				ErrorStatus.EVENT_GET_BY_DATE_FAILED.getCode(),
+				ErrorStatus.EVENT_GET_BY_DATE_FAILED.getMessage() + ": " + e.getMessage(),
+				null
+			);
+			return ResponseEntity.badRequest().body(apiResponse);
+		}
+	}
 }

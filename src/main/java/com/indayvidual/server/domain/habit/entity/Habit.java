@@ -1,5 +1,7 @@
 package com.indayvidual.server.domain.habit.entity;
 
+import java.time.LocalDateTime;
+
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -43,6 +45,12 @@ public class Habit extends BaseEntity {
 	private String title; // 습관 이름
 
 	private String colorCode; // 색상 코드
+
+	@Builder.Default
+	private Boolean isChecked;
+
+	@Builder.Default
+	private LocalDateTime checkedAt = LocalDateTime.now();
 
 	public static Habit createHabit(User user, String title, String colorCode) {
 		Habit habit = Habit.builder()

@@ -3,7 +3,7 @@ package com.indayvidual.server.domain.habit.service.command;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.indayvidual.server.domain.habit.dto.CreateHabitRequestDTO;
+import com.indayvidual.server.domain.habit.dto.request.CreateHabitRequestDTO;
 import com.indayvidual.server.domain.habit.entity.Habit;
 import com.indayvidual.server.domain.habit.repository.HabitRepository;
 import com.indayvidual.server.domain.user.entity.User;

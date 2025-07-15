@@ -1,10 +1,8 @@
-package com.indayvidual.server.domain.memo.dto.request;
+package com.indayvidual.server.domain.memo.dto.response;
 
 import java.util.List;
 
 import org.springframework.data.domain.Slice;
-
-import com.indayvidual.server.domain.memo.dto.response.MemoSummaryResponseDTO;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;

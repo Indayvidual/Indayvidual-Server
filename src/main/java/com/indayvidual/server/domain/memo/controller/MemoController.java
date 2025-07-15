@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.indayvidual.server.domain.memo.dto.request.CreateMemoRequestDTO;
-import com.indayvidual.server.domain.memo.dto.request.MemoSliceResponseDTO;
 import com.indayvidual.server.domain.memo.dto.response.MemoDetailResponseDTO;
+import com.indayvidual.server.domain.memo.dto.response.MemoSliceResponseDTO;
 import com.indayvidual.server.domain.memo.service.command.MemoCommandService;
 import com.indayvidual.server.domain.memo.service.query.MemoQueryService;
 import com.indayvidual.server.global.api.response.ApiResponse;

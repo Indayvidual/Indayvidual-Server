@@ -1,6 +1,6 @@
 package com.indayvidual.server.domain.habit.service.command;
 
-import com.indayvidual.server.domain.habit.dto.CreateHabitRequestDTO;
+import com.indayvidual.server.domain.habit.dto.request.CreateHabitRequestDTO;
 
 public interface HabitCommandService {
 

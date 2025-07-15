@@ -6,8 +6,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.indayvidual.server.domain.memo.dto.request.MemoSliceResponseDTO;
 import com.indayvidual.server.domain.memo.dto.response.MemoDetailResponseDTO;
+import com.indayvidual.server.domain.memo.dto.response.MemoSliceResponseDTO;
 import com.indayvidual.server.domain.memo.dto.response.MemoSummaryResponseDTO;
 import com.indayvidual.server.domain.memo.entity.Memo;
 import com.indayvidual.server.domain.memo.exception.MemoException;
@@ -16,6 +16,7 @@ import com.indayvidual.server.domain.user.entity.User;
 import com.indayvidual.server.domain.user.exception.UserException;
 import com.indayvidual.server.domain.user.repository.UserRepository;
 import com.indayvidual.server.global.api.code.status.ErrorStatus;
+import com.indayvidual.server.global.util.Utils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,8 +27,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class MemoQueryServiceImpl implements MemoQueryService {
 
-	private static final int DEFAULT_PAGE_SIZE = 20;
-	private static final int MAX_PAGE_SIZE = 100;
 	private final MemoRepository memoRepository;
 	private final UserRepository userRepository;
 
@@ -35,7 +34,7 @@ public class MemoQueryServiceImpl implements MemoQueryService {
 	public MemoSliceResponseDTO getMemosWithSlice(Long userId, Integer page, Integer size) {
 
 		int pageNumber = (page != null && page >= 0) ? page : 0;
-		int pageSize = validatePageSize(size);
+		int pageSize = Utils.validatePageSize(size);
 
 		PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
 		Slice<Memo> memos = memoRepository.findByUserIdOrderByCreatedAtDescIdDesc(userId, pageRequest);
@@ -59,13 +58,4 @@ public class MemoQueryServiceImpl implements MemoQueryService {
 		return MemoDetailResponseDTO.from(memo);
 	}
 
-	private int validatePageSize(Integer size) {
-		if (size == null)
-			return DEFAULT_PAGE_SIZE;
-		if (size <= 0)
-			return DEFAULT_PAGE_SIZE;
-		if (size > MAX_PAGE_SIZE)
-			return MAX_PAGE_SIZE;
-		return size;
-	}
 }

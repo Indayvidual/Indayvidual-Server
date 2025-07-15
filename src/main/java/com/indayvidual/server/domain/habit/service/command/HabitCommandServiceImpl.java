@@ -28,8 +28,7 @@ public class HabitCommandServiceImpl implements HabitCommandService {
 
 	@Override
 	public HabitResponseDTO createHabit(Long userId, CreateHabitRequestDTO request) {
-		User currentUser = userRepository.findById(userId)
-			.orElseThrow(() -> new UserException(ErrorStatus.USER_NOT_FOUND));
+		User currentUser = getCurrentUser(userId);
 
 		Habit habit = Habit.createHabit(currentUser, request.getTitle(), request.getColorCode());
 
@@ -41,28 +40,19 @@ public class HabitCommandServiceImpl implements HabitCommandService {
 
 	@Override
 	public HabitResponseDTO updateHabit(Long userId, Long habitId, UpdateHabitRequestDTO request) {
-		User currentUser = userRepository.findById(userId)
-			.orElseThrow(() -> new UserException(ErrorStatus.USER_NOT_FOUND));
+		User currentUser = getCurrentUser(userId);
 
 		Habit habit = habitRepository.findById(habitId)
 			.orElseThrow(() -> new HabitException(ErrorStatus.HABIT_NOT_FOUND));
 
-		// 소유권 확인
-		if (!habit.getUser().equals(currentUser)) {
-			throw new HabitException(ErrorStatus.HABIT_OWNER_MISMATCH);
-		}
-
-		// JPA 더티 체킹
-		habit.updateTitle(request.getTitle());
-		habit.updateColorCode(request.getColorCode());
+		habit.updateHabit(currentUser, request.getTitle(), request.getColorCode());
 
 		return HabitResponseDTO.from(habit);
 	}
 
 	@Override
 	public Void deleteHabit(Long userId, Long habitId) {
-		User currentUser = userRepository.findById(userId)
-			.orElseThrow(() -> new UserException(ErrorStatus.USER_NOT_FOUND));
+		User currentUser = getCurrentUser(userId);
 
 		Habit habit = habitRepository.findById(habitId)
 			.orElseThrow(() -> new HabitException(ErrorStatus.HABIT_NOT_FOUND));
@@ -74,5 +64,10 @@ public class HabitCommandServiceImpl implements HabitCommandService {
 		habitRepository.delete(habit);
 
 		return null;
+	}
+
+	private User getCurrentUser(Long userId) {
+		return userRepository.findById(userId)
+			.orElseThrow(() -> new UserException(ErrorStatus.USER_NOT_FOUND));
 	}
 }

@@ -6,7 +6,9 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import com.indayvidual.server.common.BaseEntity;
+import com.indayvidual.server.domain.habit.exception.HabitException;
 import com.indayvidual.server.domain.user.entity.User;
+import com.indayvidual.server.global.api.code.status.ErrorStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -52,6 +54,7 @@ public class Habit extends BaseEntity {
 	@Builder.Default
 	private LocalDateTime checkedAt = LocalDateTime.now();
 
+	//== 정정 팩토리 메서드 ==//
 	public static Habit createHabit(User user, String title, String colorCode) {
 		Habit habit = Habit.builder()
 			.user(user)
@@ -79,4 +82,24 @@ public class Habit extends BaseEntity {
 		this.checkedAt = LocalDateTime.now();
 	}
 
+	//== 소유자 확인 메서드 ==//
+	public boolean isOwnerBy(User user) {
+		return this.user.equals(user);
+	}
+
+	public void ensureOwnership(User user) {
+		if (!isOwnerBy(user)) {
+			throw new HabitException(ErrorStatus.HABIT_OWNER_MISMATCH);
+		}
+	}
+
+	//== 비즈니스 메서드 ==//
+	public void updateHabit(User user, String title, String colorCode) {
+		ensureOwnership(user);
+
+		// 이미 title과 colorCode는 검증이 끝남 -> dto
+		updateTitle(title);
+		updateColorCode(colorCode);
+
+	}
 }

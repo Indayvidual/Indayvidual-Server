@@ -44,8 +44,8 @@ public class CalendarEventController {
             log.error("일정 등록 실패", e);
             return ResponseEntity.badRequest().body(
                     ApiResponse.onFailure(
-                            ErrorStatus.CREATE_EVENT_FAILED.getCode(),
-                            ErrorStatus.CREATE_EVENT_FAILED.getMessage() + ": " + e.getMessage(),
+                            ErrorStatus.EVENT_CREATE_FAILED.getCode(),
+                            ErrorStatus.EVENT_CREATE_FAILED.getMessage() + ": " + e.getMessage(),
                             null)
             );
         }
@@ -72,8 +72,8 @@ public class CalendarEventController {
         } catch (Exception e) {
             log.error("일정 수정 실패", e);
             ApiResponse<UpdateEventResponseDto> apiResponse = ApiResponse.onFailure(
-                    ErrorStatus.UPDATE_EVENT_FAILED.getCode(),
-                    ErrorStatus.UPDATE_EVENT_FAILED.getMessage() + ": " + e.getMessage(),
+                    ErrorStatus.EVENT_UPDATE_FAILED.getCode(),
+                    ErrorStatus.EVENT_UPDATE_FAILED.getMessage() + ": " + e.getMessage(),
                     null
             );
             return ResponseEntity.badRequest().body(apiResponse);
@@ -98,8 +98,8 @@ public class CalendarEventController {
             log.error("일정 삭제 실패", e);
 
             ApiResponse<Void> apiResponse = ApiResponse.onFailure(
-                    ErrorStatus.DELETE_EVENT_FAILED.getCode(),
-                    ErrorStatus.DELETE_EVENT_FAILED.getMessage() + ": " + e.getMessage(),
+                    ErrorStatus.EVENT_DELETE_FAILED.getCode(),
+                    ErrorStatus.EVENT_DELETE_FAILED.getMessage() + ": " + e.getMessage(),
                     null
             );
             return ResponseEntity.badRequest().body(apiResponse);

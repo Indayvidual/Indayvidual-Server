@@ -23,6 +23,9 @@ public enum SuccessStatus implements BaseCode {
     // 캘린더 관련 응답
     GET_CALENDAR_SUCCESS(HttpStatus.OK, "GET_CALENDAR_SUCCESS", "월별 캘린더 조회 성공"),
     GET_DAY_EVENTS_SUCCESS(HttpStatus.OK, "GET_DAY_EVENTS_SUCCESS", "특정 날짜 일정 조회 성공"),
+
+    // 시간표 관련 응답
+    CREATE_TIMETABLE_SUCCESS(HttpStatus.OK, "CREATE_TIMETABLE_SUCCESS", "시간표 등록 성공"),
     ;
 
     private final HttpStatus httpStatus;

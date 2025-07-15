@@ -179,11 +179,6 @@ public class MemoController {
 		@Parameter(hidden = true)
 		@AuthenticationPrincipal UserAuthentication userAuthentication,
 
-		@io.swagger.v3.oas.annotations.parameters.RequestBody(
-			description = "메모 생성 요청 데이터",
-			required = true,
-			content = @Content(schema = @Schema(implementation = CreateMemoRequestDTO.class))
-		)
 		@RequestBody CreateMemoRequestDTO request
 	) {
 		Long userId = Long.valueOf((String)userAuthentication.getPrincipal());

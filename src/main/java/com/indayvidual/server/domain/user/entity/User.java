@@ -7,11 +7,11 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import com.indayvidual.server.common.BaseEntity;
+import com.indayvidual.server.domain.habit.entity.Habit;
 import com.indayvidual.server.domain.memo.entity.Memo;
 import com.indayvidual.server.domain.user.entity.enums.Provider;
 import com.indayvidual.server.domain.user.entity.enums.Role;
 import com.indayvidual.server.domain.user.entity.enums.Status;
-import com.indayvidual.server.domain.userhabitlog.entity.UserHabitLog;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -51,7 +51,7 @@ public class User extends BaseEntity {
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	@Builder.Default
-	private List<UserHabitLog> userHabitLogs = new ArrayList<>();
+	private List<Habit> habits = new ArrayList<>();
 
 	private String email;
 	private String password;

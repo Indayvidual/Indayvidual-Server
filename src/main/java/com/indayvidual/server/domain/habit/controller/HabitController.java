@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.indayvidual.server.domain.habit.dto.request.CreateHabitRequestDTO;
+import com.indayvidual.server.domain.habit.dto.response.HabitResponseDTO;
 import com.indayvidual.server.domain.habit.dto.response.HabitSliceResponseDTO;
 import com.indayvidual.server.domain.habit.service.command.HabitCommandService;
 import com.indayvidual.server.domain.habit.service.query.HabitQueryService;
@@ -43,7 +44,7 @@ public class HabitController {
 	}
 
 	@PostMapping
-	public ApiResponse<Void> createHabit(
+	public ApiResponse<HabitResponseDTO> createHabit(
 		@AuthenticationPrincipal UserAuthentication userAuthentication,
 
 		@RequestBody CreateHabitRequestDTO request

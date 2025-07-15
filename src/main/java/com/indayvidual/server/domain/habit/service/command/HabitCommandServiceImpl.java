@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.indayvidual.server.domain.habit.dto.request.CreateHabitRequestDTO;
+import com.indayvidual.server.domain.habit.dto.response.HabitResponseDTO;
 import com.indayvidual.server.domain.habit.entity.Habit;
 import com.indayvidual.server.domain.habit.repository.HabitRepository;
 import com.indayvidual.server.domain.user.entity.User;
@@ -24,7 +25,7 @@ public class HabitCommandServiceImpl implements HabitCommandService {
 	private final HabitRepository habitRepository;
 
 	@Override
-	public Void createHabit(Long userId, CreateHabitRequestDTO request) {
+	public HabitResponseDTO createHabit(Long userId, CreateHabitRequestDTO request) {
 		User currentUser = userRepository.findById(userId)
 			.orElseThrow(() -> new UserException(ErrorStatus.USER_NOT_FOUND));
 
@@ -32,7 +33,7 @@ public class HabitCommandServiceImpl implements HabitCommandService {
 
 		habitRepository.save(habit);
 
-		return null;
+		return HabitResponseDTO.from(habit);
 
 	}
 }

@@ -47,7 +47,7 @@ public class Habit extends BaseEntity {
 	private String colorCode; // 색상 코드
 
 	@Builder.Default
-	private Boolean isChecked;
+	private Boolean isChecked = false;
 
 	@Builder.Default
 	private LocalDateTime checkedAt = LocalDateTime.now();

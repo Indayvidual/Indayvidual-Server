@@ -4,8 +4,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.indayvidual.server.domain.habit.dto.request.CreateHabitRequestDTO;
+import com.indayvidual.server.domain.habit.dto.request.UpdateHabitRequestDTO;
 import com.indayvidual.server.domain.habit.dto.response.HabitResponseDTO;
 import com.indayvidual.server.domain.habit.entity.Habit;
+import com.indayvidual.server.domain.habit.exception.HabitException;
 import com.indayvidual.server.domain.habit.repository.HabitRepository;
 import com.indayvidual.server.domain.user.entity.User;
 import com.indayvidual.server.domain.user.exception.UserException;
@@ -29,11 +31,31 @@ public class HabitCommandServiceImpl implements HabitCommandService {
 		User currentUser = userRepository.findById(userId)
 			.orElseThrow(() -> new UserException(ErrorStatus.USER_NOT_FOUND));
 
-		Habit habit = Habit.createHabit(currentUser, request.getTitle(), request.getColor());
+		Habit habit = Habit.createHabit(currentUser, request.getTitle(), request.getColorCode());
 
 		habitRepository.save(habit);
 
 		return HabitResponseDTO.from(habit);
 
+	}
+
+	@Override
+	public HabitResponseDTO updateHabit(Long userId, Long habitId, UpdateHabitRequestDTO request) {
+		User currentUser = userRepository.findById(userId)
+			.orElseThrow(() -> new UserException(ErrorStatus.USER_NOT_FOUND));
+
+		Habit habit = habitRepository.findById(habitId)
+			.orElseThrow(() -> new HabitException(ErrorStatus.HABIT_NOT_FOUND));
+
+		// 소유권 확인
+		if (!habit.getUser().equals(currentUser)) {
+			throw new HabitException(ErrorStatus.HABIT_OWNER_MISMATCH);
+		}
+
+		// JPA 더티 체킹
+		habit.updateTitle(request.getTitle());
+		habit.updateColorCode(request.getColorCode());
+
+		return HabitResponseDTO.from(habit);
 	}
 }

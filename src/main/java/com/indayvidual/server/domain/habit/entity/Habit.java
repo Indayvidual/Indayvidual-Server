@@ -65,4 +65,18 @@ public class Habit extends BaseEntity {
 
 	}
 
+	//== 수정 메서드 ==//
+	public void updateTitle(String title) {
+		this.title = title;
+	}
+
+	public void updateColorCode(String colorCode) {
+		this.colorCode = colorCode;
+	}
+
+	public void updateChecked(Boolean isChecked) {
+		this.isChecked = isChecked;
+		this.checkedAt = LocalDateTime.now();
+	}
+
 }

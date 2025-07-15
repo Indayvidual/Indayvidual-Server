@@ -16,15 +16,15 @@ public class HabitResponseDTO {
 
 	private String title;
 
-	private boolean isChecked;
-
 	private String colorCode;
+
+	private boolean isChecked;
 
 	public static HabitResponseDTO from(Habit habit) {
 		return HabitResponseDTO.builder()
 			.title(habit.getTitle())
-			.isChecked(habit.getIsChecked())
 			.colorCode(habit.getColorCode())
+			.isChecked(habit.getIsChecked())
 			.build();
 	}
 

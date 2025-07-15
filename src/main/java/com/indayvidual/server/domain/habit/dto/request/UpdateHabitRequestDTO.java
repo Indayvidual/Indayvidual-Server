@@ -6,10 +6,10 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter
-@Schema(description = "습관 생성 요청 DTO")
-public class CreateHabitRequestDTO {
+@Schema(name = "습관 수정 요청 DTO")
+public class UpdateHabitRequestDTO {
 
-	@Schema(description = "습관 이름", example = "7시간 수면")
+	@Schema(description = "습관 이름", example = "습관1")
 	@NotBlank(message = "습관 이름을 입력해야합니다.")
 	private String title;
 

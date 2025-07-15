@@ -177,6 +177,93 @@ public enum ErrorStatus implements BaseErrorCode {
 	MEMO_SHARE_CREATE_FAILED(HttpStatus.BAD_REQUEST, "MEMO4029", "메모 공유 생성에 실패했습니다."),
 	MEMO_SHARE_DELETE_FAILED(HttpStatus.BAD_REQUEST, "MEMO4030", "메모 공유 삭제에 실패했습니다."),
 
+	// ===== 습관 관련 에러 (HABIT) =====
+	// 기본 CRUD 작업
+	HABIT_NOT_FOUND(HttpStatus.NOT_FOUND, "HABIT4041", "습관을 찾을 수 없습니다."),
+	HABIT_CREATE_FAILED(HttpStatus.BAD_REQUEST, "HABIT4001", "습관 생성에 실패했습니다."),
+	HABIT_UPDATE_FAILED(HttpStatus.BAD_REQUEST, "HABIT4002", "습관 수정에 실패했습니다."),
+	HABIT_DELETE_FAILED(HttpStatus.BAD_REQUEST, "HABIT4003", "습관 삭제에 실패했습니다."),
+	HABIT_LIST_FETCH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "HABIT5001", "습관 목록 조회에 실패했습니다."),
+
+	// 권한 관련
+	HABIT_ACCESS_DENIED(HttpStatus.FORBIDDEN, "HABIT4031", "습관에 접근할 권한이 없습니다."),
+	HABIT_OWNER_MISMATCH(HttpStatus.FORBIDDEN, "HABIT4032", "습관 소유자가 아닙니다."),
+	HABIT_MODIFICATION_DENIED(HttpStatus.FORBIDDEN, "HABIT4033", "습관을 수정할 권한이 없습니다."),
+	HABIT_DELETION_DENIED(HttpStatus.FORBIDDEN, "HABIT4034", "습관을 삭제할 권한이 없습니다."),
+
+	// 내용 검증 관련
+	HABIT_TITLE_EMPTY(HttpStatus.BAD_REQUEST, "HABIT4004", "습관 이름이 비어있습니다."),
+	HABIT_TITLE_TOO_LONG(HttpStatus.BAD_REQUEST, "HABIT4005", "습관 이름이 너무 깁니다."),
+	HABIT_INVALID_COLOR_CODE(HttpStatus.BAD_REQUEST, "HABIT4006", "유효하지 않은 색상 코드입니다."),
+	HABIT_INVALID_FORMAT(HttpStatus.BAD_REQUEST, "HABIT4007", "습관 형식이 올바르지 않습니다."),
+
+	// 비즈니스 로직 관련
+	HABIT_DUPLICATE_TITLE(HttpStatus.CONFLICT, "HABIT4091", "동일한 이름의 습관이 이미 존재합니다."),
+	HABIT_COUNT_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "HABIT4008", "습관 개수 제한을 초과했습니다."),
+	HABIT_ALREADY_ASSIGNED(HttpStatus.CONFLICT, "HABIT4092", "이미 등록된 습관입니다."),
+	HABIT_NOT_ASSIGNED(HttpStatus.BAD_REQUEST, "HABIT4009", "등록되지 않은 습관입니다."),
+	HABIT_ACTIVE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "HABIT4010", "활성 습관 개수 제한을 초과했습니다."),
+
+	// 습관 체크 관련 (UserHabitLog)
+	HABIT_LOG_NOT_FOUND(HttpStatus.NOT_FOUND, "HABIT4042", "습관 기록을 찾을 수 없습니다."),
+	HABIT_CHECK_FAILED(HttpStatus.BAD_REQUEST, "HABIT4011", "습관 체크에 실패했습니다."),
+	HABIT_UNCHECK_FAILED(HttpStatus.BAD_REQUEST, "HABIT4012", "습관 체크 해제에 실패했습니다."),
+	HABIT_ALREADY_CHECKED(HttpStatus.CONFLICT, "HABIT4093", "이미 체크된 습관입니다."),
+	HABIT_NOT_CHECKED(HttpStatus.BAD_REQUEST, "HABIT4013", "체크되지 않은 습관입니다."),
+	HABIT_CHECK_TIME_INVALID(HttpStatus.BAD_REQUEST, "HABIT4014", "유효하지 않은 체크 시간입니다."),
+	HABIT_FUTURE_CHECK_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "HABIT4015", "미래 날짜에는 습관을 체크할 수 없습니다."),
+	HABIT_PAST_CHECK_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "HABIT4016", "과거 날짜 체크 가능 기간을 초과했습니다."),
+
+	// 습관 통계/분석 관련
+	HABIT_STATISTICS_NOT_FOUND(HttpStatus.NOT_FOUND, "HABIT4043", "습관 통계를 찾을 수 없습니다."),
+	HABIT_STATISTICS_CALCULATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "HABIT5002", "습관 통계 계산에 실패했습니다."),
+	HABIT_STREAK_CALCULATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "HABIT5003", "연속 달성 계산에 실패했습니다."),
+	HABIT_INSUFFICIENT_DATA(HttpStatus.BAD_REQUEST, "HABIT4017", "통계 계산을 위한 데이터가 부족합니다."),
+
+	// 습관 카테고리/태그 관련
+	HABIT_CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "HABIT4044", "습관 카테고리를 찾을 수 없습니다."),
+	HABIT_CATEGORY_ALREADY_EXISTS(HttpStatus.CONFLICT, "HABIT4094", "이미 존재하는 카테고리입니다."),
+	HABIT_CATEGORY_IN_USE(HttpStatus.CONFLICT, "HABIT4095", "사용 중인 카테고리는 삭제할 수 없습니다."),
+	HABIT_TAG_NOT_FOUND(HttpStatus.NOT_FOUND, "HABIT4045", "습관 태그를 찾을 수 없습니다."),
+	HABIT_TAG_ALREADY_EXISTS(HttpStatus.CONFLICT, "HABIT4096", "이미 존재하는 태그입니다."),
+	HABIT_TOO_MANY_TAGS(HttpStatus.BAD_REQUEST, "HABIT4018", "태그 개수 제한을 초과했습니다."),
+
+	// 습관 알림/리마인더 관련
+	HABIT_REMINDER_NOT_FOUND(HttpStatus.NOT_FOUND, "HABIT4046", "습관 알림을 찾을 수 없습니다."),
+	HABIT_REMINDER_CREATE_FAILED(HttpStatus.BAD_REQUEST, "HABIT4019", "습관 알림 생성에 실패했습니다."),
+	HABIT_REMINDER_UPDATE_FAILED(HttpStatus.BAD_REQUEST, "HABIT4020", "습관 알림 수정에 실패했습니다."),
+	HABIT_REMINDER_DELETE_FAILED(HttpStatus.BAD_REQUEST, "HABIT4021", "습관 알림 삭제에 실패했습니다."),
+	HABIT_REMINDER_TIME_INVALID(HttpStatus.BAD_REQUEST, "HABIT4022", "유효하지 않은 알림 시간입니다."),
+	HABIT_REMINDER_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "HABIT4023", "알림 개수 제한을 초과했습니다."),
+
+	// 습관 공유/소셜 관련
+	HABIT_SHARE_NOT_ALLOWED(HttpStatus.FORBIDDEN, "HABIT4035", "습관 공유가 허용되지 않습니다."),
+	HABIT_ALREADY_SHARED(HttpStatus.CONFLICT, "HABIT4097", "이미 공유된 습관입니다."),
+	HABIT_NOT_SHARED(HttpStatus.BAD_REQUEST, "HABIT4024", "공유되지 않은 습관입니다."),
+	HABIT_SHARE_TOKEN_INVALID(HttpStatus.BAD_REQUEST, "HABIT4025", "유효하지 않은 공유 토큰입니다."),
+	HABIT_SHARE_TOKEN_EXPIRED(HttpStatus.BAD_REQUEST, "HABIT4026", "공유 토큰이 만료되었습니다."),
+
+	// 습관 목표/도전 관련
+	HABIT_GOAL_NOT_FOUND(HttpStatus.NOT_FOUND, "HABIT4047", "습관 목표를 찾을 수 없습니다."),
+	HABIT_GOAL_ALREADY_EXISTS(HttpStatus.CONFLICT, "HABIT4098", "이미 설정된 목표가 있습니다."),
+	HABIT_GOAL_INVALID_PERIOD(HttpStatus.BAD_REQUEST, "HABIT4027", "유효하지 않은 목표 기간입니다."),
+	HABIT_GOAL_INVALID_TARGET(HttpStatus.BAD_REQUEST, "HABIT4028", "유효하지 않은 목표 수치입니다."),
+	HABIT_CHALLENGE_NOT_FOUND(HttpStatus.NOT_FOUND, "HABIT4048", "습관 도전을 찾을 수 없습니다."),
+	HABIT_CHALLENGE_ALREADY_JOINED(HttpStatus.CONFLICT, "HABIT4099", "이미 참여 중인 도전입니다."),
+	HABIT_CHALLENGE_FULL(HttpStatus.BAD_REQUEST, "HABIT4029", "도전 참여 인원이 가득 찼습니다."),
+	HABIT_CHALLENGE_ENDED(HttpStatus.BAD_REQUEST, "HABIT4030", "종료된 도전입니다."),
+
+	// 습관 템플릿 관련
+	HABIT_TEMPLATE_NOT_FOUND(HttpStatus.NOT_FOUND, "HABIT4049", "습관 템플릿을 찾을 수 없습니다."),
+	HABIT_TEMPLATE_CREATE_FAILED(HttpStatus.BAD_REQUEST, "HABIT4031", "습관 템플릿 생성에 실패했습니다."),
+	HABIT_TEMPLATE_APPLY_FAILED(HttpStatus.BAD_REQUEST, "HABIT4032", "습관 템플릿 적용에 실패했습니다."),
+	HABIT_TEMPLATE_INVALID(HttpStatus.BAD_REQUEST, "HABIT4033", "유효하지 않은 습관 템플릿입니다."),
+
+	// 습관 데이터 동기화 관련
+	HABIT_SYNC_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "HABIT5004", "습관 데이터 동기화에 실패했습니다."),
+	HABIT_SYNC_CONFLICT(HttpStatus.CONFLICT, "HABIT4100", "습관 데이터 동기화 충돌이 발생했습니다."),
+	HABIT_SYNC_IN_PROGRESS(HttpStatus.CONFLICT, "HABIT4101", "습관 데이터 동기화가 진행 중입니다."),
+
 	// ===== 레이트 리미팅 관련 에러 (RATE_LIMIT) =====
 	RATE_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "RATE4291", "요청 한도를 초과했습니다."),
 	RATE_LIMIT_USER_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "RATE4292", "사용자별 요청 한도를 초과했습니다."),

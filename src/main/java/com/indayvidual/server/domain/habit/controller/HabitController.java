@@ -2,6 +2,8 @@ package com.indayvidual.server.domain.habit.controller;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.indayvidual.server.domain.habit.dto.request.CreateHabitRequestDTO;
+import com.indayvidual.server.domain.habit.dto.request.UpdateHabitRequestDTO;
 import com.indayvidual.server.domain.habit.dto.response.HabitResponseDTO;
 import com.indayvidual.server.domain.habit.dto.response.HabitSliceResponseDTO;
 import com.indayvidual.server.domain.habit.service.command.HabitCommandService;
@@ -26,8 +29,8 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = "Habit", description = "습관 관리 API")
 public class HabitController {
 
-	private HabitQueryService habitQueryService;
-	private HabitCommandService habitCommandService;
+	private final HabitQueryService habitQueryService;
+	private final HabitCommandService habitCommandService;
 
 	@GetMapping
 	public ApiResponse<HabitSliceResponseDTO> getHabits(
@@ -52,6 +55,19 @@ public class HabitController {
 	) {
 		Long userId = Long.valueOf((String)userAuthentication.getPrincipal());
 		return ApiResponse.onSuccess(habitCommandService.createHabit(userId, request));
+	}
+
+	@PatchMapping("/{habitId}")
+	public ApiResponse<HabitResponseDTO> updateHabit(
+		@AuthenticationPrincipal UserAuthentication userAuthentication,
+
+		@Parameter(description = "습관 ID", required = true, example = "1")
+		@PathVariable Long habitId,
+
+		@RequestBody UpdateHabitRequestDTO request
+	) {
+		Long userId = Long.valueOf((String)userAuthentication.getPrincipal());
+		return ApiResponse.onSuccess(habitCommandService.updateHabit(userId, habitId, request));
 	}
 
 }

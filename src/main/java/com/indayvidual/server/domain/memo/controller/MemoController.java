@@ -106,7 +106,7 @@ public class MemoController {
 		@AuthenticationPrincipal UserAuthentication userAuthentication,
 
 		@Parameter(description = "메모 ID", required = true, example = "1")
-		@PathVariable(required = true) Long memoId
+		@PathVariable Long memoId
 	) {
 		Long userId = Long.valueOf((String)userAuthentication.getPrincipal());
 		return ApiResponse.onSuccess(memoQueryService.getMemoDetail(userId, memoId));
@@ -145,7 +145,7 @@ public class MemoController {
 		@AuthenticationPrincipal UserAuthentication userAuthentication,
 
 		@Parameter(description = "메모 ID", required = true, example = "1")
-		@PathVariable(required = true) Long memoId
+		@PathVariable Long memoId
 	) {
 		Long userId = Long.valueOf((String)userAuthentication.getPrincipal());
 		return ApiResponse.onSuccess(memoCommandService.deleteMemo(userId, memoId));

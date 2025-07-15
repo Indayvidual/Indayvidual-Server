@@ -58,6 +58,9 @@ public enum ErrorStatus implements BaseErrorCode {
 	USER_PASSWORD_CHANGE_FAILED(HttpStatus.BAD_REQUEST, "USER4002", "비밀번호 변경에 실패했습니다."),
 	USER_INVALID_PASSWORD_FORMAT(HttpStatus.BAD_REQUEST, "USER4003", "비밀번호 형식이 올바르지 않습니다."),
 
+	// ===== 캘린더 관련 에러 (CALENDAR) =====
+	CALENDAR_FETCH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "CAL5001", "월별 캘린더 정보 조회에 실패했습니다."),
+
 	// ===== 일정 관련 에러 (EVENT) =====
 	EVENT_NOT_FOUND(HttpStatus.NOT_FOUND, "EVENT4041", "일정을 찾을 수 없습니다."),
 	EVENT_ACCESS_DENIED(HttpStatus.FORBIDDEN, "EVENT4031", "일정에 접근할 권한이 없습니다."),

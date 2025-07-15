@@ -18,7 +18,10 @@ public enum SuccessStatus implements BaseCode {
     // 일정 관련 응답
     CREATE_EVENT_SUCCESS(HttpStatus.OK, "CREATE_EVENT_SUCCESS", "일정 등록 성공"),
     UPDATE_EVENT_SUCCESS(HttpStatus.OK, "UPDATE_EVENT_SUCCESS", "일정 수정 성공"),
-    DELETE_EVENT_SUCCESS(HttpStatus.OK, "DELETE_EVENT_SUCCESS", "일정 삭제 성공")
+    DELETE_EVENT_SUCCESS(HttpStatus.OK, "DELETE_EVENT_SUCCESS", "일정 삭제 성공"),
+
+    // 캘린더 관련 응답
+    GET_CALENDAR_SUCCESS(HttpStatus.OK, "GET_CALENDAR_SUCCESS", "월별 캘린더 조회 성공")
     ;
 
     private final HttpStatus httpStatus;

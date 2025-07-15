@@ -1,6 +1,7 @@
 package com.indayvidual.server.domain.timetable.dto.request;
 
 import com.indayvidual.server.domain.timetable.entity.enums.Semester;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

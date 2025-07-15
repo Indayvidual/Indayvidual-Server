@@ -10,5 +10,7 @@ import java.util.List;
 @Repository
 public interface TimetableRepository extends JpaRepository<Timetable, Long> {
 
+    List<Timetable> findByUserIdOrderByCreatedAtAsc(Long userId);
+
     boolean existsByUserIdAndSemester(Long userId, Semester semester);
 }

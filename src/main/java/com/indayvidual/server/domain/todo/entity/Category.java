@@ -1,8 +1,16 @@
 package com.indayvidual.server.domain.todo.entity;
 
 import com.indayvidual.server.common.BaseEntity;
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
@@ -23,4 +31,6 @@ public class Category extends BaseEntity {
 
     @Column(name = "color_code", nullable = false, length = 10)
     private String color;
+
+    //todo: builder 생성
 }

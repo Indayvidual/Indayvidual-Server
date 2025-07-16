@@ -5,9 +5,8 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class CategoryResponseDTO {
+public class TaskCheckUpdateResponseDTO {
 
-    private Long categoryId;
-    private String name;
-    private String color;
+    private Long taskId;
+    private Boolean isCompleted;
 }

@@ -2,9 +2,8 @@ package com.indayvidual.server.domain.todo.controller;
 
 import com.indayvidual.server.domain.todo.dto.request.CategoryCreateRequestDTO;
 import com.indayvidual.server.domain.todo.dto.response.CategoryResponseDTO;
-import com.indayvidual.server.domain.todo.service.CategoryCommandService;
-import com.indayvidual.server.domain.todo.service.CategoryQueryService;
-import com.indayvidual.server.domain.user.service.UserService.UserAuthService;
+import com.indayvidual.server.domain.todo.service.category.CategoryCommandService;
+import com.indayvidual.server.domain.todo.service.category.CategoryQueryService;
 import com.indayvidual.server.global.api.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,11 +20,11 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @RequestMapping("/api/todo/categories")
-public class TodoController {
+public class TodoCategoryController {
+    // todo: success status 추가
 
     private final CategoryCommandService categoryCommandService;
     private final CategoryQueryService categoryQueryService;
-    private final UserAuthService userAuthService;
 
     @Operation(summary = "카테고리 등록", description = "새로운 카테고리를 등록합니다.")
     @PostMapping("")

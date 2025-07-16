@@ -14,6 +14,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 import static com.indayvidual.server.global.config.security.JwtValidationType.VALID_JWT;
 
@@ -24,10 +25,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
 
+    private static final List<String> NO_AUTH_PATHS = List.of(
+            "/temp/health", "/swagger-ui", "/v3/api-docs", "/auth"
+    );
+
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
+
+        String path = request.getRequestURI();
+
+        if (NO_AUTH_PATHS.stream().anyMatch(path::startsWith)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         try {
             final String token = getJwtFromRequest(request);
 //            log.info("Extracted JWT: {}", token);

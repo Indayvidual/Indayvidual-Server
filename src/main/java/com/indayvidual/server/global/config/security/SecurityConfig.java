@@ -21,6 +21,7 @@ public class SecurityConfig {
             "/auth/**",
             "/auth/login/**",
             "/auth/kakao/login/**",
+            "/temp/health"
     };
 
     private static final String[] SWAGGER_WHITELIST = {

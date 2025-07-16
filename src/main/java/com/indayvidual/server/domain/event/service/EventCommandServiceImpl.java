@@ -1,10 +1,10 @@
-package com.indayvidual.server.domain.calendar.service;
+package com.indayvidual.server.domain.event.service;
 
-import com.indayvidual.server.domain.calendar.converter.EventConverter;
-import com.indayvidual.server.domain.calendar.dto.request.CreateEventRequestDto;
-import com.indayvidual.server.domain.calendar.dto.request.UpdateEventRequestDto;
-import com.indayvidual.server.domain.calendar.entity.Event;
-import com.indayvidual.server.domain.calendar.repository.EventRepository;
+import com.indayvidual.server.domain.event.converter.EventConverter;
+import com.indayvidual.server.domain.event.dto.request.CreateEventRequestDto;
+import com.indayvidual.server.domain.event.dto.request.UpdateEventRequestDto;
+import com.indayvidual.server.domain.event.entity.Event;
+import com.indayvidual.server.domain.event.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,4 +1,4 @@
-package com.indayvidual.server.domain.calendar.dto.response;
+package com.indayvidual.server.domain.event.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;

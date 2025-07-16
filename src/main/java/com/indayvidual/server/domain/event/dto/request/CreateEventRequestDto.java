@@ -1,4 +1,4 @@
-package com.indayvidual.server.domain.calendar.dto.request;
+package com.indayvidual.server.domain.event.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;

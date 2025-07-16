@@ -1,11 +1,11 @@
-package com.indayvidual.server.domain.calendar.converter;
+package com.indayvidual.server.domain.event.converter;
 
-import com.indayvidual.server.domain.calendar.dto.request.CreateEventRequestDto;
-import com.indayvidual.server.domain.calendar.dto.request.UpdateEventRequestDto;
-import com.indayvidual.server.domain.calendar.dto.response.CreateEventResponseDto;
+import com.indayvidual.server.domain.event.dto.request.CreateEventRequestDto;
+import com.indayvidual.server.domain.event.dto.request.UpdateEventRequestDto;
+import com.indayvidual.server.domain.event.dto.response.CreateEventResponseDto;
 import com.indayvidual.server.domain.calendar.dto.response.GetDayEventResponseDto;
-import com.indayvidual.server.domain.calendar.dto.response.UpdateEventResponseDto;
-import com.indayvidual.server.domain.calendar.entity.Event;
+import com.indayvidual.server.domain.event.dto.response.UpdateEventResponseDto;
+import com.indayvidual.server.domain.event.entity.Event;
 import org.springframework.stereotype.Component;
 
 import java.time.format.DateTimeFormatter;

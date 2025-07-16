@@ -1,15 +1,19 @@
 package com.indayvidual.server.domain.habit.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import com.indayvidual.server.common.BaseEntity;
 import com.indayvidual.server.domain.habit.exception.HabitException;
+import com.indayvidual.server.domain.habitlog.entity.HabitLog;
 import com.indayvidual.server.domain.user.entity.User;
 import com.indayvidual.server.global.api.code.status.ErrorStatus;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -18,6 +22,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -43,6 +48,10 @@ public class Habit extends BaseEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	private User user;
+
+	@OneToMany(mappedBy = "habit", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
+	private List<HabitLog> habitLogs = new ArrayList<>();
 
 	private String title; // 습관 이름
 

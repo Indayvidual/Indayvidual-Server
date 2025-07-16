@@ -205,4 +205,14 @@ public class HabitController {
 		Long userId = Long.valueOf((String)userAuthentication.getPrincipal());
 		return ApiResponse.onSuccess(habitCommandService.deleteHabit(userId, habitId));
 	}
+
+	@PatchMapping("/{habitId}/check")
+	public ApiResponse<HabitResponseDTO> toggleHabitCheck(
+		@AuthenticationPrincipal UserAuthentication userAuthentication,
+
+		@PathVariable Long habitId
+	) {
+		Long userId = Long.valueOf((String)userAuthentication.getPrincipal());
+		return ApiResponse.onSuccess(habitCommandService.toggleHabitCheck(userId, habitId));
+	}
 }

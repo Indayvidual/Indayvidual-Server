@@ -42,8 +42,7 @@ public class HabitCommandServiceImpl implements HabitCommandService {
 	public HabitResponseDTO updateHabit(Long userId, Long habitId, UpdateHabitRequestDTO request) {
 		User currentUser = getCurrentUser(userId);
 
-		Habit habit = habitRepository.findById(habitId)
-			.orElseThrow(() -> new HabitException(ErrorStatus.HABIT_NOT_FOUND));
+		Habit habit = getHabit(habitId);
 
 		habit.updateHabit(currentUser, request.getTitle(), request.getColorCode());
 
@@ -54,14 +53,30 @@ public class HabitCommandServiceImpl implements HabitCommandService {
 	public Void deleteHabit(Long userId, Long habitId) {
 		User currentUser = getCurrentUser(userId);
 
-		Habit habit = habitRepository.findById(habitId)
-			.orElseThrow(() -> new HabitException(ErrorStatus.HABIT_NOT_FOUND));
+		Habit habit = getHabit(habitId);
 
 		if (habit.canDeleteBy(currentUser)) {
 			habitRepository.delete(habit);
 		}
 
 		return null;
+	}
+
+	@Override
+	public HabitResponseDTO toggleHabitCheck(Long userId, Long habitId) {
+		User currentUser = getCurrentUser(userId);
+		Habit habit = getHabit(habitId);
+
+		habit.toggleCheck(currentUser);
+
+		return HabitResponseDTO.from(habit);
+
+	}
+
+	private Habit getHabit(Long habitId) {
+		Habit habit = habitRepository.findById(habitId)
+			.orElseThrow(() -> new HabitException(ErrorStatus.HABIT_NOT_FOUND));
+		return habit;
 	}
 
 	private User getCurrentUser(Long userId) {

@@ -110,4 +110,10 @@ public class Habit extends BaseEntity {
 
 		return true;
 	}
+
+	public void toggleCheck(User user) {
+		ensureOwnership(user);
+
+		isChecked = !isChecked;
+	}
 }

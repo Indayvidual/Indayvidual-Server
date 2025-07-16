@@ -11,4 +11,6 @@ public interface HabitCommandService {
 	HabitResponseDTO updateHabit(Long userId, Long habitId, UpdateHabitRequestDTO request);
 
 	Void deleteHabit(Long userId, Long habitId);
+
+	HabitResponseDTO toggleHabitCheck(Long userId, Long habitId);
 }

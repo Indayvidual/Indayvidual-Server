@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.indayvidual.server.domain.habit.dto.request.CreateHabitRequestDTO;
+import com.indayvidual.server.domain.habit.dto.request.ToggleCheckRequestDTO;
 import com.indayvidual.server.domain.habit.dto.request.UpdateHabitRequestDTO;
 import com.indayvidual.server.domain.habit.dto.response.HabitResponseDTO;
 import com.indayvidual.server.domain.habit.dto.response.HabitSliceResponseDTO;
@@ -207,12 +208,14 @@ public class HabitController {
 	}
 
 	@PatchMapping("/{habitId}/check")
-	public ApiResponse<HabitResponseDTO> toggleHabitCheck(
+	public ApiResponse<HabitResponseDTO> updateHabitCheck(
 		@AuthenticationPrincipal UserAuthentication userAuthentication,
 
-		@PathVariable Long habitId
+		@PathVariable Long habitId,
+
+		@RequestBody ToggleCheckRequestDTO request
 	) {
 		Long userId = Long.valueOf((String)userAuthentication.getPrincipal());
-		return ApiResponse.onSuccess(habitCommandService.toggleHabitCheck(userId, habitId));
+		return ApiResponse.onSuccess(habitCommandService.updateHabitCheck(userId, habitId, request));
 	}
 }

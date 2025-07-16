@@ -1,6 +1,6 @@
 package com.indayvidual.server.domain.habitlog.entity;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -45,7 +45,22 @@ public class HabitLog extends BaseEntity {
 	@Builder.Default
 	private Boolean isChecked = false;
 
-	@Builder.Default
-	private LocalDateTime checkedAt = LocalDateTime.now();
+	private LocalDate checkedAt;
 
+	//== 정적 팩토리 생성 메서드 ==//
+	public static HabitLog createHabitLog(Habit habit) {
+		HabitLog habitLog = HabitLog.builder()
+			.habit(habit)
+			.build();
+
+		habit.getHabitLogs().add(habitLog);
+
+		return habitLog;
+	}
+
+	//== 더티체킹 메서드 ==//
+	public void updateCheck(Boolean isChecked) {
+		this.isChecked = isChecked;
+		this.checkedAt = isChecked ? LocalDate.now() : null;
+	}
 }

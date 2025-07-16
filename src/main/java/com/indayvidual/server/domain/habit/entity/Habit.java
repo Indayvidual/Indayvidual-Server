@@ -1,6 +1,6 @@
 package com.indayvidual.server.domain.habit.entity;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,12 +57,6 @@ public class Habit extends BaseEntity {
 
 	private String colorCode; // 색상 코드
 
-	@Builder.Default
-	private Boolean isChecked = false;
-
-	@Builder.Default
-	private LocalDateTime checkedAt = LocalDateTime.now();
-
 	//== 정정 팩토리 메서드 ==//
 	public static Habit createHabit(User user, String title, String colorCode) {
 		Habit habit = Habit.builder()
@@ -84,11 +78,6 @@ public class Habit extends BaseEntity {
 
 	public void updateColorCode(String colorCode) {
 		this.colorCode = colorCode;
-	}
-
-	public void updateChecked(Boolean isChecked) {
-		this.isChecked = isChecked;
-		this.checkedAt = LocalDateTime.now();
 	}
 
 	//== 소유자 확인 메서드 ==//
@@ -120,9 +109,30 @@ public class Habit extends BaseEntity {
 		return true;
 	}
 
-	public void toggleCheck(User user) {
+	public void updateHabitCheck(User user, LocalDate checkDate, Boolean checked) {
 		ensureOwnership(user);
 
-		isChecked = !isChecked;
+		// 먼저 찾기
+		HabitLog targetLog = null;
+		for (HabitLog log : habitLogs) {
+			if (log.getCheckedAt().equals(checkDate)) {  // logDate로 변경
+				targetLog = log;
+				break;
+			}
+		}
+
+		// 없으면 생성
+		if (targetLog == null) {
+			targetLog = HabitLog.builder()
+				.habit(this)
+				.checkedAt(checkDate)  // 체크할 날짜 설정
+				.isChecked(false)
+				.build();
+			this.habitLogs.add(targetLog);
+		}
+
+		// 상태 업데이트
+		targetLog.updateCheck(checked);
 	}
+
 }

@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.indayvidual.server.domain.habit.dto.request.CreateHabitRequestDTO;
+import com.indayvidual.server.domain.habit.dto.request.ToggleCheckRequestDTO;
 import com.indayvidual.server.domain.habit.dto.request.UpdateHabitRequestDTO;
 import com.indayvidual.server.domain.habit.dto.response.HabitResponseDTO;
 import com.indayvidual.server.domain.habit.entity.Habit;
@@ -63,14 +64,13 @@ public class HabitCommandServiceImpl implements HabitCommandService {
 	}
 
 	@Override
-	public HabitResponseDTO toggleHabitCheck(Long userId, Long habitId) {
+	public HabitResponseDTO updateHabitCheck(Long userId, Long habitId, ToggleCheckRequestDTO request) {
 		User currentUser = getCurrentUser(userId);
 		Habit habit = getHabit(habitId);
 
-		habit.toggleCheck(currentUser);
+		habit.updateHabitCheck(currentUser, request.getDate(), request.getChecked());
 
-		return HabitResponseDTO.from(habit);
-
+		return HabitResponseDTO.of(habit, request.getChecked(), request.getDate());
 	}
 
 	private Habit getHabit(Long habitId) {

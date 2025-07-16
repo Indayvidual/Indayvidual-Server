@@ -1,6 +1,6 @@
 package com.indayvidual.server.domain.habit.dto.response;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import com.indayvidual.server.domain.habit.entity.Habit;
 
@@ -22,14 +22,23 @@ public class HabitResponseDTO {
 
 	private boolean isChecked;
 
-	private LocalDateTime checkedAt;
+	private LocalDate checkedAt;
 
 	public static HabitResponseDTO from(Habit habit) {
 		return HabitResponseDTO.builder()
 			.title(habit.getTitle())
 			.colorCode(habit.getColorCode())
-			.isChecked(habit.getIsChecked())
-			.checkedAt(habit.getCheckedAt())
+			.isChecked(false)
+			.checkedAt(null)
+			.build();
+	}
+
+	public static HabitResponseDTO of(Habit habit, boolean isChecked, LocalDate checkedAt) {
+		return HabitResponseDTO.builder()
+			.title(habit.getTitle())
+			.colorCode(habit.getColorCode())
+			.isChecked(isChecked)
+			.checkedAt(checkedAt)
 			.build();
 	}
 

@@ -14,10 +14,12 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @Hidden
 @Tag(name = "temp-controller", description = "임시 데이터 관련 API")
 @RestController
@@ -78,6 +80,7 @@ public class TempController {
 
     @GetMapping("/health")
     public String healthCheck(){
-        return "I am healthy";
+        log.info(" /temp/healthy 요청이 들어왔습니다.");
+        return "I strong";
     }
 }

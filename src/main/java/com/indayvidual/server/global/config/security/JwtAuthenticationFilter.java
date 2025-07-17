@@ -17,6 +17,16 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+import java.util.List;
+
+import static com.indayvidual.server.global.config.security.JwtValidationType.VALID_JWT;
 
 @Slf4j
 @Component
@@ -25,10 +35,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	private final JwtTokenProvider jwtTokenProvider;
 
-	@Override
+	private static final List<String> NO_AUTH_PATHS = List.of(
+            "/temp/health", "/swagger-ui", "/v3/api-docs", "/auth"
+    );@Override
 	protected void doFilterInternal(@NonNull HttpServletRequest request,
 		@NonNull HttpServletResponse response,
-		@NonNull FilterChain filterChain) throws ServletException, IOException {
+		@NonNull FilterChain filterChain) throws ServletException, IOException {String path = request.getRequestURI();
+
+        if (NO_AUTH_PATHS.stream().anyMatch(path::startsWith)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 		try {
 			final String token = getJwtFromRequest(request);
 			//            log.info("Extracted JWT: {}", token);

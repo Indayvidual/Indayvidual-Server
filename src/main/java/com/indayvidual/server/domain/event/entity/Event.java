@@ -1,4 +1,4 @@
-package com.indayvidual.server.domain.calendar.entity;
+package com.indayvidual.server.domain.event.entity;
 
 import com.indayvidual.server.common.BaseEntity;
 import jakarta.persistence.*;

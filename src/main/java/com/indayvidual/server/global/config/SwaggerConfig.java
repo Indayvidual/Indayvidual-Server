@@ -40,12 +40,4 @@ public class SwaggerConfig {
                 .addSecurityItem(securityRequirement)
                 .components(components);
     }
-
-    @Bean
-    public GroupedOpenApi publicApi() {
-        return GroupedOpenApi.builder()
-                .group("indayvidual-public")
-                .packagesToScan("dev.indayvidual.shop")
-                .build();
-    }
 }

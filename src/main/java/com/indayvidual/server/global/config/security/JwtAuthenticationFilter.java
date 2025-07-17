@@ -1,5 +1,15 @@
 package com.indayvidual.server.global.config.security;
 
+import static com.indayvidual.server.global.config.security.JwtValidationType.*;
+
+import java.io.IOException;
+
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+import org.springframework.web.filter.OncePerRequestFilter;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,6 +24,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 import static com.indayvidual.server.global.config.security.JwtValidationType.VALID_JWT;
 
@@ -22,45 +33,52 @@ import static com.indayvidual.server.global.config.security.JwtValidationType.VA
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtTokenProvider jwtTokenProvider;
+	private final JwtTokenProvider jwtTokenProvider;
 
-    @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request,
-                                    @NonNull HttpServletResponse response,
-                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
-        try {
-            final String token = getJwtFromRequest(request);
-//            log.info("Extracted JWT: {}", token);
-            if (jwtTokenProvider.validateToken(token) == VALID_JWT) {
-                Long userId = jwtTokenProvider.getUserFromJwt(token);
-                // authentication 객체 생성 -> principal에 유저정보를 담는다.
-                UserAuthentication authentication = new UserAuthentication(userId.toString(), null, null);
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            }
-        } catch (Exception exception) {
-//            log.error("JWT processing error: {}", exception.getMessage());
-            try {
-                throw new Exception();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+	private static final List<String> NO_AUTH_PATHS = List.of(
+            "/temp/health", "/swagger-ui", "/v3/api-docs", "/auth"
+    );@Override
+	protected void doFilterInternal(@NonNull HttpServletRequest request,
+		@NonNull HttpServletResponse response,
+		@NonNull FilterChain filterChain) throws ServletException, IOException {String path = request.getRequestURI();
+
+        if (NO_AUTH_PATHS.stream().anyMatch(path::startsWith)) {
+            filterChain.doFilter(request, response);
+            return;
         }
-        // 다음 필터로 요청 전달
-        filterChain.doFilter(request, response);
-    }
+		try {
+			final String token = getJwtFromRequest(request);
+			//            log.info("Extracted JWT: {}", token);
+			if (jwtTokenProvider.validateToken(token) == VALID_JWT) {
+				Long userId = jwtTokenProvider.getUserFromJwt(token);
+				// authentication 객체 생성 -> principal에 유저정보를 담는다.
+				UserAuthentication authentication = new UserAuthentication(userId.toString(), null, null);
+				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+				SecurityContextHolder.getContext().setAuthentication(authentication);
+			}
+		} catch (Exception exception) {
+			//            log.error("JWT processing error: {}", exception.getMessage());
+			try {
+				throw new Exception();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+		// 다음 필터로 요청 전달
+		filterChain.doFilter(request, response);
+	}
 
-    private String getJwtFromRequest(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-//        log.info("Authorization Header: {}", bearerToken);
+	private String getJwtFromRequest(HttpServletRequest request) {
+		String bearerToken = request.getHeader("Authorization");
+		//        log.info("Authorization Header: {}", bearerToken);
 
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            String token = bearerToken.substring("Bearer ".length());
-//            log.info("Extracted JWT from request: {}", token);
-            return token;
-        }
+		if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+			String token = bearerToken.substring("Bearer ".length());
+			//            log.info("Extracted JWT of request: {}", token);
+			return token;
+		}
 
-//        log.warn("Authorization header is missing or invalid");
-        return null;
-    }
+		//        log.warn("Authorization header is missing or invalid");
+		return null;
+	}
 }

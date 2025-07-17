@@ -20,6 +20,7 @@ import com.indayvidual.server.domain.habit.service.command.HabitCommandService;
 import com.indayvidual.server.domain.habit.service.query.HabitQueryService;
 import com.indayvidual.server.global.api.response.ApiResponse;
 import com.indayvidual.server.global.config.security.UserAuthentication;
+import com.indayvidual.server.global.util.Utils;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -72,7 +73,7 @@ public class HabitController {
 		@Parameter(description = "페이지 크기 (기본: 20, 최대: 100)", example = "20")
 		@RequestParam(required = false, defaultValue = "20") Integer size
 	) {
-		Long userId = Long.valueOf((String)userAuthentication.getPrincipal());
+		Long userId = Utils.getUserId();
 		return ApiResponse.onSuccess(habitQueryService.getHabits(userId, page, size));
 	}
 
@@ -110,7 +111,7 @@ public class HabitController {
 
 		@RequestBody CreateHabitRequestDTO request
 	) {
-		Long userId = Long.valueOf((String)userAuthentication.getPrincipal());
+		Long userId = Utils.getUserId();
 		return ApiResponse.onSuccess(habitCommandService.createHabit(userId, request));
 	}
 
@@ -203,7 +204,7 @@ public class HabitController {
 		@Parameter(description = "습관 ID", required = true, example = "1")
 		@PathVariable Long habitId
 	) {
-		Long userId = Long.valueOf((String)userAuthentication.getPrincipal());
+		Long userId = Utils.getUserId();
 		return ApiResponse.onSuccess(habitCommandService.deleteHabit(userId, habitId));
 	}
 
@@ -215,7 +216,7 @@ public class HabitController {
 
 		@RequestBody ToggleCheckRequestDTO request
 	) {
-		Long userId = Long.valueOf((String)userAuthentication.getPrincipal());
+		Long userId = Utils.getUserId();
 		return ApiResponse.onSuccess(habitCommandService.updateHabitCheck(userId, habitId, request));
 	}
 }

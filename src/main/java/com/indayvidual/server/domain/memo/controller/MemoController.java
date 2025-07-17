@@ -17,6 +17,7 @@ import com.indayvidual.server.domain.memo.service.command.MemoCommandService;
 import com.indayvidual.server.domain.memo.service.query.MemoQueryService;
 import com.indayvidual.server.global.api.response.ApiResponse;
 import com.indayvidual.server.global.config.security.UserAuthentication;
+import com.indayvidual.server.global.util.Utils;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -69,7 +70,7 @@ public class MemoController {
 		@Parameter(description = "페이지 크기 (기본: 20, 최대: 100)", example = "20")
 		@RequestParam(required = false, defaultValue = "20") Integer size
 	) {
-		Long userId = Long.valueOf((String)userAuthentication.getPrincipal());
+		Long userId = Utils.getUserId();
 		return ApiResponse.onSuccess(memoQueryService.getMemosWithSlice(userId, page, size));
 	}
 
@@ -108,7 +109,7 @@ public class MemoController {
 		@Parameter(description = "메모 ID", required = true, example = "1")
 		@PathVariable Long memoId
 	) {
-		Long userId = Long.valueOf((String)userAuthentication.getPrincipal());
+		Long userId = Utils.getUserId();
 		return ApiResponse.onSuccess(memoQueryService.getMemoDetail(userId, memoId));
 	}
 
@@ -147,7 +148,7 @@ public class MemoController {
 		@Parameter(description = "메모 ID", required = true, example = "1")
 		@PathVariable Long memoId
 	) {
-		Long userId = Long.valueOf((String)userAuthentication.getPrincipal());
+		Long userId = Utils.getUserId();
 		return ApiResponse.onSuccess(memoCommandService.deleteMemo(userId, memoId));
 	}
 
@@ -181,7 +182,7 @@ public class MemoController {
 
 		@RequestBody CreateMemoRequestDTO request
 	) {
-		Long userId = Long.valueOf((String)userAuthentication.getPrincipal());
+		Long userId = Utils.getUserId();
 		return ApiResponse.onSuccess(memoCommandService.createMemo(userId, request));
 	}
 }

@@ -81,6 +81,6 @@ public class TempController {
     @GetMapping("/health")
     public String healthCheck(){
         log.info(" /temp/healthy 요청이 들어왔습니다.");
-        return "I strong";
+        return "I'm strong";
     }
 }

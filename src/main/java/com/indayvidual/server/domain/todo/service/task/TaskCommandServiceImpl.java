@@ -46,7 +46,7 @@ public class TaskCommandServiceImpl implements TaskCommandService {
                 .orElseThrow(() -> new GeneralException(ErrorStatus.USER_NOT_FOUND));
 
         Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new GeneralException(ErrorStatus.CATEGORY_NOT_FOUND));
+                .orElseThrow(() -> new GeneralException(ErrorStatus.TASK_CATEGORY_NOT_FOUND));
 
         // position 지정
         Integer position = generateNextPosition(categoryId);
@@ -143,7 +143,7 @@ public class TaskCommandServiceImpl implements TaskCommandService {
         List<Long> taskIds = request.getTaskOrder();
         if (taskIds == null || taskIds.isEmpty()) {
             log.warn("[TASK] 빈 taskOrder 요청");
-            throw new GeneralException(ErrorStatus.INVALID_TASK_ORDER);
+            throw new GeneralException(ErrorStatus.TASK_INVALID_ORDER);
         }
         return taskIds;
     }

@@ -45,7 +45,8 @@ public class HabitLog extends BaseEntity {
 	@Builder.Default
 	private Boolean isChecked = false;
 
-	private LocalDate checkedAt;
+	@Builder.Default
+	private LocalDate checkedAt = LocalDate.now();
 
 	//== 정적 팩토리 생성 메서드 ==//
 	public static HabitLog createHabitLog(Habit habit) {

@@ -1,6 +1,9 @@
 package com.indayvidual.server.domain.habit.controller;
 
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -19,7 +22,6 @@ import com.indayvidual.server.domain.habit.dto.response.HabitSliceResponseDTO;
 import com.indayvidual.server.domain.habit.service.command.HabitCommandService;
 import com.indayvidual.server.domain.habit.service.query.HabitQueryService;
 import com.indayvidual.server.global.api.response.ApiResponse;
-import com.indayvidual.server.global.config.security.UserAuthentication;
 import com.indayvidual.server.global.util.Utils;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,11 +30,14 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/custom/habits")
 @RequiredArgsConstructor
+@Validated
 @Tag(name = "Habit", description = "습관 관리 API")
 public class HabitController {
 
@@ -64,9 +69,6 @@ public class HabitController {
 		)
 	})
 	public ApiResponse<HabitSliceResponseDTO> getHabits(
-		@Parameter(hidden = true)
-		@AuthenticationPrincipal UserAuthentication userAuthentication,
-
 		@Parameter(description = "페이지 번호 (0부터 시작)", example = "0")
 		@RequestParam(required = false, defaultValue = "0") Integer page,
 
@@ -106,10 +108,7 @@ public class HabitController {
 		)
 	})
 	public ApiResponse<HabitResponseDTO> createHabit(
-		@Parameter(hidden = true)
-		@AuthenticationPrincipal UserAuthentication userAuthentication,
-
-		@RequestBody CreateHabitRequestDTO request
+		@Valid @RequestBody CreateHabitRequestDTO request
 	) {
 		Long userId = Utils.getUserId();
 		return ApiResponse.onSuccess(habitCommandService.createHabit(userId, request));
@@ -152,8 +151,6 @@ public class HabitController {
 		)
 	})
 	public ApiResponse<HabitResponseDTO> updateHabit(
-		@Parameter(hidden = true)
-		@AuthenticationPrincipal UserAuthentication userAuthentication,
 
 		@Parameter(description = "습관 ID", required = true, example = "1")
 		@PathVariable Long habitId,
@@ -165,7 +162,7 @@ public class HabitController {
 		)
 		@RequestBody UpdateHabitRequestDTO request
 	) {
-		Long userId = Long.valueOf((String)userAuthentication.getPrincipal());
+		Long userId = Utils.getUserId();
 		return ApiResponse.onSuccess(habitCommandService.updateHabit(userId, habitId, request));
 	}
 
@@ -198,9 +195,6 @@ public class HabitController {
 		)
 	})
 	public ApiResponse<Void> deleteHabit(
-		@Parameter(hidden = true)
-		@AuthenticationPrincipal UserAuthentication userAuthentication,
-
 		@Parameter(description = "습관 ID", required = true, example = "1")
 		@PathVariable Long habitId
 	) {
@@ -210,13 +204,20 @@ public class HabitController {
 
 	@PatchMapping("/{habitId}/check")
 	public ApiResponse<HabitResponseDTO> updateHabitCheck(
-		@AuthenticationPrincipal UserAuthentication userAuthentication,
-
 		@PathVariable Long habitId,
 
-		@RequestBody ToggleCheckRequestDTO request
+		@Valid @RequestBody ToggleCheckRequestDTO request
 	) {
 		Long userId = Utils.getUserId();
 		return ApiResponse.onSuccess(habitCommandService.updateHabitCheck(userId, habitId, request));
+	}
+
+	@GetMapping("/checks/daily")
+	public ApiResponse<List<HabitResponseDTO>> getDailyHabitCheckedState(
+		@Parameter(description = "습관 날짜", required = true, example = "2025-01-01")
+		@RequestParam @PastOrPresent LocalDate date
+	) {
+		Long userId = Utils.getUserId();
+		return ApiResponse.onSuccess(habitQueryService.getDailyHabitCheckedState(userId, date));
 	}
 }

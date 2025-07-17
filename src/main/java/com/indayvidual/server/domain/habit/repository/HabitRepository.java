@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import com.indayvidual.server.domain.habit.entity.Habit;
 
 @Repository
-public interface HabitRepository extends JpaRepository<Habit, Long> {
+public interface HabitRepository extends JpaRepository<Habit, Long>, HabitRepositoryCustom {
 
 	Slice<Habit> findByUserIdOrderByCreatedAtDescIdDesc(Long userId, Pageable pageable);
 }

@@ -31,6 +31,9 @@ public class HabitCommandServiceImpl implements HabitCommandService {
 	public HabitResponseDTO createHabit(Long userId, CreateHabitRequestDTO request) {
 		User currentUser = getCurrentUser(userId);
 
+		/**
+		 * 습관과 그 습관의 로그도 같이 생성
+		 */
 		Habit habit = Habit.createHabit(currentUser, request.getTitle(), request.getColorCode());
 
 		habitRepository.save(habit);
@@ -74,9 +77,8 @@ public class HabitCommandServiceImpl implements HabitCommandService {
 	}
 
 	private Habit getHabit(Long habitId) {
-		Habit habit = habitRepository.findById(habitId)
+		return habitRepository.findById(habitId)
 			.orElseThrow(() -> new HabitException(ErrorStatus.HABIT_NOT_FOUND));
-		return habit;
 	}
 
 	private User getCurrentUser(Long userId) {

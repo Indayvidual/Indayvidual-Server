@@ -67,6 +67,8 @@ public class Habit extends BaseEntity {
 
 		user.getHabits().add(habit);
 
+		HabitLog.createHabitLog(habit);
+
 		return habit;
 
 	}

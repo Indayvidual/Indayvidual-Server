@@ -15,6 +15,7 @@ public enum ErrorStatus implements BaseErrorCode {
     _BAD_REQUEST_SAME_STATE(HttpStatus.BAD_REQUEST, "COMMON4002", "수정하려는 데이터가 현재 상태와 동일합니다."),
     _UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "COMMON401", "인증이 필요합니다."),
     _FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON403", "금지된 요청입니다."),
+    _INVALID_PARAMETER(HttpStatus.BAD_REQUEST, "COMMON4001", "요청 파라미터 형식이 올바르지 않습니다."),
 
     // Temp 관련 에러
     TEMP_NOT_FOUND(HttpStatus.NOT_FOUND, "TEMP4041", "임시 데이터가 존재하지 않습니다."),
@@ -29,7 +30,10 @@ public enum ErrorStatus implements BaseErrorCode {
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "CATEGORY_NOT_FOUND", "카테고리를 찾을 수 없습니다."),
     TASK_NOT_FOUND(HttpStatus.NOT_FOUND, "TASK_NOT_FOUND", "할 일을 찾을 수 없습니다."),
     TASK_FORBIDDEN(HttpStatus.FORBIDDEN, "TASK_FORBIDDEN", "해당 할 일에 대한 권한이 없습니다."),
-    INVALID_TASK_ORDER(HttpStatus.BAD_REQUEST, "INVALID_TASK_ORDER", "유효하지 않은 할 일 순서 요청입니다.")
+    INVALID_TASK_ORDER(HttpStatus.BAD_REQUEST, "INVALID_TASK_ORDER", "유효하지 않은 할 일 순서 요청입니다."),
+
+    // User 관련 에러
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER_NOT_FOUND", "존재하지 않는 유저입니다.")
     ;
 
     private final HttpStatus httpStatus;

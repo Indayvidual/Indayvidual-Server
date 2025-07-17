@@ -30,21 +30,14 @@ public class Task extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
-
     // 연관 사용자
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
-
-    @Column(name = "category_id", nullable = false)
-    private Long categoryId;
 
     // 연관 카테고리
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", insertable = false, updatable = false)
+    @JoinColumn(name = "category_id")
     private Category category;
 
     @Column(length = 50, nullable = false)
@@ -53,10 +46,11 @@ public class Task extends BaseEntity {
     @Column(name = "is_checked", nullable = false)
     private boolean isChecked;
 
+    // 날짜
     @Column(name = "due_date", nullable = false)
     private LocalDate dueDate;
 
-    // 카테고리 내 순서
+    // 카테고리 내 순서. 0부터 시작
     @Column(name = "position")
     private Integer position;
 
@@ -80,12 +74,24 @@ public class Task extends BaseEntity {
         this.position = position;
     }
 
+    public static Task create(User user, Category category, String title, LocalDate dueDate, int position) {
+        return Task.builder()
+                .user(user)
+                .category(category)
+                .title(title)
+                .dueDate(dueDate)
+                .position(position)
+                .isChecked(false) // 생성 시 기본값 고정
+                .build();
+    }
+
     @Builder
-    public Task(Long userId, String title, boolean isChecked, LocalDate dueDate, Category category) {
-        this.userId = userId;
+    private Task(User user, String title, boolean isChecked, LocalDate dueDate, Category category, Integer position) {
+        this.user = user;
         this.title = title;
         this.isChecked = isChecked;
         this.dueDate = dueDate;
+        this.position = position;
         this.category = category;
     }
 }

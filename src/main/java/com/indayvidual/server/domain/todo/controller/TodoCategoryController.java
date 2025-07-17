@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "Todo", description = "Todo API")
+@Tag(name = "Todo 카테고리 API", description = "Todo category 관련 API")
 @RestController
 @RequiredArgsConstructor
 @Slf4j
 @RequestMapping("/api/todo/categories")
 public class TodoCategoryController {
-    // todo: success status 추가
+    // TODO: success status 추가
 
     private final CategoryCommandService categoryCommandService;
     private final CategoryQueryService categoryQueryService;

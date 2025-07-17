@@ -8,6 +8,7 @@ import com.indayvidual.server.domain.todo.service.task.TaskCommandService;
 import com.indayvidual.server.domain.todo.service.task.TaskQueryService;
 import com.indayvidual.server.global.api.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,13 +20,13 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
-@Tag(name = "Todo API", description = "Todo 관련 API")
+@Tag(name = "Todo 할 일 API", description = "Todo 할 일 관련 API")
 @RestController
 @RequiredArgsConstructor
 @Slf4j
 @RequestMapping("/api/todo")
 public class TodoTaskController {
-    // todo: success status 추가
+    // TODO: success status 추가
 
     private final TaskCommandService taskCommandService;
     private final TaskQueryService taskQueryService;
@@ -34,7 +35,14 @@ public class TodoTaskController {
     @GetMapping("/categories/{categoryId}/tasks")
     public ApiResponse<List<TaskResponseDTO>> getTasks(
             @PathVariable Long categoryId,
-            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+            @Parameter(
+                    name = "date",
+                    description = "조회할 날짜 (형식: yyyy-MM-dd)",
+                    example = "2025-07-17"
+            )
+            @RequestParam("date")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        // TODO: local date 형식 예외 처리 추가
 
         Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
         return ApiResponse.onSuccess(taskQueryService.findTasksByCategoryAndDate(userId, categoryId, date));
@@ -65,6 +73,7 @@ public class TodoTaskController {
     public ApiResponse<TaskResponseDTO> updateTaskDueDate(
             @PathVariable Long taskId,
             @RequestBody @Valid TaskDueDateUpdateRequestDTO request) {
+        // TODO: local date 형식 예외 처리 추가
 
         Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
         return ApiResponse.onSuccess(taskCommandService.updateTaskDueDate(userId, taskId, request));
@@ -85,12 +94,18 @@ public class TodoTaskController {
         return ApiResponse.onSuccess(taskCommandService.toggleCheck(userId, taskId));
     }
 
-    @Operation(summary = "할 일 순서 변경", description = "카테고리 내 할 일의 순서를 변경합니다.")
+    @Operation(summary = "할 일 순서 변경",
+            description = """
+                    카테고리 내 할 일의 순서를 변경합니다.\n
+                    **해당 카테고리 내 모든 Task ID**를 정렬 순서대로 request body로 전달해야 합니다.\n  
+                    해당 순서를 기준으로 `position` 필드를 재정렬합니다.
+                    """)
     @PatchMapping("/categories/{categoryId}/tasks/order")
     public ApiResponse<Void> updateTaskOrder(
             @PathVariable Long categoryId,
             @RequestBody @Valid TaskOrderUpdateRequestDTO request) {
 
+        //TODO : 카테고리 변경도 추가하기
         Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
         taskCommandService.updateTaskOrder(userId, categoryId, request);
         return ApiResponse.onSuccess(null);

@@ -22,10 +22,10 @@ public class TaskQueryServiceImpl implements TaskQueryService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<TaskResponseDTO> findTasksByCategoryAndDate(Long userId, Long categoryId, LocalDate date) {
-        log.debug("[TASK-QUERY] 할 일 조회 요청 - userId={}, categoryId={}, date={}", userId, categoryId, date);
+    public List<TaskResponseDTO> findTasksByCategoryAndDate(Long userId, Long categoryId, LocalDate dueDate) {
+        log.debug("[TASK-QUERY] 할 일 조회 요청 - userId={}, categoryId={}, date={}", userId, categoryId, dueDate);
 
-        List<Task> tasks = taskRepository.findByUserIdAndCategoryIdAndDate(userId, categoryId, date);
+        List<Task> tasks = taskRepository.findByUserIdAndCategoryIdAndDueDate(userId, categoryId, dueDate);
 
         log.debug("[TASK-QUERY] 조회된 할 일 수: {}", tasks.size());
 

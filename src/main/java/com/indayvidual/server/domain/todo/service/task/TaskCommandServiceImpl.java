@@ -12,6 +12,8 @@ import com.indayvidual.server.domain.todo.entity.Category;
 import com.indayvidual.server.domain.todo.entity.Task;
 import com.indayvidual.server.domain.todo.repository.CategoryRepository;
 import com.indayvidual.server.domain.todo.repository.TaskRepository;
+import com.indayvidual.server.domain.user.entity.User;
+import com.indayvidual.server.domain.user.repository.UserRepository;
 import com.indayvidual.server.global.api.code.status.ErrorStatus;
 import com.indayvidual.server.global.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,7 @@ public class TaskCommandServiceImpl implements TaskCommandService {
     private final TaskRepository taskRepository;
     private final CategoryRepository categoryRepository;
     private final TaskConverter taskConverter;
+    private final UserRepository userRepository;
 
     /**
      * 할 일을 등록합니다.
@@ -39,14 +42,37 @@ public class TaskCommandServiceImpl implements TaskCommandService {
     public TaskResponseDTO createTask(Long userId, Long categoryId, TaskCreateRequestDTO request) {
         log.debug("[TASK] 사용자 {}의 새로운 할 일 등록 요청 - {}", userId, request.getTitle());
 
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.USER_NOT_FOUND));
+
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.CATEGORY_NOT_FOUND));
 
-        Task task = taskConverter.toEntity(request, category, userId);
+        // position 지정
+        Integer position = generateNextPosition(categoryId);
+
+        Task task = taskConverter.toEntity(request, category, user, position);
         taskRepository.save(task);
 
         log.debug("[TASK] 등록 완료 - taskId={}, title={}", task.getId(), task.getTitle());
         return taskConverter.toResponse(task);
+    }
+
+    /**
+     * 새로운 할 일의 position 을 계산합니다.
+     * 카테고리 내 task의 최대 position을 조회한 후,
+     * 없으면 0번, 있으면 max+1로 지정합니다.
+     *
+     * @param categoryId
+     * @return 새로운 할 일의 position
+     */
+    private Integer generateNextPosition(Long categoryId) {
+        Integer max = taskRepository.findMaxPositionByCategoryId(categoryId);
+        if (max == null) {
+            log.debug("[TASK][generateNextPosition] max가 null이므로 기본값 0으로 시작합니다.");
+            return 0;
+        }
+        return max + 1;
     }
 
     /**
@@ -138,7 +164,7 @@ public class TaskCommandServiceImpl implements TaskCommandService {
         }
 
         for (Task task : tasks) {
-            if (!task.getCategory().getId().equals(categoryId) || !task.getUserId().equals(userId)) {
+            if (!task.getCategory().getId().equals(categoryId) || !task.getUser().getId().equals(userId)) {
                 log.warn("[TASK] 잘못된 소속의 task 존재 - taskId={}", task.getId());
                 throw new GeneralException(ErrorStatus.TASK_FORBIDDEN);
             }

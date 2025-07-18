@@ -1,15 +1,19 @@
 package com.indayvidual.server.domain.habit.entity;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import com.indayvidual.server.common.BaseEntity;
 import com.indayvidual.server.domain.habit.exception.HabitException;
+import com.indayvidual.server.domain.habitlog.entity.HabitLog;
 import com.indayvidual.server.domain.user.entity.User;
 import com.indayvidual.server.global.api.code.status.ErrorStatus;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -18,6 +22,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -44,15 +49,13 @@ public class Habit extends BaseEntity {
 	@JoinColumn(name = "user_id")
 	private User user;
 
+	@OneToMany(mappedBy = "habit", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
+	private List<HabitLog> habitLogs = new ArrayList<>();
+
 	private String title; // 습관 이름
 
 	private String colorCode; // 색상 코드
-
-	@Builder.Default
-	private Boolean isChecked = false;
-
-	@Builder.Default
-	private LocalDateTime checkedAt = LocalDateTime.now();
 
 	//== 정정 팩토리 메서드 ==//
 	public static Habit createHabit(User user, String title, String colorCode) {
@@ -63,6 +66,8 @@ public class Habit extends BaseEntity {
 			.build();
 
 		user.getHabits().add(habit);
+
+		HabitLog.createHabitLog(habit);
 
 		return habit;
 
@@ -75,11 +80,6 @@ public class Habit extends BaseEntity {
 
 	public void updateColorCode(String colorCode) {
 		this.colorCode = colorCode;
-	}
-
-	public void updateChecked(Boolean isChecked) {
-		this.isChecked = isChecked;
-		this.checkedAt = LocalDateTime.now();
 	}
 
 	//== 소유자 확인 메서드 ==//
@@ -110,4 +110,31 @@ public class Habit extends BaseEntity {
 
 		return true;
 	}
+
+	public void updateHabitCheck(User user, LocalDate checkDate, Boolean checked) {
+		ensureOwnership(user);
+
+		// 먼저 찾기
+		HabitLog targetLog = null;
+		for (HabitLog log : habitLogs) {
+			if (log.getCheckedAt().equals(checkDate)) {  // logDate로 변경
+				targetLog = log;
+				break;
+			}
+		}
+
+		// 없으면 생성
+		if (targetLog == null) {
+			targetLog = HabitLog.builder()
+				.habit(this)
+				.checkedAt(checkDate)  // 체크할 날짜 설정
+				.isChecked(false)
+				.build();
+			this.habitLogs.add(targetLog);
+		}
+
+		// 상태 업데이트
+		targetLog.updateCheck(checked);
+	}
+
 }

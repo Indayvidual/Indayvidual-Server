@@ -1,5 +1,7 @@
 package com.indayvidual.server.global.util;
 
+import org.springframework.security.core.context.SecurityContextHolder;
+
 public class Utils {
 
 	private static final int DEFAULT_PAGE_SIZE = 20;
@@ -13,5 +15,9 @@ public class Utils {
 		if (size > MAX_PAGE_SIZE)
 			return MAX_PAGE_SIZE;
 		return size;
+	}
+
+	public static Long getUserId() {
+		return Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
 	}
 }

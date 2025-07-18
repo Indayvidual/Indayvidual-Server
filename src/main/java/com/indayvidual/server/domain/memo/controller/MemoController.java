@@ -1,6 +1,5 @@
 package com.indayvidual.server.domain.memo.controller;
 
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,7 +15,7 @@ import com.indayvidual.server.domain.memo.dto.response.MemoSliceResponseDTO;
 import com.indayvidual.server.domain.memo.service.command.MemoCommandService;
 import com.indayvidual.server.domain.memo.service.query.MemoQueryService;
 import com.indayvidual.server.global.api.response.ApiResponse;
-import com.indayvidual.server.global.config.security.UserAuthentication;
+import com.indayvidual.server.global.util.Utils;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -24,6 +23,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -60,16 +60,13 @@ public class MemoController {
 		)
 	})
 	public ApiResponse<MemoSliceResponseDTO> getMemos(
-		@Parameter(hidden = true)
-		@AuthenticationPrincipal UserAuthentication userAuthentication,
-
 		@Parameter(description = "페이지 번호 (0부터 시작)", example = "0")
 		@RequestParam(required = false, defaultValue = "0") Integer page,
 
 		@Parameter(description = "페이지 크기 (기본: 20, 최대: 100)", example = "20")
 		@RequestParam(required = false, defaultValue = "20") Integer size
 	) {
-		Long userId = Long.valueOf((String)userAuthentication.getPrincipal());
+		Long userId = Utils.getUserId();
 		return ApiResponse.onSuccess(memoQueryService.getMemosWithSlice(userId, page, size));
 	}
 
@@ -102,13 +99,10 @@ public class MemoController {
 		)
 	})
 	public ApiResponse<MemoDetailResponseDTO> getMemoDetail(
-		@Parameter(hidden = true)
-		@AuthenticationPrincipal UserAuthentication userAuthentication,
-
 		@Parameter(description = "메모 ID", required = true, example = "1")
 		@PathVariable Long memoId
 	) {
-		Long userId = Long.valueOf((String)userAuthentication.getPrincipal());
+		Long userId = Utils.getUserId();
 		return ApiResponse.onSuccess(memoQueryService.getMemoDetail(userId, memoId));
 	}
 
@@ -141,13 +135,10 @@ public class MemoController {
 		)
 	})
 	public ApiResponse<Void> deleteMemo(
-		@Parameter(hidden = true)
-		@AuthenticationPrincipal UserAuthentication userAuthentication,
-
 		@Parameter(description = "메모 ID", required = true, example = "1")
 		@PathVariable Long memoId
 	) {
-		Long userId = Long.valueOf((String)userAuthentication.getPrincipal());
+		Long userId = Utils.getUserId();
 		return ApiResponse.onSuccess(memoCommandService.deleteMemo(userId, memoId));
 	}
 
@@ -176,12 +167,9 @@ public class MemoController {
 		)
 	})
 	public ApiResponse<MemoDetailResponseDTO> createMemo(
-		@Parameter(hidden = true)
-		@AuthenticationPrincipal UserAuthentication userAuthentication,
-
-		@RequestBody CreateMemoRequestDTO request
+		@RequestBody @Valid CreateMemoRequestDTO request
 	) {
-		Long userId = Long.valueOf((String)userAuthentication.getPrincipal());
+		Long userId = Utils.getUserId();
 		return ApiResponse.onSuccess(memoCommandService.createMemo(userId, request));
 	}
 }

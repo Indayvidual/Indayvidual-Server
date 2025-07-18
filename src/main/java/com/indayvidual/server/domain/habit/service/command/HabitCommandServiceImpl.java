@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.indayvidual.server.domain.habit.dto.request.CreateHabitRequestDTO;
+import com.indayvidual.server.domain.habit.dto.request.ToggleCheckRequestDTO;
 import com.indayvidual.server.domain.habit.dto.request.UpdateHabitRequestDTO;
 import com.indayvidual.server.domain.habit.dto.response.HabitResponseDTO;
 import com.indayvidual.server.domain.habit.entity.Habit;
@@ -30,6 +31,9 @@ public class HabitCommandServiceImpl implements HabitCommandService {
 	public HabitResponseDTO createHabit(Long userId, CreateHabitRequestDTO request) {
 		User currentUser = getCurrentUser(userId);
 
+		/**
+		 * 습관과 그 습관의 로그도 같이 생성
+		 */
 		Habit habit = Habit.createHabit(currentUser, request.getTitle(), request.getColorCode());
 
 		habitRepository.save(habit);
@@ -42,8 +46,7 @@ public class HabitCommandServiceImpl implements HabitCommandService {
 	public HabitResponseDTO updateHabit(Long userId, Long habitId, UpdateHabitRequestDTO request) {
 		User currentUser = getCurrentUser(userId);
 
-		Habit habit = habitRepository.findById(habitId)
-			.orElseThrow(() -> new HabitException(ErrorStatus.HABIT_NOT_FOUND));
+		Habit habit = getHabit(habitId);
 
 		habit.updateHabit(currentUser, request.getTitle(), request.getColorCode());
 
@@ -54,14 +57,28 @@ public class HabitCommandServiceImpl implements HabitCommandService {
 	public Void deleteHabit(Long userId, Long habitId) {
 		User currentUser = getCurrentUser(userId);
 
-		Habit habit = habitRepository.findById(habitId)
-			.orElseThrow(() -> new HabitException(ErrorStatus.HABIT_NOT_FOUND));
+		Habit habit = getHabit(habitId);
 
 		if (habit.canDeleteBy(currentUser)) {
 			habitRepository.delete(habit);
 		}
 
 		return null;
+	}
+
+	@Override
+	public HabitResponseDTO updateHabitCheck(Long userId, Long habitId, ToggleCheckRequestDTO request) {
+		User currentUser = getCurrentUser(userId);
+		Habit habit = getHabit(habitId);
+
+		habit.updateHabitCheck(currentUser, request.getDate(), request.getChecked());
+
+		return HabitResponseDTO.of(habit, request.getChecked(), request.getDate());
+	}
+
+	private Habit getHabit(Long habitId) {
+		return habitRepository.findById(habitId)
+			.orElseThrow(() -> new HabitException(ErrorStatus.HABIT_NOT_FOUND));
 	}
 
 	private User getCurrentUser(Long userId) {

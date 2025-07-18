@@ -1,17 +1,15 @@
 package com.indayvidual.server.domain.user.dto.response;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 
 @Getter
-@Setter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
-public class LoginResponseDTO {
-    private String accessToken;
-    private String refreshToken;
+public class SignupResponseDTO {
     private Long userId;
     private String email;
     private String username;
-    private String role;
+    private String message;
 }

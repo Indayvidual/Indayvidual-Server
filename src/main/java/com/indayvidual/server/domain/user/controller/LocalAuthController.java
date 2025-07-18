@@ -3,6 +3,7 @@ package com.indayvidual.server.domain.user.controller;
 import com.indayvidual.server.domain.user.dto.request.LoginRequestDTO;
 import com.indayvidual.server.domain.user.dto.response.LoginResponseDTO;
 import com.indayvidual.server.domain.user.dto.request.SignupRequestDTO;
+import com.indayvidual.server.domain.user.dto.response.SignupResponseDTO;
 import com.indayvidual.server.domain.user.service.UserService.UserAuthService;
 import com.indayvidual.server.global.api.response.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,14 +18,14 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class LocalAuthController {
 
     private final UserAuthService userAuthService;
 
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<LoginResponseDTO>> signup(@RequestBody SignupRequestDTO request) {
-        LoginResponseDTO response = userAuthService.signupWithEmail(request);
+    public ResponseEntity<ApiResponse<SignupResponseDTO>> signup(@RequestBody SignupRequestDTO request) {
+        SignupResponseDTO response = userAuthService.signupWithEmail(request);
         return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
 

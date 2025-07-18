@@ -44,7 +44,22 @@ public class User extends BaseEntity {
 	@Column(name = "user_id")
 	private Long id;
 
-	// 연관 관계 매핑
+	private String email;
+	private String password;  // (소셜 로그인 시 null)
+	private String username;
+	private String profile_image;
+	private String phone_number;
+
+	@Enumerated(EnumType.STRING)
+	private Status status;
+
+	@Enumerated(EnumType.STRING)
+	private Role role;
+
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
+	private List<UserProvider> userProviders = new ArrayList<>();
+
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	@Builder.Default
 	private List<Memo> memos = new ArrayList<>();
@@ -52,22 +67,5 @@ public class User extends BaseEntity {
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	@Builder.Default
 	private List<Habit> habits = new ArrayList<>();
-
-	private String email;
-	private String password;
-
-	@Enumerated(EnumType.STRING)
-	private Status status;
-
-	@Enumerated(EnumType.STRING)
-	private Role role;  // 초기값: ROLE_USER
-
-	@Enumerated(EnumType.STRING)
-	private Provider provider;
-	private String provider_id;
-
-	private String username;
-	private String profile_image;
-	private String phone_number;
 
 }

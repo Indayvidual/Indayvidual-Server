@@ -4,6 +4,7 @@ import static com.indayvidual.server.domain.habit.entity.QHabit.*;
 import static com.indayvidual.server.domain.habitlog.entity.QHabitLog.*;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 import org.springframework.stereotype.Repository;
@@ -28,6 +29,37 @@ public class HabitRepositoryImpl implements HabitRepositoryCustom {
 			.where(
 				habit.user.id.eq(userId),
 				habitLog.checkedAt.eq(date))
+			.fetch();
+	}
+
+	@Override
+	public List<Habit> findAllHabitsWithLogsOnDateRange(Long userId, LocalDate startDate, LocalDate endDate) {
+		return queryFactory
+			.selectFrom(habit)
+			.distinct()
+			.leftJoin(habit.habitLogs, habitLog).fetchJoin()
+			.where(
+				habit.user.id.eq(userId),
+				habitLog.checkedAt.between(startDate, endDate))
+			.orderBy(habitLog.checkedAt.asc())
+			.fetch();
+
+	}
+
+	@Override
+	public List<Habit> findAllHabitsWithLogsOnMonth(Long userId, YearMonth yearMonth) {
+		LocalDate startDate = yearMonth.atDay(1);
+		LocalDate endDate = yearMonth.atEndOfMonth();
+
+		return queryFactory
+			.selectFrom(habit)
+			.distinct()
+			.leftJoin(habit.habitLogs, habitLog).fetchJoin()
+			.where(
+				habit.user.id.eq(userId),
+				habitLog.checkedAt.between(startDate, endDate)
+			)
+			.orderBy(habitLog.checkedAt.asc())
 			.fetch();
 	}
 }

@@ -1,6 +1,7 @@
 package com.indayvidual.server.domain.habit.service.query;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -10,8 +11,10 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.indayvidual.server.domain.habit.dto.response.HabitMonthlyChecksResponseDTO;
 import com.indayvidual.server.domain.habit.dto.response.HabitResponseDTO;
 import com.indayvidual.server.domain.habit.dto.response.HabitSliceResponseDTO;
+import com.indayvidual.server.domain.habit.dto.response.HabitWeeklyChecksResponseDTO;
 import com.indayvidual.server.domain.habit.entity.Habit;
 import com.indayvidual.server.domain.habit.repository.HabitRepository;
 import com.indayvidual.server.domain.user.entity.User;
@@ -64,6 +67,30 @@ public class HabitQueryServiceImpl implements HabitQueryService {
 				return HabitResponseDTO.of(habit, isChecked, date);
 			})
 			.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<HabitWeeklyChecksResponseDTO> getWeeklyChecks(Long userId, LocalDate startDate) {
+		User currentUser = getCurrentUser(userId);
+
+		List<Habit> allHabitsWithLogsOnDateRange = habitRepository.findAllHabitsWithLogsOnDateRange(currentUser.getId(),
+			startDate, startDate.plusDays(6));
+
+		return allHabitsWithLogsOnDateRange.stream()
+			.map(HabitWeeklyChecksResponseDTO::from)
+			.toList();
+
+	}
+
+	@Override
+	public List<HabitMonthlyChecksResponseDTO> getMonthlyChecks(Long userId, YearMonth yearMonth) {
+		User currentUser = getCurrentUser(userId);
+
+		List<Habit> habits = habitRepository.findAllHabitsWithLogsOnMonth(userId, yearMonth);
+
+		return habits.stream()
+			.map(HabitMonthlyChecksResponseDTO::from)
+			.toList();
 	}
 
 	private User getCurrentUser(Long userId) {

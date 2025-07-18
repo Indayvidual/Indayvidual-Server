@@ -1,8 +1,10 @@
 package com.indayvidual.server.domain.habit.controller;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,8 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.indayvidual.server.domain.habit.dto.request.CreateHabitRequestDTO;
 import com.indayvidual.server.domain.habit.dto.request.ToggleCheckRequestDTO;
 import com.indayvidual.server.domain.habit.dto.request.UpdateHabitRequestDTO;
+import com.indayvidual.server.domain.habit.dto.response.HabitMonthlyChecksResponseDTO;
 import com.indayvidual.server.domain.habit.dto.response.HabitResponseDTO;
 import com.indayvidual.server.domain.habit.dto.response.HabitSliceResponseDTO;
+import com.indayvidual.server.domain.habit.dto.response.HabitWeeklyChecksResponseDTO;
 import com.indayvidual.server.domain.habit.service.command.HabitCommandService;
 import com.indayvidual.server.domain.habit.service.query.HabitQueryService;
 import com.indayvidual.server.global.api.response.ApiResponse;
@@ -219,5 +223,23 @@ public class HabitController {
 	) {
 		Long userId = Utils.getUserId();
 		return ApiResponse.onSuccess(habitQueryService.getDailyHabitCheckedState(userId, date));
+	}
+
+	@GetMapping("/checks/weekly")
+	public ApiResponse<List<HabitWeeklyChecksResponseDTO>> getWeeklyChecks(
+		@RequestParam LocalDate startDate
+	) {
+		Long userId = Utils.getUserId();
+		return ApiResponse.onSuccess(habitQueryService.getWeeklyChecks(userId, startDate));
+	}
+
+	@GetMapping("/checks/monthly")
+	public ApiResponse<List<HabitMonthlyChecksResponseDTO>> getMonthlyChecks(
+		@RequestParam
+		@DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth
+
+	) {
+		Long userId = Utils.getUserId();
+		return ApiResponse.onSuccess(habitQueryService.getMonthlyChecks(userId, yearMonth));
 	}
 }

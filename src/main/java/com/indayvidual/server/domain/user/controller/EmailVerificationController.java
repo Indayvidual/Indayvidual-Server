@@ -7,13 +7,10 @@ import com.indayvidual.server.global.api.response.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(
-        name = "이메일 인증 API",
+        name = "이메일 관련 API",
         description = "이메일 중복 확인, 인증 코드 발송 및 검증 기능을 제공."
 )
 @RestController
@@ -22,6 +19,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class EmailVerificationController {
 
     private final EmailVerificationService service;
+
+    @GetMapping("/check")
+    public ResponseEntity<ApiResponse<Boolean>> checkEmail(@RequestParam String email) {
+        boolean isAvailable = service.isEmailAvailable(email);
+        return ResponseEntity.ok(ApiResponse.onSuccess(isAvailable));
+    }
 
     @PostMapping("/send")
     public ResponseEntity<ApiResponse<String>> send(@RequestBody EmailRequestDTO dto) {

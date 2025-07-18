@@ -22,8 +22,12 @@ public class EmailVerificationService {
     private final UserRepository userRepository;
     private final MailService mailService;
 
-    public void sendVerificationCode(String email) {
+    @Transactional(readOnly = true)
+    public boolean isEmailAvailable(String email) {
+        return !userRepository.existsByEmail(email);
+    }
 
+    public void sendVerificationCode(String email) {
         // 새 코드 생성
         String code = generateCode();
         repo.save(EmailVerification.create(email, code, EXPIRE));

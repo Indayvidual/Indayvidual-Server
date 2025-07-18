@@ -7,6 +7,7 @@ import com.indayvidual.server.domain.todo.dto.response.TaskUpdateResponseDTO;
 import com.indayvidual.server.domain.todo.service.task.TaskCommandService;
 import com.indayvidual.server.domain.todo.service.task.TaskQueryService;
 import com.indayvidual.server.global.api.response.ApiResponse;
+import com.indayvidual.server.global.util.Utils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -44,7 +45,7 @@ public class TodoTaskController {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         // TODO: local date 형식 예외 처리 추가
 
-        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        Long userId = Utils.getUserId();
         return ApiResponse.onSuccess(taskQueryService.findTasksByCategoryAndDate(userId, categoryId, date));
     }
 
@@ -54,7 +55,7 @@ public class TodoTaskController {
             @PathVariable Long categoryId,
             @RequestBody @Valid TaskCreateRequestDTO request) {
 
-        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        Long userId = Utils.getUserId();
         return ApiResponse.onSuccess(taskCommandService.createTask(userId, categoryId, request));
     }
 
@@ -64,7 +65,7 @@ public class TodoTaskController {
             @PathVariable Long taskId,
             @RequestBody @Valid TaskTitleUpdateRequestDTO request) {
 
-        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        Long userId = Utils.getUserId();
         return ApiResponse.onSuccess(taskCommandService.updateTaskTitle(userId, taskId, request));
     }
 
@@ -75,14 +76,14 @@ public class TodoTaskController {
             @RequestBody @Valid TaskDueDateUpdateRequestDTO request) {
         // TODO: local date 형식 예외 처리 추가
 
-        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        Long userId = Utils.getUserId();
         return ApiResponse.onSuccess(taskCommandService.updateTaskDueDate(userId, taskId, request));
     }
 
     @Operation(summary = "할 일 삭제", description = "할 일을 삭제합니다.")
     @DeleteMapping("/tasks/{taskId}")
     public ApiResponse<Void> deleteTask(@PathVariable Long taskId) {
-        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        Long userId = Utils.getUserId();
         taskCommandService.deleteTask(userId, taskId);
         return ApiResponse.onSuccess(null);
     }
@@ -90,7 +91,7 @@ public class TodoTaskController {
     @Operation(summary = "할 일 체크/체크 해제", description = "할 일을 체크하거나 체크 해제합니다.")
     @PatchMapping("/tasks/{taskId}/check")
     public ApiResponse<TaskCheckUpdateResponseDTO> updateTaskStatus(@PathVariable Long taskId) {
-        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        Long userId = Utils.getUserId();
         return ApiResponse.onSuccess(taskCommandService.toggleCheck(userId, taskId));
     }
 
@@ -106,7 +107,7 @@ public class TodoTaskController {
             @RequestBody @Valid TaskOrderUpdateRequestDTO request) {
 
         //TODO : 카테고리 변경도 추가하기
-        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        Long userId = Utils.getUserId();
         taskCommandService.updateTaskOrder(userId, categoryId, request);
         return ApiResponse.onSuccess(null);
     }

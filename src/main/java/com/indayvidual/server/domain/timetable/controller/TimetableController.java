@@ -10,6 +10,7 @@ import com.indayvidual.server.domain.timetable.service.TimetableQueryService;
 import com.indayvidual.server.global.api.code.status.ErrorStatus;
 import com.indayvidual.server.global.api.code.status.SuccessStatus;
 import com.indayvidual.server.global.api.response.ApiResponse;
+import com.indayvidual.server.global.util.Utils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +33,7 @@ public class TimetableController {
     public ResponseEntity<ApiResponse<CreateTimetableResponseDto>> createTimetable(
             @Valid @RequestBody CreateTimetableRequestDto request) {
 
-        Long userId = 1L; // TODO: JWT에서 사용자 ID 추출
+        Long userId = Utils.getUserId();; // TODO: JWT에서 사용자 ID 추출
 
         try {
             Timetable createdTimetable = timetableCommandService.createTimetable(request, userId);
@@ -65,7 +66,7 @@ public class TimetableController {
     @GetMapping
     public ResponseEntity<ApiResponse<List<GetTimetableResponseDto>>> getTimetables() {
 
-        Long userId = 1L; // TODO: JWT에서 사용자 ID 추출
+        Long userId = Utils.getUserId();; // TODO: JWT에서 사용자 ID 추출
 
         try {
             List<GetTimetableResponseDto> timetables = timetableQueryService.getTimetables(userId);

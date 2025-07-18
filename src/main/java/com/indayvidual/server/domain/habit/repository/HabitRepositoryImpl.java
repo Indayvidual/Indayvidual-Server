@@ -30,4 +30,18 @@ public class HabitRepositoryImpl implements HabitRepositoryCustom {
 				habitLog.checkedAt.eq(date))
 			.fetch();
 	}
+
+	@Override
+	public List<Habit> findAllHabitsWithLogsOnDateRange(Long userId, LocalDate startDate, LocalDate endDate) {
+		return queryFactory
+			.selectFrom(habit)
+			.distinct()
+			.leftJoin(habit.habitLogs, habitLog).fetchJoin()
+			.where(
+				habit.user.id.eq(userId),
+				habitLog.checkedAt.between(startDate, endDate))
+			.orderBy(habitLog.checkedAt.asc())
+			.fetch();
+
+	}
 }

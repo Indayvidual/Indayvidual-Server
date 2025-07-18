@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.indayvidual.server.domain.habit.dto.response.HabitResponseDTO;
 import com.indayvidual.server.domain.habit.dto.response.HabitSliceResponseDTO;
+import com.indayvidual.server.domain.habit.dto.response.HabitWeeklyChecksResponseDTO;
 import com.indayvidual.server.domain.habit.entity.Habit;
 import com.indayvidual.server.domain.habit.repository.HabitRepository;
 import com.indayvidual.server.domain.user.entity.User;
@@ -64,6 +65,19 @@ public class HabitQueryServiceImpl implements HabitQueryService {
 				return HabitResponseDTO.of(habit, isChecked, date);
 			})
 			.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<HabitWeeklyChecksResponseDTO> getWeeklyChecks(Long userId, LocalDate startDate) {
+		User currentUser = getCurrentUser(userId);
+
+		List<Habit> allHabitsWithLogsOnDateRange = habitRepository.findAllHabitsWithLogsOnDateRange(currentUser.getId(),
+			startDate, startDate.plusDays(6));
+
+		return allHabitsWithLogsOnDateRange.stream()
+			.map(HabitWeeklyChecksResponseDTO::from)
+			.toList();
+
 	}
 
 	private User getCurrentUser(Long userId) {

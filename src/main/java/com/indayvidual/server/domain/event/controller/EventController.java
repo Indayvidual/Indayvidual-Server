@@ -12,6 +12,7 @@ import com.indayvidual.server.domain.event.service.EventQueryService;
 import com.indayvidual.server.global.api.code.status.ErrorStatus;
 import com.indayvidual.server.global.api.code.status.SuccessStatus;
 import com.indayvidual.server.global.api.response.ApiResponse;
+import com.indayvidual.server.global.util.Utils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +36,7 @@ public class EventController {
     public ResponseEntity<ApiResponse<CreateEventResponseDto>> createEvent(
             @Valid @RequestBody CreateEventRequestDto request) {
 
-        Long userId = 1L; // TODO: JWT에서 사용자 ID 추출
+        Long userId = Utils.getUserId();; // TODO: JWT에서 사용자 ID 추출
 
         try {
             Event createdEvent = eventCommandService.createEvent(request, userId);
@@ -62,7 +63,7 @@ public class EventController {
             @PathVariable Long eventId,
             @Valid @RequestBody UpdateEventRequestDto request) {
 
-        Long userId = 1L; // TODO: JWT에서 사용자 ID 추출
+        Long userId = Utils.getUserId();; // TODO: JWT에서 사용자 ID 추출
 
         try {
             Event updatedEvent = eventCommandService.updateEvent(eventId, request, userId);
@@ -89,7 +90,7 @@ public class EventController {
     @DeleteMapping("/{eventId}")
     public ResponseEntity<ApiResponse<Void>> deleteEvent(@PathVariable Long eventId) {
 
-        Long userId = 1L; // TODO: JWT에서 사용자 ID 추출
+        Long userId =  Utils.getUserId();; // TODO: JWT에서 사용자 ID 추출
 
         try {
             eventCommandService.deleteEvent(eventId, userId);
@@ -115,7 +116,7 @@ public class EventController {
     @GetMapping("/{date}")
     public ResponseEntity<ApiResponse<List<GetDayEventResponseDto>>> getDayEvents(@PathVariable String date) {
 
-        Long userId = 1L; // TODO: JWT에서 사용자 ID 추출
+        Long userId =  Utils.getUserId();; // TODO: JWT에서 사용자 ID 추출
 
         try {
             LocalDate eventDate = LocalDate.parse(date);

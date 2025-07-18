@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.indayvidual.server.domain.calendar.service.CalendarQueryService;
+import com.indayvidual.server.global.util.Utils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,7 +37,7 @@ public class CalendarController {
 		@PathVariable int year,
 		@PathVariable int month) {
 
-		Long userId = 1L; // TODO: JWT에서 사용자 ID 추출
+		Long userId = Utils.getUserId();; // TODO: JWT에서 사용자 ID 추출
 
 		try {
 			List<GetMonthlyCalendarResponseDto> calendar = calendarQueryService.getMonthlyCalendar(year, month, userId);

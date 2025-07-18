@@ -1,5 +1,7 @@
 package com.indayvidual.server.global.util;
 
+import com.indayvidual.server.global.config.security.JwtUserPrincipal;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 public class Utils {
@@ -18,6 +20,11 @@ public class Utils {
 	}
 
 	public static Long getUserId() {
-		return Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (auth == null || !(auth.getPrincipal() instanceof JwtUserPrincipal jwt)) {
+			throw new IllegalStateException("인증되지 않은 사용자입니다.");
+		}
+		return jwt.userId();
 	}
+
 }

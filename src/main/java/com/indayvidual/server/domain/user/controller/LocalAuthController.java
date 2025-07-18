@@ -6,6 +6,7 @@ import com.indayvidual.server.domain.user.dto.request.SignupRequestDTO;
 import com.indayvidual.server.domain.user.dto.response.SignupResponseDTO;
 import com.indayvidual.server.domain.user.service.UserService.UserAuthService;
 import com.indayvidual.server.global.api.response.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = " API", description = "이메일 인증 관련 API")
 @Slf4j
 @RestController
 @RequiredArgsConstructor

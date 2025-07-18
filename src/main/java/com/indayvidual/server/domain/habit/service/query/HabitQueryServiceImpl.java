@@ -1,6 +1,7 @@
 package com.indayvidual.server.domain.habit.service.query;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.indayvidual.server.domain.habit.dto.response.HabitMonthlyChecksResponseDTO;
 import com.indayvidual.server.domain.habit.dto.response.HabitResponseDTO;
 import com.indayvidual.server.domain.habit.dto.response.HabitSliceResponseDTO;
 import com.indayvidual.server.domain.habit.dto.response.HabitWeeklyChecksResponseDTO;
@@ -78,6 +80,17 @@ public class HabitQueryServiceImpl implements HabitQueryService {
 			.map(HabitWeeklyChecksResponseDTO::from)
 			.toList();
 
+	}
+
+	@Override
+	public List<HabitMonthlyChecksResponseDTO> getMonthlyChecks(Long userId, YearMonth yearMonth) {
+		User currentUser = getCurrentUser(userId);
+
+		List<Habit> habits = habitRepository.findAllHabitsWithLogsOnMonth(userId, yearMonth);
+
+		return habits.stream()
+			.map(HabitMonthlyChecksResponseDTO::from)
+			.toList();
 	}
 
 	private User getCurrentUser(Long userId) {

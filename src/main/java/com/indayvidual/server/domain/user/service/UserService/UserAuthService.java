@@ -7,4 +7,5 @@ import com.indayvidual.server.domain.user.dto.response.SignupResponseDTO;
 public interface UserAuthService {
     SignupResponseDTO signupWithEmail(SignupRequestDTO request);
     LoginResponseDTO loginWithEmailAndPassword(String email, String password);
+    void logoutWithRefreshToken(String refreshToken);
 }

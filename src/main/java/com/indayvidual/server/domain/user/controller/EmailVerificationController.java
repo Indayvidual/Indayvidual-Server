@@ -10,8 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(
-        name = "이메일 관련 API",
-        description = "이메일 중복 확인, 인증 코드 발송 및 검증 기능을 제공."
+        name = "Email API",
+        description = "이메일 중복 확인, 인증 코드 발송 및 검증 기능을 제공"
 )
 @RestController
 @RequiredArgsConstructor

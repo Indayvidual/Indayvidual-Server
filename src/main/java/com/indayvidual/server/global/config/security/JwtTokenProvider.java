@@ -4,6 +4,7 @@ import com.indayvidual.server.domain.user.entity.*;
 import com.indayvidual.server.domain.user.entity.enums.Role;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import io.micrometer.common.lang.Nullable;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -27,8 +29,12 @@ public class JwtTokenProvider {
 
     private static final String USER_ID = "userId";
     private static final String ROLE = "role";
-    private static final Long ACCESS_TOKEN_EXPIRATION_TIME = 24 * 60 * 60 * 1000L; // 24시간
-    private static final Long REFRESH_TOKEN_EXPIRATION_TIME = 7 * 24 * 60 * 60 * 1000L; // 7일
+    private static final String TOKEN_TYPE = "tokenType";
+    private static final String TOKEN_TYPE_ACCESS = "access";
+    private static final String TOKEN_TYPE_REFRESH = "refresh";
+
+    private static final Long ACCESS_TOKEN_EXPIRATION_TIME = 15 * 60 * 1000L;  // 15분
+    private static final Long REFRESH_TOKEN_EXPIRATION_TIME = 14 * 24 * 60 * 60 * 1000L; // 14일
 
     @Value("${auth.jwt.secret}")
     private String jwtSecret;
@@ -49,56 +55,39 @@ public class JwtTokenProvider {
     }
 
     public String generateAccessToken(User user) {
-        return generateToken(user, ACCESS_TOKEN_EXPIRATION_TIME);
+        return generateToken(user, ACCESS_TOKEN_EXPIRATION_TIME, TOKEN_TYPE_ACCESS, null);
     }
 
     public String generateRefreshToken(User user) {
-        return generateToken(user, REFRESH_TOKEN_EXPIRATION_TIME);
+        String tokenId = UUID.randomUUID().toString();   // ★ jti
+        return generateToken(user, REFRESH_TOKEN_EXPIRATION_TIME, TOKEN_TYPE_REFRESH, tokenId);
     }
 
-    // 로그인 시점 (User 엔티티)
-    private String generateToken(User user, Long expirationTime) {
-        final Date now = new Date();
-        final Date expiryDate = new Date(now.getTime() + expirationTime);
+    // 공통 로직
+    private String generateToken(User user,
+                                 long expirationTime,
+                                 String tokenType,
+                                 @Nullable String jti) {
 
-        return Jwts.builder()
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + expirationTime);
+
+        JwtBuilder builder = Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .setSubject(user.getId().toString())
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .claim(USER_ID, user.getId())
                 .claim(ROLE, user.getRole().name())
-                .signWith(signingKey)
-                .compact();
-    }
+                .claim(TOKEN_TYPE, tokenType)     // ★ access / refresh
+                .signWith(signingKey);
 
-    // 이미 인증된 상태에서 토큰 재발급(Authentication)
-    public String generateTokenFromAuthentication(Authentication authentication) {
-        if (authentication.getPrincipal() instanceof JwtUserPrincipal) {
-            JwtUserPrincipal principal = (JwtUserPrincipal) authentication.getPrincipal();
-            return generateTokenFromPrincipal(principal, ACCESS_TOKEN_EXPIRATION_TIME);
-        } else if (authentication.getPrincipal() instanceof Long) {
-            // 현재 구조 호환성을 위해 추가
-            Long userId = (Long) authentication.getPrincipal();
-            // 실제로는 DB에서 사용자 정보를 조회해야 함
-            throw new IllegalArgumentException("Cannot generate token from Long principal. Use User entity instead.");
-        }
-        throw new IllegalArgumentException("Unsupported principal type");
-    }
+        if (jti != null) {
+            builder.setId(jti);
+            log.info("jti 추가됨: {}", jti);
+        }        // ★ refresh 전용
 
-    private String generateTokenFromPrincipal(JwtUserPrincipal principal, Long expirationTime) {
-        final Date now = new Date();
-        final Date expiryDate = new Date(now.getTime() + expirationTime);
-
-        return Jwts.builder()
-                .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
-                .setSubject(principal.userId().toString())
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
-                .claim(USER_ID, principal.userId())
-                .claim(ROLE, principal.role().name())
-                .signWith(signingKey)
-                .compact();
+        return builder.compact();
     }
 
     // 토큰으로부터 Authentication 객체 생성
@@ -118,15 +107,10 @@ public class JwtTokenProvider {
 
     // 토큰 검증
     public JwtValidationType validateToken(String token) {
-        if (!StringUtils.hasText(token)) {
-            return JwtValidationType.EMPTY_JWT;
-        }
+        if (!StringUtils.hasText(token)) return JwtValidationType.EMPTY_JWT;
 
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(signingKey)
-                    .build()
-                    .parseClaimsJws(token);
+            Jwts.parserBuilder().setSigningKey(signingKey).build().parseClaimsJws(token);
             return JwtValidationType.VALID_JWT;
         } catch (ExpiredJwtException ex) {
             log.warn("JWT token expired");
@@ -137,11 +121,8 @@ public class JwtTokenProvider {
         } catch (MalformedJwtException ex) {
             log.warn("Invalid JWT token");
             return JwtValidationType.INVALID_JWT_TOKEN;
-        } catch (IllegalArgumentException ex) {
-            log.warn("JWT token compact of handler are invalid");
-            return JwtValidationType.EMPTY_JWT;
         } catch (Exception ex) {
-            log.error("JWT token validation failed", ex);
+            log.error("JWT validation failed", ex);
             return JwtValidationType.INVALID_JWT_TOKEN;
         }
     }
@@ -162,6 +143,26 @@ public class JwtTokenProvider {
         } catch (JwtException ex) {
             throw new IllegalArgumentException("Invalid JWT token", ex);
         }
+    }
+
+    public Claims parseClaims(String token) {
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(signingKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (ExpiredJwtException e) {
+            return e.getClaims(); // 만료되었어도 Claims는 추출 가능
+        } catch (JwtException | IllegalArgumentException e) {
+            // 구조가 잘못됐거나 서명 오류, null 등
+            log.warn("JWT 파싱 실패: {}", e.getMessage());
+            throw new IllegalArgumentException("유효하지 않은 JWT 토큰입니다.", e);
+        }
+    }
+
+    public boolean isRefreshToken(String token) {
+        return TOKEN_TYPE_REFRESH.equals(getBody(token).get(TOKEN_TYPE, String.class));
     }
 
     private Claims getBody(String token) {

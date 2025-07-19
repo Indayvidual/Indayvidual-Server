@@ -26,7 +26,6 @@ public class SecurityConfig {
             "/api/auth/**",
             "/api/auth/refresh",
             "/api/auth/login/**",
-            "/auth/kakao/login/**",
             "/temp/health"
     };
 

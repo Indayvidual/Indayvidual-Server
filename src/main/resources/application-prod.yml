@@ -61,3 +61,11 @@ springdoc:
 logging:
   level:
     com.indayvidual: INFO
+
+kakao:
+  oauth:
+    client-id:       ${KAKAO_REST_API_KEY}
+    client-secret:   ${KAKAO_CLIENT_SECRET:}   # 없으면 빈 값
+    token-info-uri:  https://kapi.kakao.com/v1/user/access_token_info
+    user-info-uri:   https://kapi.kakao.com/v2/user/me
+

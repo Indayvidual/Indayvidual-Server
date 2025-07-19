@@ -1,14 +1,14 @@
 package com.indayvidual.server.domain.user.controller;
 
+import com.indayvidual.server.domain.user.dto.request.KakaoLoginRequestDTO;
 import com.indayvidual.server.domain.user.dto.request.LoginRequestDTO;
 import com.indayvidual.server.domain.user.dto.response.LoginResponseDTO;
 import com.indayvidual.server.domain.user.dto.request.SignupRequestDTO;
 import com.indayvidual.server.domain.user.dto.response.SignupResponseDTO;
+import com.indayvidual.server.domain.user.service.AuthService.KakaoAuthService;
 import com.indayvidual.server.domain.user.service.UserService.RefreshTokenService;
 import com.indayvidual.server.domain.user.service.UserService.UserAuthService;
 import com.indayvidual.server.global.api.response.ApiResponse;
-import com.indayvidual.server.global.config.security.JwtTokenProvider;
-import io.jsonwebtoken.Claims;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final UserAuthService userAuthService;
+    private final KakaoAuthService kakaoAuthService;
     private final RefreshTokenService refreshTokenService;
 
     @PostMapping("/signup")
@@ -38,6 +39,14 @@ public class AuthController {
                 request.getEmail(), request.getPassword()
         );
         return ResponseEntity.ok(ApiResponse.onSuccess(response));
+    }
+
+    @PostMapping("/kakao")
+    public ResponseEntity<ApiResponse<LoginResponseDTO>> kakaoLogin(
+            @RequestBody KakaoLoginRequestDTO req) {
+
+        LoginResponseDTO dto = kakaoAuthService.loginWithKakao(req.getAccessToken());
+        return ResponseEntity.ok(ApiResponse.onSuccess(dto));
     }
 
     @PostMapping("/refresh")

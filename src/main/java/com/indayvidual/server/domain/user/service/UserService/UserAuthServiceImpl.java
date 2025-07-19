@@ -3,21 +3,27 @@ package com.indayvidual.server.domain.user.service.UserService;
 import com.indayvidual.server.domain.user.dto.response.LoginResponseDTO;
 import com.indayvidual.server.domain.user.dto.request.SignupRequestDTO;
 import com.indayvidual.server.domain.user.dto.response.SignupResponseDTO;
+import com.indayvidual.server.domain.user.entity.RefreshToken;
 import com.indayvidual.server.domain.user.entity.User;
 import com.indayvidual.server.domain.user.entity.UserProvider;
 import com.indayvidual.server.domain.user.entity.enums.Provider;
 import com.indayvidual.server.domain.user.entity.enums.Role;
 import com.indayvidual.server.domain.user.entity.enums.Status;
+import com.indayvidual.server.domain.user.repository.RefreshTokenRepository;
 import com.indayvidual.server.domain.user.repository.UserProviderRepository;
 import com.indayvidual.server.domain.user.repository.UserRepository;
 import com.indayvidual.server.global.config.security.JwtTokenProvider;
+import com.indayvidual.server.global.config.security.JwtValidationType;
 import com.indayvidual.server.global.config.security.UserAuthentication;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -27,6 +33,7 @@ public class UserAuthServiceImpl implements UserAuthService {
 
     private final UserRepository userRepository;
     private final UserProviderRepository userProviderRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -97,6 +104,14 @@ public class UserAuthServiceImpl implements UserAuthService {
         String accessToken = jwtTokenProvider.generateAccessToken(user);
         String refreshToken = jwtTokenProvider.generateRefreshToken(user);
 
+        Claims claims = jwtTokenProvider.parseClaims(refreshToken);
+        refreshTokenRepository.save(RefreshToken.of(
+                user.getId(),
+                claims.getId(),
+                refreshToken,
+                Duration.between(Instant.now(), claims.getExpiration().toInstant())
+        ));
+
         return LoginResponseDTO.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
@@ -105,5 +120,12 @@ public class UserAuthServiceImpl implements UserAuthService {
                 .username(user.getUsername())
                 .role(user.getRole().name())
                 .build();
+    }
+
+    @Override
+    public void logoutWithRefreshToken(String refreshToken) {
+        Claims claims = jwtTokenProvider.parseClaims(refreshToken);
+        refreshTokenRepository.findByTokenId(claims.getId())
+                .ifPresent(RefreshToken::revoke);
     }
 }

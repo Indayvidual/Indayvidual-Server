@@ -1,11 +1,9 @@
 package com.indayvidual.server.global.config.security;
 
-import static com.indayvidual.server.global.config.security.JwtValidationType.*;
-
 import java.io.IOException;
 
+import io.jsonwebtoken.Claims;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -18,16 +16,6 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
-import org.springframework.web.filter.OncePerRequestFilter;
-
-import java.io.IOException;
-import java.util.List;
-
-import static com.indayvidual.server.global.config.security.JwtValidationType.VALID_JWT;
 
 @Slf4j
 @Component
@@ -45,6 +33,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = getJwtFromRequest(request);
 
             if (token != null && jwtTokenProvider.validateToken(token) == JwtValidationType.VALID_JWT) {
+                Claims claims = jwtTokenProvider.parseClaims(token);
+
+                if (!"access".equals(claims.get("tokenType"))) {
+                    throw new IllegalArgumentException("Access Token이 아닙니다.");
+                }
                 Authentication authentication = jwtTokenProvider.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }

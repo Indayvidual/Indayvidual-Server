@@ -4,7 +4,9 @@ import com.indayvidual.server.domain.event.converter.EventConverter;
 import com.indayvidual.server.domain.calendar.dto.response.GetDayEventResponseDto;
 import com.indayvidual.server.domain.calendar.dto.response.GetMonthlyCalendarResponseDto;
 import com.indayvidual.server.domain.event.entity.Event;
+import com.indayvidual.server.domain.event.exception.EventException;
 import com.indayvidual.server.domain.event.repository.EventRepository;
+import com.indayvidual.server.global.api.code.status.ErrorStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +29,7 @@ public class EventQueryServiceImpl implements EventQueryService {
     @Override
     public Event findByIdAndUserId(Long eventId, Long userId) {
         return eventRepository.findByIdAndUserId(eventId, userId)
-                .orElseThrow(() -> new RuntimeException("해당 일정을 찾을 수 없습니다."));
+                .orElseThrow(() -> new EventException(ErrorStatus.EVENT_NOT_FOUND));
     }
 
     @Override

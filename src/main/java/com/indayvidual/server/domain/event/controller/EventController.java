@@ -7,25 +7,29 @@ import com.indayvidual.server.domain.event.dto.request.UpdateEventRequestDto;
 import com.indayvidual.server.domain.event.dto.response.CreateEventResponseDto;
 import com.indayvidual.server.domain.event.dto.response.UpdateEventResponseDto;
 import com.indayvidual.server.domain.event.entity.Event;
+import com.indayvidual.server.domain.event.exception.EventException;
 import com.indayvidual.server.domain.event.service.EventCommandService;
 import com.indayvidual.server.domain.event.service.EventQueryService;
 import com.indayvidual.server.global.api.code.status.ErrorStatus;
 import com.indayvidual.server.global.api.code.status.SuccessStatus;
 import com.indayvidual.server.global.api.response.ApiResponse;
 import com.indayvidual.server.global.util.Utils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/events")
 @RequiredArgsConstructor
-@Slf4j
+@Tag(name = "Event", description = "이벤트 관리 API")
 public class EventController {
 
     private final EventCommandService eventCommandService;
@@ -33,109 +37,94 @@ public class EventController {
     private final EventConverter eventConverter;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<CreateEventResponseDto>> createEvent(
+    @Operation(summary = "이벤트 생성", description = "새로운 이벤트를 생성합니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "이벤트 생성 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청 데이터"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 실패")
+    })
+    public ApiResponse<CreateEventResponseDto> createEvent(
             @Valid @RequestBody CreateEventRequestDto request) {
 
-        Long userId = Utils.getUserId();; // TODO: JWT에서 사용자 ID 추출
+        Long userId = Utils.getUserId();
+        Event createdEvent = eventCommandService.createEvent(request, userId);
+        CreateEventResponseDto response = eventConverter.toCreateResponse(createdEvent);
 
-        try {
-            Event createdEvent = eventCommandService.createEvent(request, userId);
-            CreateEventResponseDto response = eventConverter.toCreateResponse(createdEvent);
-
-            return ResponseEntity.ok(
-                    ApiResponse.onSuccess(response,
-                            SuccessStatus.CREATE_EVENT_SUCCESS.getCode(),
-                            SuccessStatus.CREATE_EVENT_SUCCESS.getMessage())
-            );
-        } catch (Exception e) {
-            log.error("일정 등록 실패", e);
-            return ResponseEntity.badRequest().body(
-                    ApiResponse.onFailure(
-                            ErrorStatus.EVENT_CREATE_FAILED.getCode(),
-                            ErrorStatus.EVENT_CREATE_FAILED.getMessage() + ": " + e.getMessage(),
-                            null)
-            );
-        }
+        return ApiResponse.onSuccess(
+                response,
+                SuccessStatus.CREATE_EVENT_SUCCESS.getCode(),
+                SuccessStatus.CREATE_EVENT_SUCCESS.getMessage()
+        );
     }
 
     @PatchMapping("/{eventId}")
-    public ResponseEntity<ApiResponse<UpdateEventResponseDto>> updateEvent(
-            @PathVariable Long eventId,
+    @Operation(summary = "이벤트 수정", description = "기존 이벤트를 수정합니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "이벤트 수정 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청 데이터"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 실패"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "이벤트를 찾을 수 없음")
+    })
+    public ApiResponse<UpdateEventResponseDto> updateEvent(
+            @Parameter(description = "이벤트 ID", required = true) @PathVariable Long eventId,
             @Valid @RequestBody UpdateEventRequestDto request) {
 
-        Long userId = Utils.getUserId();; // TODO: JWT에서 사용자 ID 추출
+        Long userId = Utils.getUserId();
+        Event updatedEvent = eventCommandService.updateEvent(eventId, request, userId);
+        UpdateEventResponseDto response = eventConverter.toUpdateResponse(updatedEvent);
 
-        try {
-            Event updatedEvent = eventCommandService.updateEvent(eventId, request, userId);
-            UpdateEventResponseDto response = eventConverter.toUpdateResponse(updatedEvent);
-
-            ApiResponse<UpdateEventResponseDto> apiResponse = ApiResponse.onSuccess(
-                    response,
-                    SuccessStatus.UPDATE_EVENT_SUCCESS.getCode(),
-                    SuccessStatus.UPDATE_EVENT_SUCCESS.getMessage()
-            );
-
-            return ResponseEntity.ok(apiResponse);
-        } catch (Exception e) {
-            log.error("일정 수정 실패", e);
-            ApiResponse<UpdateEventResponseDto> apiResponse = ApiResponse.onFailure(
-                    ErrorStatus.EVENT_UPDATE_FAILED.getCode(),
-                    ErrorStatus.EVENT_UPDATE_FAILED.getMessage() + ": " + e.getMessage(),
-                    null
-            );
-            return ResponseEntity.badRequest().body(apiResponse);
-        }
+        return ApiResponse.onSuccess(
+                response,
+                SuccessStatus.UPDATE_EVENT_SUCCESS.getCode(),
+                SuccessStatus.UPDATE_EVENT_SUCCESS.getMessage()
+        );
     }
 
     @DeleteMapping("/{eventId}")
-    public ResponseEntity<ApiResponse<Void>> deleteEvent(@PathVariable Long eventId) {
+    @Operation(summary = "이벤트 삭제", description = "이벤트를 삭제합니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "이벤트 삭제 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 실패"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "이벤트를 찾을 수 없음")
+    })
+    public ApiResponse<Void> deleteEvent(
+            @Parameter(description = "이벤트 ID", required = true) @PathVariable Long eventId) {
 
-        Long userId =  Utils.getUserId();; // TODO: JWT에서 사용자 ID 추출
+        Long userId = Utils.getUserId();
+        eventCommandService.deleteEvent(eventId, userId);
 
-        try {
-            eventCommandService.deleteEvent(eventId, userId);
-
-            ApiResponse<Void> apiResponse = ApiResponse.onSuccess(
-                    null,
-                    SuccessStatus.DELETE_EVENT_SUCCESS.getCode(),
-                    SuccessStatus.DELETE_EVENT_SUCCESS.getMessage()
-            );
-            return ResponseEntity.ok(apiResponse);
-        } catch (Exception e) {
-            log.error("일정 삭제 실패", e);
-
-            ApiResponse<Void> apiResponse = ApiResponse.onFailure(
-                    ErrorStatus.EVENT_DELETE_FAILED.getCode(),
-                    ErrorStatus.EVENT_DELETE_FAILED.getMessage() + ": " + e.getMessage(),
-                    null
-            );
-            return ResponseEntity.badRequest().body(apiResponse);
-        }
+        return ApiResponse.onSuccess(
+                null,
+                SuccessStatus.DELETE_EVENT_SUCCESS.getCode(),
+                SuccessStatus.DELETE_EVENT_SUCCESS.getMessage()
+        );
     }
 
     @GetMapping("/{date}")
-    public ResponseEntity<ApiResponse<List<GetDayEventResponseDto>>> getDayEvents(@PathVariable String date) {
+    @Operation(summary = "특정 날짜 이벤트 조회", description = "특정 날짜의 모든 이벤트를 조회합니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "이벤트 조회 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 날짜 형식"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 실패")
+    })
+    public ApiResponse<List<GetDayEventResponseDto>> getDayEvents(
+            @Parameter(description = "날짜 (yyyy-MM-dd 형식)", required = true, example = "2025-07-22")
+            @PathVariable String date) {
 
-        Long userId =  Utils.getUserId();; // TODO: JWT에서 사용자 ID 추출
+        Long userId = Utils.getUserId();
+        LocalDate eventDate;
 
         try {
-            LocalDate eventDate = LocalDate.parse(date);
-            List<GetDayEventResponseDto> events = eventQueryService.getDayEvents(eventDate, userId);
-
-            return ResponseEntity.ok(
-                    ApiResponse.onSuccess(events,
-                            SuccessStatus.GET_DAY_EVENTS_SUCCESS.getCode(),
-                            SuccessStatus.GET_DAY_EVENTS_SUCCESS.getMessage())
-            );
-        } catch (Exception e) {
-            log.error("특정 날짜 일정 조회 실패", e);
-
-            ApiResponse<List<GetDayEventResponseDto>> apiResponse = ApiResponse.onFailure(
-                    ErrorStatus.EVENT_GET_BY_DATE_FAILED.getCode(),
-                    ErrorStatus.EVENT_GET_BY_DATE_FAILED.getMessage() + ": " + e.getMessage(),
-                    null
-            );
-            return ResponseEntity.badRequest().body(apiResponse);
+            eventDate = LocalDate.parse(date);
+        } catch (DateTimeParseException e) {
+            throw new EventException(ErrorStatus.EVENT_INVALID_DATE_FORMAT);
         }
+
+        List<GetDayEventResponseDto> events = eventQueryService.getDayEvents(eventDate, userId);
+
+        return ApiResponse.onSuccess(
+                events,
+                SuccessStatus.GET_DAY_EVENTS_SUCCESS.getCode(),
+                SuccessStatus.GET_DAY_EVENTS_SUCCESS.getMessage());
     }
 }

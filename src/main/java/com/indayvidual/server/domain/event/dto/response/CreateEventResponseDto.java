@@ -8,9 +8,9 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "이벤트 생성 응답 DTO")
+@Schema(description = "일정 생성 응답 DTO")
 public class CreateEventResponseDto {
 
-    @Schema(description = "생성된 이벤트 ID", example = "1")
+    @Schema(description = "생성된 일정 ID", example = "1")
     private Long eventId;
 }

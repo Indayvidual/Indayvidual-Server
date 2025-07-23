@@ -38,6 +38,7 @@ public class EventConverter {
     public UpdateEventResponseDto toUpdateResponse(Event entity) {
         return UpdateEventResponseDto.builder()
                 .eventId(entity.getId())
+                .date(entity.getEventDate())
                 .title(entity.getTitle())
                 .startTime(entity.getStartTime())
                 .endTime(entity.getEndTime())
@@ -46,6 +47,9 @@ public class EventConverter {
     }
 
     public void updateEntityFromRequest(Event entity, UpdateEventRequestDto request) {
+        if (request.getDate() != null) {
+            entity.setEventDate(request.getDate());
+        }
         if (StringUtils.hasText(request.getTitle())) {
             entity.setTitle(request.getTitle().trim());
         }

@@ -29,7 +29,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/events")
 @RequiredArgsConstructor
-@Tag(name = "Event", description = "이벤트 관리 API")
+@Tag(name = "Event", description = "일정 관리 API")
 public class EventController {
 
     private final EventCommandService eventCommandService;
@@ -37,9 +37,9 @@ public class EventController {
     private final EventConverter eventConverter;
 
     @PostMapping
-    @Operation(summary = "이벤트 생성", description = "새로운 이벤트를 생성합니다.")
+    @Operation(summary = "일정 생성", description = "새로운 일정을 생성합니다.")
     @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "이벤트 생성 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "일정 생성 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청 데이터"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 실패")
     })
@@ -58,15 +58,15 @@ public class EventController {
     }
 
     @PatchMapping("/{eventId}")
-    @Operation(summary = "이벤트 수정", description = "기존 이벤트를 수정합니다.")
+    @Operation(summary = "일정 수정", description = "기존 일정을 수정합니다.")
     @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "이벤트 수정 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "일정 수정 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청 데이터"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 실패"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "이벤트를 찾을 수 없음")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "일정을 찾을 수 없음")
     })
     public ApiResponse<UpdateEventResponseDto> updateEvent(
-            @Parameter(description = "이벤트 ID", required = true) @PathVariable Long eventId,
+            @Parameter(description = "일정 ID", required = true) @PathVariable Long eventId,
             @Valid @RequestBody UpdateEventRequestDto request) {
 
         Long userId = Utils.getUserId();
@@ -81,14 +81,14 @@ public class EventController {
     }
 
     @DeleteMapping("/{eventId}")
-    @Operation(summary = "이벤트 삭제", description = "이벤트를 삭제합니다.")
+    @Operation(summary = "일정 삭제", description = "일정을 삭제합니다.")
     @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "이벤트 삭제 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "일정 삭제 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 실패"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "이벤트를 찾을 수 없음")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "일정을 찾을 수 없음")
     })
     public ApiResponse<Void> deleteEvent(
-            @Parameter(description = "이벤트 ID", required = true) @PathVariable Long eventId) {
+            @Parameter(description = "일정 ID", required = true) @PathVariable Long eventId) {
 
         Long userId = Utils.getUserId();
         eventCommandService.deleteEvent(eventId, userId);
@@ -101,9 +101,9 @@ public class EventController {
     }
 
     @GetMapping("/{date}")
-    @Operation(summary = "특정 날짜 이벤트 조회", description = "특정 날짜의 모든 이벤트를 조회합니다.")
+    @Operation(summary = "특정 날짜 일정 조회", description = "특정 날짜의 모든 일정을 조회합니다.")
     @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "이벤트 조회 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "일정 조회 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 날짜 형식"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 실패")
     })

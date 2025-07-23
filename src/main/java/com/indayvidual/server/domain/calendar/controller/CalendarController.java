@@ -32,7 +32,7 @@ public class CalendarController {
 
 	private final CalendarQueryService calendarQueryService;
 
-	@GetMapping("/{year}/{month}")
+	@GetMapping("/home/{year}/{month}")
 	public ResponseEntity<ApiResponse<List<GetMonthlyCalendarResponseDto>>> getMonthlyCalendar(
 		@PathVariable int year,
 		@PathVariable int month) {

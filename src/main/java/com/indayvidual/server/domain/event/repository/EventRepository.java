@@ -29,17 +29,12 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     boolean existsByIdAndUserId(Long id, Long userId);
 
     /**
-     * 사용자 ID와 날짜 범위로 이벤트 날짜 조회\
-     */
-    @Query("SELECT DISTINCT e.eventDate FROM Event e " +
-            "WHERE e.userId = :userId AND e.eventDate BETWEEN :startDate AND :endDate")
-    List<LocalDate> findEventDatesByUserIdAndDateRange(
-            @Param("userId") Long userId,
-            @Param("startDate") LocalDate startDate,
-            @Param("endDate") LocalDate endDate);
-
-    /**
      * 특정 날짜의 사용자 이벤트를 시작 시간 순으로 조회
      */
     List<Event> findByUserIdAndEventDateOrderByStartTimeAsc(Long userId, LocalDate eventDate);
+
+    /**
+     * 사용자 ID와 낢짜 범위로 일정(Event) 전체 조회
+     */
+    List<Event> findByUserIdAndEventDateBetween(Long userId, LocalDate startDate, LocalDate endDate);
 }

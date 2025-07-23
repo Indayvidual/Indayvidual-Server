@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Builder
@@ -17,7 +18,5 @@ public class GetMonthlyCalendarResponseDto {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate date;
 
-    private Boolean hasEvent;
-
-    private Boolean hasTodo;
+    private List<String> colors;
 }

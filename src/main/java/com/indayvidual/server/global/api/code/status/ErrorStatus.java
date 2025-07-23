@@ -60,6 +60,7 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // ===== 캘린더 관련 에러 (CALENDAR) =====
     CALENDAR_FETCH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "CAL4001", "월별 캘린더 정보 조회에 실패했습니다."),
+    CALENDAR_INVALID_DATE_INPUT(HttpStatus.BAD_REQUEST, "CAL4002", "올바르지 않은 연월 입력입니다."),
 
     // ===== 일정 관련 에러 (EVENT) =====
     EVENT_NOT_FOUND(HttpStatus.NOT_FOUND, "EVENT4041", "일정을 찾을 수 없습니다."),

@@ -1,16 +1,22 @@
 package com.indayvidual.server.domain.calendar.service;
 
 import com.indayvidual.server.domain.calendar.dto.response.GetMonthlyCalendarResponseDto;
+import com.indayvidual.server.domain.calendar.exception.CalendarException;
 import com.indayvidual.server.domain.event.entity.Event;
 import com.indayvidual.server.domain.event.repository.EventRepository;
+import com.indayvidual.server.global.api.code.status.ErrorStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +27,13 @@ public class CalendarQueryServiceImpl implements CalendarQueryService {
 
     @Override
     public List<GetMonthlyCalendarResponseDto> getMonthlyCalendar(int year, int month, Long userId) {
-        YearMonth yearMonth = YearMonth.of(year, month);
+        YearMonth yearMonth;
+        try {
+            yearMonth = YearMonth.of(year, month);
+        } catch (DateTimeException e) {
+            throw new CalendarException(ErrorStatus.CALENDAR_INVALID_DATE_INPUT);
+        }
+
         LocalDate startDate = yearMonth.atDay(1);
         LocalDate endDate = yearMonth.atEndOfMonth();
 
@@ -30,23 +42,19 @@ public class CalendarQueryServiceImpl implements CalendarQueryService {
         Map<LocalDate, List<String>> dateColorsMap = events.stream()
                 .collect(Collectors.groupingBy(
                         Event::getEventDate,
-                        LinkedHashMap::new,
                         Collectors.mapping(Event::getColorCode, Collectors.toList())
                 ));
 
-        List<GetMonthlyCalendarResponseDto> result = new ArrayList<>();
-        LocalDate currentDate = startDate;
-
-        while (!currentDate.isAfter(endDate)) {
-            List<String> colors = dateColorsMap.getOrDefault(currentDate, Collections.emptyList());
-
-            result.add(GetMonthlyCalendarResponseDto.builder()
-                    .date(currentDate)
-                    .colors(colors)
-                    .build());
-            currentDate = currentDate.plusDays(1);
-        }
-
-        return result;
+        return Stream.iterate(startDate, date -> date.plusDays(1))
+                .limit(yearMonth.lengthOfMonth())
+                .map(date -> {
+                    List<String> colors = dateColorsMap.getOrDefault(date, Collections.emptyList());
+                    return GetMonthlyCalendarResponseDto.builder()
+                            .date(date)
+                            .colors(colors)
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 }
+

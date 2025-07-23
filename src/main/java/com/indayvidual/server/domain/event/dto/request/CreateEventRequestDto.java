@@ -16,15 +16,15 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "이벤트 생성 요청 DTO")
+@Schema(description = "일정 생성 요청 DTO")
 public class CreateEventRequestDto {
 
-    @Schema(description = "이벤트 날짜", example = "2025-07-22", required = true)
+    @Schema(description = "일정 날짜", example = "2025-07-22", required = true)
     @NotNull(message = "날짜는 필수입니다.")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate date;
 
-    @Schema(description = "이벤트 제목", example = "회의", required = true)
+    @Schema(description = "일정 제목", example = "회의", required = true)
     @NotBlank(message = "제목은 필수입니다.")
     @Size(max = 20, message = "제목은 20자 이내여야 합니다.")
     private String title;

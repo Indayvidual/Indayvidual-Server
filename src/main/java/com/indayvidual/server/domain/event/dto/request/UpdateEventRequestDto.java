@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Getter
@@ -16,6 +17,10 @@ import java.time.LocalTime;
 @Builder
 @Schema(description = "이벤트 수정 요청 DTO")
 public class UpdateEventRequestDto {
+
+    @Schema(description = "이벤트 날짜", example = "2025-07-22")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate date;
 
     @Schema(description = "이벤트 제목", example = "회의")
     @Size(max = 20, message = "제목은 20자 이내여야 합니다.")

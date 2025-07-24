@@ -207,9 +207,46 @@ public class HabitController {
 	}
 
 	@PatchMapping("/{habitId}/check")
+	@Operation(
+		summary = "습관 체크 상태 토글",
+		description = "특정 날짜의 습관 체크 상태를 토글합니다. 체크되지 않은 상태면 체크하고, 체크된 상태면 체크를 해제합니다."
+	)
+	@ApiResponses(value = {
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "200",
+			description = "습관 체크 상태 토글 성공",
+			content = @Content(schema = @Schema(implementation = HabitResponseDTO.class))
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "400",
+			description = "잘못된 요청 데이터 (유효성 검증 실패, 미래 날짜 등)"
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "401",
+			description = "인증 실패"
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "403",
+			description = "권한 없음 (다른 사용자의 습관 체크 시도)"
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "404",
+			description = "습관을 찾을 수 없음"
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "500",
+			description = "서버 내부 오류"
+		)
+	})
 	public ApiResponse<HabitResponseDTO> updateHabitCheck(
+		@Parameter(description = "습관 ID", required = true, example = "1")
 		@PathVariable Long habitId,
 
+		@io.swagger.v3.oas.annotations.parameters.RequestBody(
+			description = "습관 체크 토글 요청 데이터",
+			required = true,
+			content = @Content(schema = @Schema(implementation = ToggleCheckRequestDTO.class))
+		)
 		@Valid @RequestBody ToggleCheckRequestDTO request
 	) {
 		Long userId = Utils.getUserId();
@@ -217,8 +254,31 @@ public class HabitController {
 	}
 
 	@GetMapping("/checks/daily")
+	@Operation(
+		summary = "특정 날짜 습관 체크 상태 조회",
+		description = "특정 날짜에 대한 모든 습관의 체크 상태를 조회합니다. 각 습관별로 해당 날짜에 체크되었는지 여부를 반환합니다."
+	)
+	@ApiResponses(value = {
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "200",
+			description = "일일 습관 체크 상태 조회 성공",
+			content = @Content(schema = @Schema(implementation = HabitResponseDTO.class))
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "400",
+			description = "잘못된 요청 파라미터 (미래 날짜, 잘못된 날짜 형식 등)"
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "401",
+			description = "인증 실패"
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "500",
+			description = "서버 내부 오류"
+		)
+	})
 	public ApiResponse<List<HabitResponseDTO>> getDailyHabitCheckedState(
-		@Parameter(description = "습관 날짜", required = true, example = "2025-01-01")
+		@Parameter(description = "조회할 날짜 (과거 또는 오늘만 가능)", required = true, example = "2025-01-01")
 		@RequestParam @PastOrPresent LocalDate date
 	) {
 		Long userId = Utils.getUserId();
@@ -226,7 +286,31 @@ public class HabitController {
 	}
 
 	@GetMapping("/checks/weekly")
+	@Operation(
+		summary = "주간 습관 체크 현황 조회",
+		description = "지정된 시작 날짜부터 7일간의 습관 체크 현황을 조회합니다. 각 습관별로 주간 체크 패턴을 확인할 수 있습니다."
+	)
+	@ApiResponses(value = {
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "200",
+			description = "주간 습관 체크 현황 조회 성공",
+			content = @Content(schema = @Schema(implementation = HabitWeeklyChecksResponseDTO.class))
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "400",
+			description = "잘못된 요청 파라미터 (잘못된 날짜 형식 등)"
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "401",
+			description = "인증 실패"
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "500",
+			description = "서버 내부 오류"
+		)
+	})
 	public ApiResponse<List<HabitWeeklyChecksResponseDTO>> getWeeklyChecks(
+		@Parameter(description = "주간 조회 시작 날짜", required = true, example = "2025-01-01")
 		@RequestParam LocalDate startDate
 	) {
 		Long userId = Utils.getUserId();
@@ -234,7 +318,31 @@ public class HabitController {
 	}
 
 	@GetMapping("/checks/monthly")
+	@Operation(
+		summary = "월간 습관 체크 현황 조회",
+		description = "지정된 월의 습관 체크 현황을 조회합니다. 각 습관별로 월간 체크 패턴과 통계를 확인할 수 있습니다."
+	)
+	@ApiResponses(value = {
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "200",
+			description = "월간 습관 체크 현황 조회 성공",
+			content = @Content(schema = @Schema(implementation = HabitMonthlyChecksResponseDTO.class))
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "400",
+			description = "잘못된 요청 파라미터 (잘못된 년월 형식 등)"
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "401",
+			description = "인증 실패"
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "500",
+			description = "서버 내부 오류"
+		)
+	})
 	public ApiResponse<List<HabitMonthlyChecksResponseDTO>> getMonthlyChecks(
+		@Parameter(description = "조회할 년월 (yyyy-MM 형식)", required = true, example = "2025-01")
 		@RequestParam
 		@DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth
 

@@ -7,14 +7,15 @@ import com.indayvidual.server.domain.timetable.dto.response.GetTimetableResponse
 import com.indayvidual.server.domain.timetable.entity.Timetable;
 import com.indayvidual.server.domain.timetable.service.TimetableCommandService;
 import com.indayvidual.server.domain.timetable.service.TimetableQueryService;
-import com.indayvidual.server.global.api.code.status.ErrorStatus;
 import com.indayvidual.server.global.api.code.status.SuccessStatus;
 import com.indayvidual.server.global.api.response.ApiResponse;
 import com.indayvidual.server.global.util.Utils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,6 +24,7 @@ import java.util.List;
 @RequestMapping("/api/timetable")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "Timetable", description = "시간표 관련 API")
 public class TimetableController {
 
     private final TimetableCommandService timetableCommandService;
@@ -30,60 +32,37 @@ public class TimetableController {
     private final TimetableQueryService timetableQueryService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<CreateTimetableResponseDto>> createTimetable(
+    @Operation(summary = "시간표 등록", description = "새로운 시간표를 등록합니다. 중복 학기는 허용되지 않습니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "시간표 등록 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청 데이터"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "이미 해당 학기의 시간표가 존재함")
+    })
+    public ApiResponse<CreateTimetableResponseDto> createTimetable(
             @Valid @RequestBody CreateTimetableRequestDto request) {
 
-        Long userId = Utils.getUserId();; // TODO: JWT에서 사용자 ID 추출
+        Long userId = Utils.getUserId();
+        Timetable createdTimetable = timetableCommandService.createTimetable(request, userId);
+        CreateTimetableResponseDto response = timetableConverter.toCreateResponse(createdTimetable);
 
-        try {
-            Timetable createdTimetable = timetableCommandService.createTimetable(request, userId);
-            CreateTimetableResponseDto response = timetableConverter.toCreateResponse(createdTimetable);
-
-            return ResponseEntity.ok(
-                    ApiResponse.onSuccess(response,
-                            SuccessStatus.CREATE_TIMETABLE_SUCCESS.getCode(),
-                            SuccessStatus.CREATE_TIMETABLE_SUCCESS.getMessage())
-            );
-        } catch (IllegalArgumentException e) {
-            log.error("시간표 등록 실패 - 중복 학기: {}", e.getMessage());
-            return ResponseEntity.status(409).body(
-                    ApiResponse.onFailure(
-                            ErrorStatus.TIMETABLE_DUPLICATE_SEMESTER.getCode(),
-                            ErrorStatus.TIMETABLE_DUPLICATE_SEMESTER.getMessage(),
-                            null)
-            );
-        } catch (Exception e) {
-            log.error("시간표 등록 실패", e);
-            return ResponseEntity.badRequest().body(
-                    ApiResponse.onFailure(
-                            ErrorStatus.TIMETABLE_CREATE_FAILED.getCode(),
-                            ErrorStatus.TIMETABLE_CREATE_FAILED.getMessage() + ": " + e.getMessage(),
-                            null)
-            );
-        }
+        return ApiResponse.onSuccess(response,
+                SuccessStatus.CREATE_TIMETABLE_SUCCESS.getCode(),
+                SuccessStatus.CREATE_TIMETABLE_SUCCESS.getMessage());
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<GetTimetableResponseDto>>> getTimetables() {
+    @Operation(summary = "시간표 전체 조회", description = "시간표 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "시간표 조회 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "시간표 조회 실패")
+    })
+    public ApiResponse<List<GetTimetableResponseDto>> getTimetables() {
 
-        Long userId = Utils.getUserId();; // TODO: JWT에서 사용자 ID 추출
+        Long userId = Utils.getUserId();
+        List<GetTimetableResponseDto> timetables = timetableQueryService.getTimetables(userId);
 
-        try {
-            List<GetTimetableResponseDto> timetables = timetableQueryService.getTimetables(userId);
-
-            return ResponseEntity.ok(
-                    ApiResponse.onSuccess(timetables,
-                            SuccessStatus.GET_TIMETABLE_SUCCESS.getCode(),
-                            SuccessStatus.GET_TIMETABLE_SUCCESS.getMessage())
-            );
-        } catch (Exception e) {
-            log.error("시간표 조회 실패", e);
-            return ResponseEntity.badRequest().body(
-                    ApiResponse.onFailure(
-                            ErrorStatus.TIMETABLE_FETCH_FAILED.getCode(),
-                            ErrorStatus.TIMETABLE_FETCH_FAILED.getMessage() + ": " + e.getMessage(),
-                            null)
-            );
-        }
+        return ApiResponse.onSuccess(timetables,
+                SuccessStatus.GET_TIMETABLE_SUCCESS.getCode(),
+                SuccessStatus.GET_TIMETABLE_SUCCESS.getMessage());
     }
 }

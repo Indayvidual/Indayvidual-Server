@@ -21,16 +21,10 @@ public class TimetableQueryServiceImpl implements TimetableQueryService {
 
     @Override
     public List<GetTimetableResponseDto> getTimetables(Long userId) {
-
         List<Timetable> timetables = timetableRepository.findByUserIdOrderByCreatedAtAsc(userId);
 
-        List<GetTimetableResponseDto> response = timetables.stream()
-                .map(timetable -> {
-                    String schoolId = timetable.getSchoolId();
-                    return timetableConverter.toGetResponse(timetable, schoolId);
-                })
+        return timetables.stream()
+                .map(timetable -> timetableConverter.toGetResponse(timetable, timetable.getSchoolId()))
                 .collect(Collectors.toList());
-
-        return response;
     }
 }

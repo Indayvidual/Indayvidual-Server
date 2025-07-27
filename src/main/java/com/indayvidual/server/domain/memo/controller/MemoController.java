@@ -2,6 +2,7 @@ package com.indayvidual.server.domain.memo.controller;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.indayvidual.server.domain.memo.dto.request.CreateMemoRequestDTO;
+import com.indayvidual.server.domain.memo.dto.request.UpdateMemoRequestDTO;
 import com.indayvidual.server.domain.memo.dto.response.MemoDetailResponseDTO;
 import com.indayvidual.server.domain.memo.dto.response.MemoSliceResponseDTO;
 import com.indayvidual.server.domain.memo.service.command.MemoCommandService;
@@ -104,6 +106,17 @@ public class MemoController {
 	) {
 		Long userId = Utils.getUserId();
 		return ApiResponse.onSuccess(memoQueryService.getMemoDetail(userId, memoId));
+	}
+
+	@PatchMapping("/{memoId}")
+	public ApiResponse<MemoDetailResponseDTO> updateMemo(
+		@Parameter(description = "메모 ID", required = true, example = "1")
+		@PathVariable Long memoId,
+
+		@RequestBody @Valid UpdateMemoRequestDTO request
+	) {
+		Long userId = Utils.getUserId();
+		return ApiResponse.onSuccess(memoCommandService.updateMemo(userId, memoId, request));
 	}
 
 	@DeleteMapping("/{memoId}")

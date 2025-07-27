@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.indayvidual.server.domain.memo.dto.request.CreateMemoRequestDTO;
+import com.indayvidual.server.domain.memo.dto.request.UpdateMemoRequestDTO;
 import com.indayvidual.server.domain.memo.dto.response.MemoDetailResponseDTO;
 import com.indayvidual.server.domain.memo.entity.Memo;
 import com.indayvidual.server.domain.memo.exception.MemoException;
@@ -29,7 +30,7 @@ public class MemoCommandServiceImpl implements MemoCommandService {
 	public MemoDetailResponseDTO createMemo(Long userId, CreateMemoRequestDTO requestDTO) {
 		User currentUser = getCurrentUser(userId);
 
-		Memo newMemo = Memo.createMemo(requestDTO.getTitle(), requestDTO.getContent(), currentUser);
+		Memo newMemo = Memo.createMemo(requestDTO.getContent(), currentUser);
 
 		memoRepository.save(newMemo);
 
@@ -41,14 +42,29 @@ public class MemoCommandServiceImpl implements MemoCommandService {
 	public Void deleteMemo(Long userId, Long memoId) {
 		User currentUser = getCurrentUser(userId);
 
-		Memo memo = memoRepository.findById(memoId)
-			.orElseThrow(() -> new MemoException(ErrorStatus.MEMO_NOT_FOUND));
+		Memo memo = getMemo(memoId);
 
 		if (memo.canDeleteMemo(currentUser)) {
 			memoRepository.delete(memo);
 		}
 
 		return null;
+	}
+
+	@Override
+	public MemoDetailResponseDTO updateMemo(Long userId, Long memoId, UpdateMemoRequestDTO request) {
+		User currentUser = getCurrentUser(userId);
+
+		Memo memo = getMemo(memoId);
+
+		memo.updateContent(request.getContent());
+
+		return MemoDetailResponseDTO.from(memo);
+	}
+
+	private Memo getMemo(Long memoId) {
+		return memoRepository.findById(memoId)
+			.orElseThrow(() -> new MemoException(ErrorStatus.MEMO_NOT_FOUND));
 	}
 
 	private User getCurrentUser(Long userId) {

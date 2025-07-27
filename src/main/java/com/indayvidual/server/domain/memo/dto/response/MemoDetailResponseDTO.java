@@ -22,9 +22,6 @@ public class MemoDetailResponseDTO {
 	@Schema(description = "메모 ID", example = "3")
 	private Long memoId;
 
-	@Schema(description = "메모 제목", example = "메모 제목")
-	private String title;
-	
 	@Schema(description = "메모 내용", example = "메모 내용")
 	private String content;
 

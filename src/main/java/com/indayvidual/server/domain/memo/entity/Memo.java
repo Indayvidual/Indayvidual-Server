@@ -43,21 +43,21 @@ public class Memo extends BaseEntity {
 	@JoinColumn(name = "user_id")
 	private User user;
 
-	private String title;
-
 	@Lob
 	private String content;
 
 	//== 생성 메서드 ==//
-	public static Memo createMemo(String title, String content, User user) {
+	public static Memo createMemo(String content, User user) {
 		return Memo.builder()
 			.user(user)
-			.title(title)
 			.content(content)
 			.build();
 	}
 
 	//== 더티체킹 메서드 ==//
+	public void updateContent(String content) {
+		this.content = content;
+	}
 
 	//== 비즈니스 로직 ==//
 	public boolean isOwnerBy(User user) {

@@ -5,11 +5,10 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
 @Getter
-@Schema(description = "메모 생성 요청 DTO")
-public class CreateMemoRequestDTO {
+public class UpdateMemoRequestDTO {
 
 	@Schema(description = "메모 내용", example = "장보기, 운동하기, 책 읽기")
 	@NotBlank(message = "메모의 내용을 입력해야합니다.")
 	private String content;
-
+	
 }

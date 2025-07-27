@@ -30,7 +30,7 @@ public class MemoCommandServiceImpl implements MemoCommandService {
 	public MemoDetailResponseDTO createMemo(Long userId, CreateMemoRequestDTO requestDTO) {
 		User currentUser = getCurrentUser(userId);
 
-		Memo newMemo = Memo.createMemo(requestDTO.getContent(), currentUser);
+		Memo newMemo = Memo.createMemo(requestDTO.getTitle(), requestDTO.getContent(), currentUser);
 
 		memoRepository.save(newMemo);
 
@@ -57,6 +57,7 @@ public class MemoCommandServiceImpl implements MemoCommandService {
 
 		Memo memo = getMemo(memoId);
 
+		memo.updateTitle(request.getTitle());
 		memo.updateContent(request.getContent());
 
 		return MemoDetailResponseDTO.from(memo);

@@ -7,8 +7,12 @@ import lombok.Getter;
 @Getter
 public class UpdateMemoRequestDTO {
 
+	@Schema(description = "메모 제목", example = "오늘 장 볼 거")
+	@NotBlank(message = "메모의 제목을 입력해야합니다.")
+	private String title;
+
 	@Schema(description = "메모 내용", example = "장보기, 운동하기, 책 읽기")
 	@NotBlank(message = "메모의 내용을 입력해야합니다.")
 	private String content;
-	
+
 }

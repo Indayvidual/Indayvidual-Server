@@ -69,3 +69,6 @@ kakao:
     token-info-uri:  https://kapi.kakao.com/v1/user/access_token_info
     user-info-uri:   https://kapi.kakao.com/v2/user/me
 
+app:
+  profile:
+    default-image-url: https://indayvidual.s3.ap-northeast-2.amazonaws.com/base_image.png

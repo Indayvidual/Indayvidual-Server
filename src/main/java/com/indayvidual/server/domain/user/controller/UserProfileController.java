@@ -1,0 +1,59 @@
+package com.indayvidual.server.domain.user.controller;
+
+import com.indayvidual.server.domain.user.dto.request.UserRequestDTO;
+import com.indayvidual.server.domain.user.dto.response.UserResponseDTO;
+import com.indayvidual.server.domain.user.service.UserService.UserProfileService;
+import com.indayvidual.server.global.api.response.ApiResponse;
+import com.indayvidual.server.global.config.security.JwtUserPrincipal;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+@Tag(name = "MyPage API", description = "마이페이지 기능 제공")
+@RestController
+@RequestMapping("/api/mypage")
+@RequiredArgsConstructor
+public class UserProfileController {
+
+    private final UserProfileService userProfileService;
+
+    @GetMapping("/profile")
+    public ResponseEntity<ApiResponse<UserResponseDTO.Profile>> getMyProfile(
+            @AuthenticationPrincipal JwtUserPrincipal principal
+    ) {
+        var profile = userProfileService.getMyProfile(principal.userId());
+        return ResponseEntity.ok(ApiResponse.onSuccess(profile));
+    }
+
+    @PatchMapping("/update_username")
+    public ResponseEntity<ApiResponse<String>> updateUsername(
+            @AuthenticationPrincipal JwtUserPrincipal principal,
+            @RequestBody @Valid UserRequestDTO.UpdateUsername dto
+    ) {
+        userProfileService.updateUsername(principal.userId(), dto.getUsername());
+        return ResponseEntity.ok(ApiResponse.onSuccess("닉네임이 변경되었습니다."));
+    }
+
+    @PatchMapping("/update_password")
+    public ResponseEntity<ApiResponse<String>> updatePassword(
+            @AuthenticationPrincipal JwtUserPrincipal principal,
+            @RequestBody @Valid UserRequestDTO.UpdatePassword dto
+    ) {
+        userProfileService.updatePassword(principal.userId(), dto.getCurrentPassword(), dto.getNewPassword());
+        return ResponseEntity.ok(ApiResponse.onSuccess("비밀번호가 변경되었습니다."));
+    }
+
+    @PatchMapping(value = "/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<String>> updateProfileImage(
+            @AuthenticationPrincipal JwtUserPrincipal principal,
+            @RequestPart("image") MultipartFile image
+    ) {
+        String url = userProfileService.updateProfileImage(principal.userId(), image);
+        return ResponseEntity.ok(ApiResponse.onSuccess(url));
+    }
+}

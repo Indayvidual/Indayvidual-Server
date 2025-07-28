@@ -47,8 +47,10 @@ public class User extends BaseEntity {
 	private String email;
 	private String password;  // (소셜 로그인 시 null)
 	private String username;
-	private String profile_image;
 	private String phone_number;
+
+	@Column(name = "profile_image", length = 512)
+	private String profile_image;
 
 	@Enumerated(EnumType.STRING)
 	private Status status;
@@ -67,5 +69,9 @@ public class User extends BaseEntity {
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	@Builder.Default
 	private List<Habit> habits = new ArrayList<>();
+
+	public void changeUsername(String username) { this.username = username; }
+	public void changePassword(String encodedPassword) { this.password = encodedPassword; }
+	public void changeProfileImage(String imageUrl) { this.profile_image = imageUrl; }
 
 }

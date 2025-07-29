@@ -8,6 +8,6 @@ import java.time.LocalDate;
 @Data
 public class TaskDueDateUpdateRequestDTO {
 
-    @NotNull(message = "dueDate 는 필수입니다.")
-    private LocalDate dueDate;
+    @NotNull(message = "date 는 필수입니다.")
+    private LocalDate date;
 }

@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 public class TaskConverter {
 
     public Task toEntity(TaskCreateRequestDTO dto, Category category, User user, Integer position) {
-        // TODO : static method로 수정
         return Task.builder()
                 .user(user)
                 .category(category)

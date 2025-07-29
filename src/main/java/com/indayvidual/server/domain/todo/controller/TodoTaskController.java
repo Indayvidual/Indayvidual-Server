@@ -6,6 +6,7 @@ import com.indayvidual.server.domain.todo.dto.response.TaskResponseDTO;
 import com.indayvidual.server.domain.todo.dto.response.TaskUpdateResponseDTO;
 import com.indayvidual.server.domain.todo.service.task.TaskCommandService;
 import com.indayvidual.server.domain.todo.service.task.TaskQueryService;
+import com.indayvidual.server.global.api.code.status.SuccessStatus;
 import com.indayvidual.server.global.api.response.ApiResponse;
 import com.indayvidual.server.global.util.Utils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,7 +16,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -27,7 +27,6 @@ import java.util.List;
 @Slf4j
 @RequestMapping("/api/todo")
 public class TodoTaskController {
-    // TODO: success status 추가
 
     private final TaskCommandService taskCommandService;
     private final TaskQueryService taskQueryService;
@@ -43,10 +42,12 @@ public class TodoTaskController {
             )
             @RequestParam("date")
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        // TODO: local date 형식 예외 처리 추가
 
         Long userId = Utils.getUserId();
-        return ApiResponse.onSuccess(taskQueryService.findTasksByCategoryAndDate(userId, categoryId, date));
+        return ApiResponse.onSuccess(
+                taskQueryService.findTasksByCategoryAndDate(userId, categoryId, date),
+                SuccessStatus.GET_TASKS_SUCCESS.getCode(),
+                SuccessStatus.GET_TASKS_SUCCESS.getMessage());
     }
 
     @Operation(summary = "할 일 등록", description = "새로운 할 일을 등록합니다.")
@@ -56,7 +57,10 @@ public class TodoTaskController {
             @RequestBody @Valid TaskCreateRequestDTO request) {
 
         Long userId = Utils.getUserId();
-        return ApiResponse.onSuccess(taskCommandService.createTask(userId, categoryId, request));
+        return ApiResponse.onSuccess(
+                taskCommandService.createTask(userId, categoryId, request),
+                SuccessStatus.CREATE_TASK_SUCCESS.getCode(),
+                SuccessStatus.CREATE_TASK_SUCCESS.getMessage());
     }
 
     @Operation(summary = "할 일 제목 수정", description = "할 일의 제목을 수정합니다.")
@@ -66,7 +70,10 @@ public class TodoTaskController {
             @RequestBody @Valid TaskTitleUpdateRequestDTO request) {
 
         Long userId = Utils.getUserId();
-        return ApiResponse.onSuccess(taskCommandService.updateTaskTitle(userId, taskId, request));
+        return ApiResponse.onSuccess(
+                taskCommandService.updateTaskTitle(userId, taskId, request),
+                SuccessStatus.UPDATE_TASK_TITLE_SUCCESS.getCode(),
+                SuccessStatus.UPDATE_TASK_TITLE_SUCCESS.getMessage());
     }
 
     @Operation(summary = "할 일 날짜 수정", description = "할 일의 날짜를 수정합니다.")
@@ -74,10 +81,12 @@ public class TodoTaskController {
     public ApiResponse<TaskResponseDTO> updateTaskDueDate(
             @PathVariable Long taskId,
             @RequestBody @Valid TaskDueDateUpdateRequestDTO request) {
-        // TODO: local date 형식 예외 처리 추가
 
         Long userId = Utils.getUserId();
-        return ApiResponse.onSuccess(taskCommandService.updateTaskDueDate(userId, taskId, request));
+        return ApiResponse.onSuccess(
+                taskCommandService.updateTaskDueDate(userId, taskId, request),
+                SuccessStatus.UPDATE_TASK_DUE_DATE_SUCCESS.getCode(),
+                SuccessStatus.UPDATE_TASK_DUE_DATE_SUCCESS.getMessage());
     }
 
     @Operation(summary = "할 일 삭제", description = "할 일을 삭제합니다.")
@@ -85,14 +94,20 @@ public class TodoTaskController {
     public ApiResponse<Void> deleteTask(@PathVariable Long taskId) {
         Long userId = Utils.getUserId();
         taskCommandService.deleteTask(userId, taskId);
-        return ApiResponse.onSuccess(null);
+        return ApiResponse.onSuccess(
+                null,
+                SuccessStatus.DELETE_TASK_SUCCESS.getCode(),
+                SuccessStatus.DELETE_TASK_SUCCESS.getMessage());
     }
 
     @Operation(summary = "할 일 체크/체크 해제", description = "할 일을 체크하거나 체크 해제합니다.")
     @PatchMapping("/tasks/{taskId}/check")
     public ApiResponse<TaskCheckUpdateResponseDTO> updateTaskStatus(@PathVariable Long taskId) {
         Long userId = Utils.getUserId();
-        return ApiResponse.onSuccess(taskCommandService.toggleCheck(userId, taskId));
+        return ApiResponse.onSuccess(
+                taskCommandService.toggleCheck(userId, taskId),
+                SuccessStatus.UPDATE_TASK_CHECK_SUCCESS.getCode(),
+                SuccessStatus.UPDATE_TASK_CHECK_SUCCESS.getMessage());
     }
 
     @Operation(summary = "할 일 순서 변경",
@@ -109,7 +124,10 @@ public class TodoTaskController {
         //TODO : 카테고리 변경도 추가하기
         Long userId = Utils.getUserId();
         taskCommandService.updateTaskOrder(userId, categoryId, request);
-        return ApiResponse.onSuccess(null);
+        return ApiResponse.onSuccess(
+                null,
+                SuccessStatus.UPDATE_TASK_ORDER_SUCCESS.getCode(),
+                SuccessStatus.UPDATE_TASK_ORDER_SUCCESS.getMessage());
     }
 }
 

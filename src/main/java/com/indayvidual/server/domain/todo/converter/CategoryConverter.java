@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 public class CategoryConverter {
 
     public Category toEntity(CategoryCreateRequestDTO request, User user) {
-        // TODO : static method로 수정
         return Category.builder()
                 .user(user)
                 .title(request.getName())

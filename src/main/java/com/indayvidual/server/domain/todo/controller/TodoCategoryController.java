@@ -4,6 +4,7 @@ import com.indayvidual.server.domain.todo.dto.request.CategoryCreateRequestDTO;
 import com.indayvidual.server.domain.todo.dto.response.CategoryResponseDTO;
 import com.indayvidual.server.domain.todo.service.category.CategoryCommandService;
 import com.indayvidual.server.domain.todo.service.category.CategoryQueryService;
+import com.indayvidual.server.global.api.code.status.SuccessStatus;
 import com.indayvidual.server.global.api.response.ApiResponse;
 import com.indayvidual.server.global.util.Utils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,7 +12,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,7 +22,6 @@ import java.util.List;
 @Slf4j
 @RequestMapping("/api/todo/categories")
 public class TodoCategoryController {
-    // TODO: success status 추가
 
     private final CategoryCommandService categoryCommandService;
     private final CategoryQueryService categoryQueryService;
@@ -31,13 +30,19 @@ public class TodoCategoryController {
     @PostMapping("")
     public ApiResponse<CategoryResponseDTO> createCategory(@RequestBody @Valid CategoryCreateRequestDTO request) {
         Long userId = Utils.getUserId();
-        return ApiResponse.onSuccess(categoryCommandService.create(request, userId));
+        return ApiResponse.onSuccess(
+                categoryCommandService.create(request, userId),
+                SuccessStatus.CREATE_CATEGORY_SUCCESS.getCode(),
+                SuccessStatus.CREATE_CATEGORY_SUCCESS.getMessage());
     }
 
     @Operation(summary = "카테고리 목록 조회", description = "카테고리 목록을 조회합니다.")
     @GetMapping("")
     public ApiResponse<List<CategoryResponseDTO>> getCategories() {
         Long userId = Utils.getUserId();
-        return ApiResponse.onSuccess(categoryQueryService.findAll(userId));
+        return ApiResponse.onSuccess(
+                categoryQueryService.findAll(userId),
+                SuccessStatus.GET_CATEGORIES_SUCCESS.getCode(),
+                SuccessStatus.GET_CATEGORIES_SUCCESS.getMessage());
     }
 }

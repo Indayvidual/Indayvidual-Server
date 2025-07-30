@@ -49,14 +49,13 @@ public class HabitLog extends BaseEntity {
 	private LocalDate checkedAt = LocalDate.now();
 
 	//== 정적 팩토리 생성 메서드 ==//
-	public static HabitLog createHabitLog(Habit habit) {
+	public static void createHabitLog(Habit habit) {
 		HabitLog habitLog = HabitLog.builder()
 			.habit(habit)
 			.build();
 
 		habit.getHabitLogs().add(habitLog);
 
-		return habitLog;
 	}
 
 	//== 더티체킹 메서드 ==//

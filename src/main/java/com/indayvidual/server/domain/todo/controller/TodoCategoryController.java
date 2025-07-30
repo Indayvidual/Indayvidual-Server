@@ -45,4 +45,17 @@ public class TodoCategoryController {
                 SuccessStatus.GET_CATEGORIES_SUCCESS.getCode(),
                 SuccessStatus.GET_CATEGORIES_SUCCESS.getMessage());
     }
+
+    @Operation(summary = "카테고리 삭제", description = """
+            카테고리를 삭제합니다.\n
+            **카테고리 내 할 일도 모두 삭제됩니다.**""")
+    @DeleteMapping("/{categoryId}")
+    public ApiResponse<Void> deleteCategory(@PathVariable Long categoryId) {
+        Long userId = Utils.getUserId();
+        categoryCommandService.delete(userId, categoryId);
+        return ApiResponse.onSuccess(
+                null,
+                SuccessStatus.DELETE_CATEGORY_SUCCESS.getCode(),
+                SuccessStatus.DELETE_CATEGORY_SUCCESS.getMessage());
+    }
 }

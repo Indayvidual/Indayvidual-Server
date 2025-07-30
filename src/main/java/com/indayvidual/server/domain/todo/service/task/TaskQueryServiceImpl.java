@@ -3,7 +3,10 @@ package com.indayvidual.server.domain.todo.service.task;
 import com.indayvidual.server.domain.todo.converter.TaskConverter;
 import com.indayvidual.server.domain.todo.dto.response.TaskResponseDTO;
 import com.indayvidual.server.domain.todo.entity.Task;
+import com.indayvidual.server.domain.todo.repository.CategoryRepository;
 import com.indayvidual.server.domain.todo.repository.TaskRepository;
+import com.indayvidual.server.global.api.code.status.ErrorStatus;
+import com.indayvidual.server.global.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,12 +21,19 @@ import java.util.List;
 public class TaskQueryServiceImpl implements TaskQueryService {
 
     private final TaskRepository taskRepository;
+    private final CategoryRepository categoryRepository;
     private final TaskConverter taskConverter;
 
     @Override
     @Transactional(readOnly = true)
     public List<TaskResponseDTO> findTasksByCategoryAndDate(Long userId, Long categoryId, LocalDate dueDate) {
         log.debug("[TASK-QUERY] 할 일 조회 요청 - userId={}, categoryId={}, date={}", userId, categoryId, dueDate);
+
+        boolean categoryExists = categoryRepository.existsByIdAndUserId(categoryId, userId);
+        if (!categoryExists) {
+            log.warn("[TASK-QUERY] 존재하지 않는 카테고리 - categoryId={}, userId={}", categoryId, userId);
+            throw new GeneralException(ErrorStatus.TASK_CATEGORY_NOT_FOUND);
+        }
 
         List<Task> tasks = taskRepository.findByUserIdAndCategoryIdAndDueDate(userId, categoryId, dueDate);
 

@@ -74,6 +74,11 @@ public class Task extends BaseEntity {
         this.position = position;
     }
 
+    public void updateCategory(Category category) {
+        log.debug("[TASK] 카테고리 변경 - before: {}, after: {}", this.category, category);
+        this.category = category;
+    }
+
     public static Task create(User user, Category category, String title, LocalDate dueDate, int position) {
         return Task.builder()
                 .user(user)

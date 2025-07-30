@@ -2,9 +2,10 @@ package com.indayvidual.server.domain.todo.service.task;
 
 import com.indayvidual.server.domain.todo.dto.request.TaskCreateRequestDTO;
 import com.indayvidual.server.domain.todo.dto.request.TaskDueDateUpdateRequestDTO;
-import com.indayvidual.server.domain.todo.dto.request.TaskOrderUpdateRequestDTO;
+import com.indayvidual.server.domain.todo.dto.request.TaskOrderCategoryUpdateBulkRequestDTO;
 import com.indayvidual.server.domain.todo.dto.request.TaskTitleUpdateRequestDTO;
 import com.indayvidual.server.domain.todo.dto.response.TaskCheckUpdateResponseDTO;
+import com.indayvidual.server.domain.todo.dto.response.TaskOrderCategoryUpdateResponseDTO;
 import com.indayvidual.server.domain.todo.dto.response.TaskResponseDTO;
 import com.indayvidual.server.domain.todo.dto.response.TaskUpdateResponseDTO;
 
@@ -44,10 +45,9 @@ public interface TaskCommandService {
      * 특정 카테고리 내 할 일의 순서를 일괄 변경합니다.
      *
      * @param userId
-     * @param categoryId
      * @param request    요청 DTO
      */
-    void updateTaskOrder(Long userId, Long categoryId, TaskOrderUpdateRequestDTO request);
+    TaskOrderCategoryUpdateResponseDTO updateTaskOrders(Long userId, TaskOrderCategoryUpdateBulkRequestDTO request);
 
     /**
      * 할 일의 체크 상태를 토글합니다.

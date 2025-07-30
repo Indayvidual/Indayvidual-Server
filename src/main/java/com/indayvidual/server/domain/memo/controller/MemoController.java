@@ -109,6 +109,10 @@ public class MemoController {
 	}
 
 	@PatchMapping("/{memoId}")
+	@Operation(
+		summary = "메모 수정",
+		description = "특정 메모를 수정합니다. 본인이 작성한 메모만 수정이 가능합니다."
+	)
 	public ApiResponse<MemoDetailResponseDTO> updateMemo(
 		@Parameter(description = "메모 ID", required = true, example = "1")
 		@PathVariable Long memoId,

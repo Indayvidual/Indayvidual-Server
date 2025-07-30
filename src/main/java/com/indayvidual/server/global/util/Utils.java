@@ -1,9 +1,14 @@
 package com.indayvidual.server.global.util;
 
-import com.indayvidual.server.global.config.security.JwtUserPrincipal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import com.indayvidual.server.global.config.security.JwtUserPrincipal;
+
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Utils {
 
 	private static final int DEFAULT_PAGE_SIZE = 20;

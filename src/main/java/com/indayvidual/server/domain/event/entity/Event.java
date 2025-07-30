@@ -41,4 +41,8 @@ public class Event extends BaseEntity {
     @Column(name = "user_end_time", nullable = false)
     @Builder.Default
     private Boolean userEndTime = false;
+
+    @Column(name = "is_all_day", nullable = false)
+    @Builder.Default
+    private Boolean isAllDay = false;
 }

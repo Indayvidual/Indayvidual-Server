@@ -25,9 +25,9 @@ public class CalendarController {
 
 	private final CalendarQueryService calendarQueryService;
 
-	@GetMapping("/home/{year}/{month}")
-	@Operation(summary = "홈-월별 캘린더 조회",
-			description = "지정된 연월의 홈-캘린더를 조회합니다. 각 날짜에 포함된 일정들의 색상 코드를 반환합니다."
+	@GetMapping("/{year}/{month}")
+	@Operation(summary = "월별 캘린더 조회",
+			description = "지정된 연월의 캘린더를 조회합니다. 각 날짜에 포함된 일정들의 색상 코드를 반환합니다."
 	)
 	@ApiResponses(value = {
 			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "캘린더 조회 성공"),

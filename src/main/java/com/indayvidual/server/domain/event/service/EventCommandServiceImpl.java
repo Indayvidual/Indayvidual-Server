@@ -24,9 +24,14 @@ public class EventCommandServiceImpl implements EventCommandService {
 
     @Override
     public Event createEvent(CreateEventRequestDto request, Long userId) {
-        if (request.getEndTime() != null &&
-                (request.getStartTime().equals(request.getEndTime()) || request.getStartTime().isAfter(request.getEndTime()))) {
-            throw new EventException(ErrorStatus.EVENT_INVALID_TIME_ORDER);
+        if (!Boolean.TRUE.equals(request.getIsAllDay())) {
+            if (request.getStartTime() == null) {
+                throw new EventException(ErrorStatus.EVENT_INVALID_TIME_ORDER);
+            }
+            if (request.getEndTime() != null &&
+                    (request.getStartTime().equals(request.getEndTime()) || request.getStartTime().isAfter(request.getEndTime()))) {
+                throw new EventException(ErrorStatus.EVENT_INVALID_TIME_ORDER);
+            }
         }
 
         Event event = eventConverter.toEntity(request, userId);
@@ -37,7 +42,10 @@ public class EventCommandServiceImpl implements EventCommandService {
     public Event updateEvent(Long eventId, UpdateEventRequestDto request, Long userId) {
         Event existingEvent = eventQueryService.findByIdAndUserId(eventId, userId);
 
-        validateTimeUpdate(existingEvent, request);
+        if (!Boolean.TRUE.equals(request.getIsAllDay())) {
+            validateTimeUpdate(existingEvent, request);
+        }
+
         eventConverter.updateEntityFromRequest(existingEvent, request);
         return eventRepository.save(existingEvent);
     }

@@ -10,7 +10,6 @@ import com.indayvidual.server.domain.memo.entity.Memo;
 import com.indayvidual.server.domain.memo.exception.MemoException;
 import com.indayvidual.server.domain.memo.repository.MemoRepository;
 import com.indayvidual.server.domain.user.entity.User;
-import com.indayvidual.server.domain.user.exception.UserException;
 import com.indayvidual.server.domain.user.repository.UserRepository;
 import com.indayvidual.server.global.api.code.status.ErrorStatus;
 
@@ -40,22 +39,17 @@ public class MemoCommandServiceImpl implements MemoCommandService {
 
 	@Override
 	public Void deleteMemo(Long userId, Long memoId) {
-		User currentUser = getCurrentUser(userId);
 
-		Memo memo = getMemo(memoId);
+		Memo memo = getMemoByMemoIdAndUserId(memoId, userId);
 
-		if (memo.canDeleteMemo(currentUser)) {
-			memoRepository.delete(memo);
-		}
+		memoRepository.delete(memo);
 
 		return null;
 	}
 
 	@Override
 	public MemoDetailResponseDTO updateMemo(Long userId, Long memoId, UpdateMemoRequestDTO request) {
-		User currentUser = getCurrentUser(userId);
-
-		Memo memo = getMemo(memoId);
+		Memo memo = getMemoByMemoIdAndUserId(memoId, userId);
 
 		memo.updateTitle(request.getTitle());
 		memo.updateContent(request.getContent());
@@ -63,13 +57,13 @@ public class MemoCommandServiceImpl implements MemoCommandService {
 		return MemoDetailResponseDTO.from(memo);
 	}
 
-	private Memo getMemo(Long memoId) {
-		return memoRepository.findById(memoId)
-			.orElseThrow(() -> new MemoException(ErrorStatus.MEMO_NOT_FOUND));
-	}
-
 	private User getCurrentUser(Long userId) {
 		return userRepository.findById(userId)
-			.orElseThrow(() -> new UserException(ErrorStatus.USER_NOT_FOUND));
+			.orElseThrow(() -> new MemoException(ErrorStatus.USER_NOT_FOUND));
+	}
+
+	private Memo getMemoByMemoIdAndUserId(Long memoId, Long userId) {
+		return memoRepository.findById(memoId)
+			.orElseThrow(() -> new MemoException(ErrorStatus.MEMO_NOT_FOUND));
 	}
 }

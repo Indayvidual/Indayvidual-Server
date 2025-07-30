@@ -4,9 +4,7 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import com.indayvidual.server.common.BaseEntity;
-import com.indayvidual.server.domain.memo.exception.MemoException;
 import com.indayvidual.server.domain.user.entity.User;
-import com.indayvidual.server.global.api.code.status.ErrorStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -67,21 +65,5 @@ public class Memo extends BaseEntity {
 	}
 
 	//== 비즈니스 로직 ==//
-	public boolean isOwnerBy(User user) {
-		return this.user.equals(user);
-	}
-
-	public void ensureOwnership(User user) {
-		if (!isOwnerBy(user)) {
-			throw new MemoException(ErrorStatus.MEMO_OWNER_MISMATCH);
-		}
-	}
-
-	public boolean canDeleteMemo(User user) {
-		ensureOwnership(user);
-
-		user.getMemos().remove(this);
-
-		return true;
-	}
+	
 }

@@ -2,6 +2,7 @@ package com.indayvidual.server.domain.todo.controller;
 
 import com.indayvidual.server.domain.todo.dto.request.*;
 import com.indayvidual.server.domain.todo.dto.response.TaskCheckUpdateResponseDTO;
+import com.indayvidual.server.domain.todo.dto.response.TaskOrderCategoryUpdateResponseDTO;
 import com.indayvidual.server.domain.todo.dto.response.TaskResponseDTO;
 import com.indayvidual.server.domain.todo.dto.response.TaskUpdateResponseDTO;
 import com.indayvidual.server.domain.todo.service.task.TaskCommandService;
@@ -110,22 +111,18 @@ public class TodoTaskController {
                 SuccessStatus.UPDATE_TASK_CHECK_SUCCESS.getMessage());
     }
 
-    @Operation(summary = "할 일 순서 변경",
+    @Operation(summary = "할 일 순서 및 카테고리 변경",
             description = """
-                    카테고리 내 할 일의 순서를 변경합니다.\n
-                    **해당 카테고리 내 모든 Task ID**를 정렬 순서대로 request body로 전달해야 합니다.\n  
-                    해당 순서를 기준으로 `position` 필드를 재정렬합니다.
+                    할 일의 순서 또는 카테고리를 변경합니다.\n
+                    순서/카테고리가 변경되는 모든 `task`의 정보를 포함해야 합니다.
                     """)
-    @PatchMapping("/categories/{categoryId}/tasks/order")
-    public ApiResponse<Void> updateTaskOrder(
-            @PathVariable Long categoryId,
-            @RequestBody @Valid TaskOrderUpdateRequestDTO request) {
+    @PatchMapping("/tasks/order")
+    public ApiResponse<TaskOrderCategoryUpdateResponseDTO> updateTaskOrder(
+            @RequestBody @Valid TaskOrderCategoryUpdateBulkRequestDTO request) {
 
-        //TODO : 카테고리 변경도 추가하기
         Long userId = Utils.getUserId();
-        taskCommandService.updateTaskOrder(userId, categoryId, request);
         return ApiResponse.onSuccess(
-                null,
+                taskCommandService.updateTaskOrders(userId, request),
                 SuccessStatus.UPDATE_TASK_ORDER_SUCCESS.getCode(),
                 SuccessStatus.UPDATE_TASK_ORDER_SUCCESS.getMessage());
     }

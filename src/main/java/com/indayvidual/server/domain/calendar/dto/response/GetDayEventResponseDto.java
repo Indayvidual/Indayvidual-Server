@@ -21,5 +21,5 @@ public class GetDayEventResponseDto {
 
     private String endTime;
 
-    private String color;
+    private Long colorId;
 }

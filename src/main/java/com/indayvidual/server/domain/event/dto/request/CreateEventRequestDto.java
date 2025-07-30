@@ -37,9 +37,8 @@ public class CreateEventRequestDto {
     @JsonFormat(pattern = "HH:mm")
     private LocalTime endTime;
 
-    @Schema(description = "색상 코드", example = "#CD7AFB")
-    @Pattern(regexp = "^#[0-9A-F]{6}$", message = "색상은 #RRGGBB 형식이어야 합니다.")
-    private String color;
+    @Schema(description = "색상 ID", example = "1")
+    private Long colorId;
 
     @Schema(description = "하루종일 여부", example = "false")
     @Builder.Default

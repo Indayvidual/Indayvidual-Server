@@ -76,6 +76,7 @@ public enum ErrorStatus implements BaseErrorCode {
     EVENT_GET_BY_DATE_FAILED(HttpStatus.BAD_REQUEST, "EVENT4006", "특정 날짜 일정 조회에 실패했습니다."),
     EVENT_INVALID_TIME_ORDER(HttpStatus.BAD_REQUEST, "EVENT4007", "시작 시간은 종료 시간보다 빨라야 합니다."),
     EVENT_INVALID_DATE_FORMAT(HttpStatus.BAD_REQUEST, "EVENT4008", "날짜 형식이 올바르지 않습니다."),
+    EVENT_INVALID_COLOR_ID(HttpStatus.BAD_REQUEST, "EVENT4009", "유효하지 않은 색상 ID입니다."),
 
     // ===== 시간표 관련 에러 (TIMETABLE) =====
     TIMETABLE_CREATE_FAILED(HttpStatus.BAD_REQUEST, "TIMETABLE4001", "시간표 등록에 실패했습니다."),

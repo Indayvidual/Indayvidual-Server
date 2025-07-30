@@ -1,14 +1,15 @@
 package com.indayvidual.server.domain.timetable.service;
 
-import com.indayvidual.server.domain.timetable.converter.TimetableConverter;
-import com.indayvidual.server.domain.timetable.dto.request.CreateTimetableRequestDto;
 import com.indayvidual.server.domain.timetable.entity.Timetable;
+import com.indayvidual.server.domain.timetable.entity.enums.Semester;
 import com.indayvidual.server.domain.timetable.exception.TimetableException;
 import com.indayvidual.server.domain.timetable.repository.TimetableRepository;
+import com.indayvidual.server.domain.user.service.UserService.S3Uploader;
 import com.indayvidual.server.global.api.code.status.ErrorStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -16,16 +17,21 @@ import org.springframework.transaction.annotation.Transactional;
 public class TimetableCommandServiceImpl implements TimetableCommandService {
 
     private final TimetableRepository timetableRepository;
-    private final TimetableConverter timetableConverter;
+    private final S3Uploader s3Uploader;
 
     @Override
-    public Timetable createTimetable(CreateTimetableRequestDto request, Long userId) {
-
-        if (timetableRepository.existsByUserIdAndSemester(userId, request.getSemester())) {
+    public Timetable createTimetableWithImage(String schoolId, Semester semester, MultipartFile image, Long userId) {
+        if (timetableRepository.existsByUserIdAndSemester(userId, semester)) {
             throw new TimetableException(ErrorStatus.TIMETABLE_DUPLICATE_SEMESTER);
         }
 
-        Timetable timetable = timetableConverter.toEntity(request, userId);
+        String imageUrl = s3Uploader.uploadProfileImage(userId, image);
+        Timetable timetable = Timetable.builder()
+                .userId(userId)
+                .schoolId(schoolId)
+                .semester(semester)
+                .timeTableImage(imageUrl)
+                .build();
         return timetableRepository.save(timetable);
     }
 

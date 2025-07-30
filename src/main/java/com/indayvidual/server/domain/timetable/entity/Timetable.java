@@ -26,7 +26,7 @@ public class Timetable extends BaseEntity {
     @Column(name = "semester", nullable = false)
     private Semester semester;
 
-    @Column(name = "time_table_image", nullable = false)
+    @Column(name = "time_table_image", nullable = false, length = 512)
     private String timeTableImage;
 
     @Builder

@@ -11,4 +11,6 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     List<Category> findAllByUserIdOrderByCreatedAtDesc(Long userId);
 
     Optional<Category> findByIdAndUserId(Long userId, Long categoryId);
+
+    boolean existsByIdAndUserId(Long categoryId, Long userId);
 }

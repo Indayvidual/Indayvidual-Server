@@ -53,7 +53,6 @@ public class HabitQueryServiceImpl implements HabitQueryService {
 
 	@Override
 	public List<HabitResponseDTO> getDailyHabitCheckedState(Long userId, LocalDate date) {
-		User currentUser = getCurrentUser(userId);
 
 		List<Habit> habits = habitRepository.findAllHabitsWithLogsOnDate(userId, date);
 
@@ -71,9 +70,8 @@ public class HabitQueryServiceImpl implements HabitQueryService {
 
 	@Override
 	public List<HabitWeeklyChecksResponseDTO> getWeeklyChecks(Long userId, LocalDate startDate) {
-		User currentUser = getCurrentUser(userId);
 
-		List<Habit> allHabitsWithLogsOnDateRange = habitRepository.findAllHabitsWithLogsOnDateRange(currentUser.getId(),
+		List<Habit> allHabitsWithLogsOnDateRange = habitRepository.findAllHabitsWithLogsOnDateRange(userId,
 			startDate, startDate.plusDays(6));
 
 		return allHabitsWithLogsOnDateRange.stream()
@@ -84,7 +82,6 @@ public class HabitQueryServiceImpl implements HabitQueryService {
 
 	@Override
 	public List<HabitMonthlyChecksResponseDTO> getMonthlyChecks(Long userId, YearMonth yearMonth) {
-		User currentUser = getCurrentUser(userId);
 
 		List<Habit> habits = habitRepository.findAllHabitsWithLogsOnMonth(userId, yearMonth);
 

@@ -1,11 +1,12 @@
 package com.indayvidual.server.domain.timetable.service;
 
-import com.indayvidual.server.domain.timetable.dto.request.CreateTimetableRequestDto;
 import com.indayvidual.server.domain.timetable.entity.Timetable;
+import com.indayvidual.server.domain.timetable.entity.enums.Semester;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface TimetableCommandService {
 
-    Timetable createTimetable(CreateTimetableRequestDto request, Long userId);
+    Timetable createTimetableWithImage(String schoolId, Semester semester, MultipartFile image, Long userId);
 
     void deleteTimetable(Long userId, Long timetableId);
 }

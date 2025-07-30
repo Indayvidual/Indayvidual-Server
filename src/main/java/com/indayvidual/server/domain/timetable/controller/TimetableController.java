@@ -1,22 +1,25 @@
 package com.indayvidual.server.domain.timetable.controller;
 
 import com.indayvidual.server.domain.timetable.converter.TimetableConverter;
-import com.indayvidual.server.domain.timetable.dto.request.CreateTimetableRequestDto;
 import com.indayvidual.server.domain.timetable.dto.response.CreateTimetableResponseDto;
 import com.indayvidual.server.domain.timetable.dto.response.GetTimetableResponseDto;
 import com.indayvidual.server.domain.timetable.entity.Timetable;
+import com.indayvidual.server.domain.timetable.entity.enums.Semester;
 import com.indayvidual.server.domain.timetable.service.TimetableCommandService;
 import com.indayvidual.server.domain.timetable.service.TimetableQueryService;
 import com.indayvidual.server.global.api.code.status.SuccessStatus;
 import com.indayvidual.server.global.api.response.ApiResponse;
 import com.indayvidual.server.global.util.Utils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -31,7 +34,7 @@ public class TimetableController {
     private final TimetableConverter timetableConverter;
     private final TimetableQueryService timetableQueryService;
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "시간표 등록", description = "새로운 시간표를 등록합니다. 중복 학기는 허용되지 않습니다.")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "시간표 등록 성공"),
@@ -39,10 +42,34 @@ public class TimetableController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "이미 해당 학기의 시간표가 존재함")
     })
     public ApiResponse<CreateTimetableResponseDto> createTimetable(
-            @Valid @RequestBody CreateTimetableRequestDto request) {
+            @RequestParam("schoolId")
+            @Parameter(description = "학교 ID", required = true)
+            String schoolId,
 
+            @RequestParam("semester")
+            @Parameter(
+                    description = "학기",
+                    required = true,
+                    schema = @Schema(type = "string", allowableValues = {
+                            "1학년 1학기",
+                            "1학년 2학기",
+                            "2학년 1학기",
+                            "2학년 2학기",
+                            "3학년 1학기",
+                            "3학년 2학기",
+                            "4학년 1학기",
+                            "4학년 2학기"
+                    })
+            )
+            String semesterLabel,
+
+            @RequestPart("image")
+            @Parameter(description = "시간표 이미지 파일", required = true)
+            MultipartFile image) {
+
+        Semester semester = Semester.from(semesterLabel);
         Long userId = Utils.getUserId();
-        Timetable createdTimetable = timetableCommandService.createTimetable(request, userId);
+        Timetable createdTimetable = timetableCommandService.createTimetableWithImage(schoolId, semester, image, userId);
         CreateTimetableResponseDto response = timetableConverter.toCreateResponse(createdTimetable);
 
         return ApiResponse.onSuccess(response,

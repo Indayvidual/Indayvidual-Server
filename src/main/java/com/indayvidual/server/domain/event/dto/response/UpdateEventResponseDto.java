@@ -35,4 +35,7 @@ public class UpdateEventResponseDto {
 
     @Schema(description = "색상 코드", example = "#CD7AFB")
     private String color;
+
+    @Schema(description = "하루종일 여부", example = "false")
+    private Boolean isAllDay;
 }

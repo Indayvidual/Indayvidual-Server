@@ -29,9 +29,8 @@ public class CreateEventRequestDto {
     @Size(max = 20, message = "제목은 20자 이내여야 합니다.")
     private String title;
 
-    @Schema(description = "시작 시간", example = "10:00", required = true)
+    @Schema(description = "시작 시간", example = "10:00")
     @JsonFormat(pattern = "HH:mm")
-    @NotNull(message = "시작 시간은 필수입니다.")
     private LocalTime startTime;
 
     @Schema(description = "종료 시간", example = "12:00")
@@ -41,4 +40,8 @@ public class CreateEventRequestDto {
     @Schema(description = "색상 코드", example = "#CD7AFB")
     @Pattern(regexp = "^#[0-9A-F]{6}$", message = "색상은 #RRGGBB 형식이어야 합니다.")
     private String color;
+
+    @Schema(description = "하루종일 여부", example = "false")
+    @Builder.Default
+    private Boolean isAllDay = false;
 }

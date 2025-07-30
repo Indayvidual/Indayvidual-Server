@@ -32,6 +32,7 @@ public enum SuccessStatus implements BaseCode {
     // 할 일 관련 응답
     CREATE_CATEGORY_SUCCESS(HttpStatus.CREATED, "CREATE_CATEGORY_SUCCESS", "카테고리 등록 성공"),
     GET_CATEGORIES_SUCCESS(HttpStatus.OK, "GET_CATEGORIES_SUCCESS", "카테고리 목록 조회 성공"),
+    DELETE_CATEGORY_SUCCESS(HttpStatus.OK, "DELETE_CATEGORY_SUCCESS", "카테고리 삭제 성공"),
     CREATE_TASK_SUCCESS(HttpStatus.CREATED, "CREATE_TASK_SUCCESS", "할일 등록 성공"),
     GET_TASKS_SUCCESS(HttpStatus.OK, "GET_TASKS_SUCCESS", "할일 목록 조회 성공"),
     UPDATE_TASK_TITLE_SUCCESS(HttpStatus.OK, "UPDATE_TASK_TITLE_SUCCESS", "할일 제목 수정 성공"),

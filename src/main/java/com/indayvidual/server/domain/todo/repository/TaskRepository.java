@@ -31,4 +31,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     Integer findMaxPositionByCategoryId(@Param("categoryId") Long categoryId);
 
     List<Task> findAllByUserIdAndCategoryId(Long userId, Long categoryId);
+
+    List<Task> findAllByCategoryId(Long categoryId);
 }

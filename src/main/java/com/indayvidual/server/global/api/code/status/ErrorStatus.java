@@ -81,6 +81,8 @@ public enum ErrorStatus implements BaseErrorCode {
     TIMETABLE_CREATE_FAILED(HttpStatus.BAD_REQUEST, "TIMETABLE4001", "시간표 등록에 실패했습니다."),
     TIMETABLE_DUPLICATE_SEMESTER(HttpStatus.CONFLICT, "TIMETABLE4091", "이미 해당 학기의 시간표가 존재합니다."),
     TIMETABLE_FETCH_FAILED(HttpStatus.BAD_REQUEST, "TIMETABLE4002", "시간표 조회에 실패했습니다."),
+    TIMETABLE_NOT_FOUND(HttpStatus.NOT_FOUND, "TIMETABLE4041", "존재하지 않는 시간표입니다."),
+    TIMETABLE_FORBIDDEN(HttpStatus.FORBIDDEN, "TIMETABLE4031", "시간표를 삭제할 권한이 없습니다."),
 
     // ===== 파일 관련 에러 (FILE) =====
     FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "FILE4041", "파일을 찾을 수 없습니다."),

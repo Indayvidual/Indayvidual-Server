@@ -27,6 +27,7 @@ public enum SuccessStatus implements BaseCode {
     // 시간표 관련 응답
     CREATE_TIMETABLE_SUCCESS(HttpStatus.OK, "CREATE_TIMETABLE_SUCCESS", "시간표 등록 성공"),
     GET_TIMETABLE_SUCCESS(HttpStatus.OK, "GET_TIMETABLE_SUCCESS", "시간표 조회 성공"),
+    DELETE_TIMETABLE_SUCCESS(HttpStatus.OK,"DELETE_TIMETABLE_SUCCESS", "시간표 삭제 성공"),
 
     // 할 일 관련 응답
     CREATE_CATEGORY_SUCCESS(HttpStatus.CREATED, "CREATE_CATEGORY_SUCCESS", "카테고리 등록 성공"),

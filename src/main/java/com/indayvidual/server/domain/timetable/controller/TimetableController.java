@@ -65,4 +65,23 @@ public class TimetableController {
                 SuccessStatus.GET_TIMETABLE_SUCCESS.getCode(),
                 SuccessStatus.GET_TIMETABLE_SUCCESS.getMessage());
     }
+
+    @DeleteMapping("/{timetableId}")
+    @Operation(summary = "시간표 삭제", description = "시간표를 삭제합니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "시간표 삭제 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "존재하지 않는 시간표"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "삭제 권한 없음")
+    })
+    public ApiResponse<Void> deleteTimetable(
+            @PathVariable Long timetableId) {
+
+        Long userId = Utils.getUserId();
+        timetableCommandService.deleteTimetable(userId, timetableId);
+
+        return ApiResponse.onSuccess(
+                null,
+                SuccessStatus.DELETE_TIMETABLE_SUCCESS.getCode(),
+                SuccessStatus.DELETE_TIMETABLE_SUCCESS.getMessage());
+    }
 }

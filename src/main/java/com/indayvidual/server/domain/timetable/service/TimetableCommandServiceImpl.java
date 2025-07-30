@@ -28,4 +28,16 @@ public class TimetableCommandServiceImpl implements TimetableCommandService {
         Timetable timetable = timetableConverter.toEntity(request, userId);
         return timetableRepository.save(timetable);
     }
+
+    @Override
+    public void deleteTimetable(Long userId, Long timetableId) {
+        Timetable timetable = timetableRepository.findById(timetableId)
+                .orElseThrow(() -> new TimetableException(ErrorStatus.TIMETABLE_NOT_FOUND));
+
+        if (!timetable.getUserId().equals(userId)) {
+            throw new TimetableException(ErrorStatus.TIMETABLE_FORBIDDEN);
+        }
+
+        timetableRepository.deleteById(timetableId);
+    }
 }

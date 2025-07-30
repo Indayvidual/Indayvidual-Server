@@ -43,7 +43,7 @@ public class TimetableController {
     })
     public ApiResponse<CreateTimetableResponseDto> createTimetable(
             @RequestParam("schoolId")
-            @Parameter(description = "학교 ID", required = true)
+            @Parameter(description = "학교 ID (커리어넷 학교 정보 오픈API의 seq 값, 예: '767', '14')", required = true)
             String schoolId,
 
             @RequestParam("semester")

@@ -1,6 +1,7 @@
 package com.indayvidual.server.domain.event.entity;
 
 import com.indayvidual.server.common.BaseEntity;
+import com.indayvidual.server.domain.todo.entity.Color;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,9 +35,10 @@ public class Event extends BaseEntity {
     @Column(name = "end_time", nullable = true)
     private LocalTime endTime;
 
-    @Column(name = "color_code", nullable = false, length = 7)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "color_id", nullable = false)
     @Builder.Default
-    private String colorCode = "#CD7AFB";
+    private Color color = null;
 
     @Column(name = "user_end_time", nullable = false)
     @Builder.Default

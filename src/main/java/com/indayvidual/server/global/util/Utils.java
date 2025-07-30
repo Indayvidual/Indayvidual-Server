@@ -1,9 +1,16 @@
 package com.indayvidual.server.global.util;
 
-import com.indayvidual.server.global.config.security.JwtUserPrincipal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import com.indayvidual.server.domain.user.exception.UserException;
+import com.indayvidual.server.global.api.code.status.ErrorStatus;
+import com.indayvidual.server.global.config.security.JwtUserPrincipal;
+
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Utils {
 
 	private static final int DEFAULT_PAGE_SIZE = 20;
@@ -22,7 +29,7 @@ public class Utils {
 	public static Long getUserId() {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (auth == null || !(auth.getPrincipal() instanceof JwtUserPrincipal jwt)) {
-			throw new IllegalStateException("인증되지 않은 사용자입니다.");
+			throw new UserException(ErrorStatus._UNAUTHORIZED);
 		}
 		return jwt.userId();
 	}

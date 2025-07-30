@@ -12,9 +12,6 @@ import com.indayvidual.server.domain.memo.dto.response.MemoSummaryResponseDTO;
 import com.indayvidual.server.domain.memo.entity.Memo;
 import com.indayvidual.server.domain.memo.exception.MemoException;
 import com.indayvidual.server.domain.memo.repository.MemoRepository;
-import com.indayvidual.server.domain.user.entity.User;
-import com.indayvidual.server.domain.user.exception.UserException;
-import com.indayvidual.server.domain.user.repository.UserRepository;
 import com.indayvidual.server.global.api.code.status.ErrorStatus;
 import com.indayvidual.server.global.util.Utils;
 
@@ -28,7 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 public class MemoQueryServiceImpl implements MemoQueryService {
 
 	private final MemoRepository memoRepository;
-	private final UserRepository userRepository;
 
 	@Override
 	public MemoSliceResponseDTO getMemosWithSlice(Long userId, Integer page, Integer size) {
@@ -44,16 +40,9 @@ public class MemoQueryServiceImpl implements MemoQueryService {
 
 	@Override
 	public MemoDetailResponseDTO getMemoDetail(Long userId, Long memoId) {
-		User currentUser = userRepository.findById(userId)
-			.orElseThrow(() -> new UserException(ErrorStatus.USER_NOT_FOUND));
 
-		Memo memo = memoRepository.findById(memoId)
+		Memo memo = memoRepository.findByIdAndUserId(memoId, userId)
 			.orElseThrow(() -> new MemoException(ErrorStatus.MEMO_NOT_FOUND));
-
-		// 만약 접근하는 사용자가 메모의 소유자가 아니라면 접근 금지
-		if (!memo.getUser().equals(currentUser)) {
-			throw new MemoException(ErrorStatus.MEMO_OWNER_MISMATCH);
-		}
 
 		return MemoDetailResponseDTO.from(memo);
 	}

@@ -39,22 +39,21 @@ public class CalendarQueryServiceImpl implements CalendarQueryService {
 
         List<Event> events = eventRepository.findByUserIdAndEventDateBetween(userId, startDate, endDate);
 
-        Map<LocalDate, List<Long>> dateColorIdsMap = events.stream()
+        Map<LocalDate, List<String>> dateColorsMap = events.stream()
                 .collect(Collectors.groupingBy(
                         Event::getEventDate,
-                        Collectors.mapping(event -> event.getColor().getId(), Collectors.toList())
+                        Collectors.mapping(Event::getColorCode, Collectors.toList())
                 ));
 
         return Stream.iterate(startDate, date -> date.plusDays(1))
                 .limit(yearMonth.lengthOfMonth())
                 .map(date -> {
-                    List<Long> colorIds = dateColorIdsMap.getOrDefault(date, Collections.emptyList());
+                    List<String> colors = dateColorsMap.getOrDefault(date, Collections.emptyList());
                     return GetMonthlyCalendarResponseDto.builder()
                             .date(date)
-                            .colorIds(colorIds)
+                            .colors(colors)
                             .build();
                 })
                 .collect(Collectors.toList());
     }
 }
-

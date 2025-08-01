@@ -9,5 +9,5 @@ public class CategoryResponseDTO {
 
     private Long categoryId;
     private String name;
-    private String color;
+    private Long colorId;
 }

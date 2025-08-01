@@ -289,7 +289,8 @@ public enum ErrorStatus implements BaseErrorCode {
     TASK_CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "TASK4041", "카테고리를 찾을 수 없습니다."),
     TASK_NOT_FOUND(HttpStatus.NOT_FOUND, "TASK4042", "할 일을 찾을 수 없습니다."),
     TASK_FORBIDDEN(HttpStatus.FORBIDDEN, "TASK4031", "해당 할 일에 대한 권한이 없습니다."),
-    TASK_INVALID_ORDER(HttpStatus.BAD_REQUEST, "TASK4001", "유효하지 않은 할 일 순서 요청입니다.");
+    TASK_INVALID_ORDER(HttpStatus.BAD_REQUEST, "TASK4001", "유효하지 않은 할 일 순서 요청입니다."),
+    COLOR_NOT_FOUND(HttpStatus.NOT_FOUND, "TASK4002", "색상을 찾을 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

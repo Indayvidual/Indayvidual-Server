@@ -4,8 +4,10 @@ import com.indayvidual.server.domain.todo.converter.CategoryConverter;
 import com.indayvidual.server.domain.todo.dto.request.CategoryCreateRequestDTO;
 import com.indayvidual.server.domain.todo.dto.response.CategoryResponseDTO;
 import com.indayvidual.server.domain.todo.entity.Category;
+import com.indayvidual.server.domain.todo.entity.Color;
 import com.indayvidual.server.domain.todo.entity.Task;
 import com.indayvidual.server.domain.todo.repository.CategoryRepository;
+import com.indayvidual.server.domain.todo.repository.ColorRepository;
 import com.indayvidual.server.domain.todo.repository.TaskRepository;
 import com.indayvidual.server.domain.user.entity.User;
 import com.indayvidual.server.domain.user.repository.UserRepository;
@@ -27,6 +29,7 @@ public class CategoryCommandService {
     private final TaskRepository taskRepository;
     private final CategoryConverter categoryConverter;
     private final UserRepository userRepository;
+    private final ColorRepository colorRepository;
 
     @Transactional
     public CategoryResponseDTO create(CategoryCreateRequestDTO request, Long userId) {
@@ -34,7 +37,10 @@ public class CategoryCommandService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.USER_NOT_FOUND));
 
-        Category entity = categoryConverter.toEntity(request, user);
+        Color color = colorRepository.findById(request.getColorId())
+                .orElseThrow(() -> new GeneralException(ErrorStatus.COLOR_NOT_FOUND));
+
+        Category entity = categoryConverter.toEntity(request, user, color);
         Category saved = categoryRepository.save(entity);
         return categoryConverter.toResponse(saved);
     }

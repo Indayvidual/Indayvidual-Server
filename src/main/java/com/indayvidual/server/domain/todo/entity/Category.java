@@ -31,11 +31,12 @@ public class Category extends BaseEntity {
     @Column(nullable = false, length = 20)
     private String title;
 
-    @Column(name = "color_code", nullable = false, length = 10)
-    private String color;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "color_id", nullable = false)
+    private Color color;
 
     // --- 도메인 로직 ---
-    public static Category create(User user, String title, String color) {
+    public static Category create(User user, String title, Color color) {
         return Category.builder()
                 .user(user)
                 .title(title)
@@ -44,7 +45,7 @@ public class Category extends BaseEntity {
     }
 
     @Builder
-    private Category(User user, String title, String color) {
+    private Category(User user, String title, Color color) {
         this.user = user;
         this.title = title;
         this.color = color;

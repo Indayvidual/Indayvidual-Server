@@ -3,6 +3,7 @@ package com.indayvidual.server.domain.todo.converter;
 import com.indayvidual.server.domain.todo.dto.request.CategoryCreateRequestDTO;
 import com.indayvidual.server.domain.todo.dto.response.CategoryResponseDTO;
 import com.indayvidual.server.domain.todo.entity.Category;
+import com.indayvidual.server.domain.todo.entity.Color;
 import com.indayvidual.server.domain.user.entity.User;
 import org.springframework.stereotype.Component;
 
@@ -12,11 +13,11 @@ import java.util.stream.Collectors;
 @Component
 public class CategoryConverter {
 
-    public Category toEntity(CategoryCreateRequestDTO request, User user) {
+    public Category toEntity(CategoryCreateRequestDTO request, User user, Color color) {
         return Category.builder()
                 .user(user)
                 .title(request.getName())
-                .color(request.getColor())
+                .color(color)
                 .build();
     }
 
@@ -24,7 +25,7 @@ public class CategoryConverter {
         return CategoryResponseDTO.builder()
                 .categoryId(category.getId())
                 .name(category.getTitle())
-                .color(category.getColor())
+                .colorId(category.getColor().getId())
                 .build();
     }
 

@@ -1,8 +1,12 @@
 package com.indayvidual.server.domain.user.service.UserService;
 
+import com.indayvidual.server.domain.user.dto.request.DeleteAccountRequest;
 import com.indayvidual.server.domain.user.dto.response.UserResponseDTO;
 import com.indayvidual.server.domain.user.entity.User;
+import com.indayvidual.server.domain.user.entity.enums.Status;
+import com.indayvidual.server.domain.user.repository.RefreshTokenRepository;
 import com.indayvidual.server.domain.user.repository.UserRepository;
+import com.indayvidual.server.domain.user.service.AuthService.ReauthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,6 +20,8 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserProfileService {
 
     private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final ReauthService reauthService;
     private final PasswordEncoder passwordEncoder;
     private final S3Uploader s3Uploader;
 
@@ -73,5 +79,51 @@ public class UserProfileService {
             s3Uploader.deleteObjectByUrl(oldUrl);
         }
         return newUrl;
+    }
+
+
+    public void deleteMyAccount(Long userId, String reauthToken, DeleteAccountRequest req) {
+        // 1) 재인증 토큰 검증 (하드/소프트 공통)
+        reauthService.assertReauthOrThrow(userId, reauthToken, true); // 1회성 소비
+
+        // 2) 유저 로드
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        // 3) RefreshToken 전부 무효화
+        refreshTokenRepository.deleteAllByUserId(userId);
+
+        // (선택) Access token 블랙리스트 등록: 남은 만료시간 만큼만 유지
+        // blacklistService.add(accessToken, remainingTtl); // 구현해두면 더 안전
+
+        // 4) 이미지 정리 (기본이미지 아닌 경우에만 삭제)
+        String old = user.getProfile_image();
+        boolean deletable = old != null && !old.isBlank() && !old.equals(defaultProfileImageUrl);
+
+        if (req.isHard()) {
+            // ---- 하드 삭제 ----
+            if (deletable) s3Uploader.deleteObjectByUrl(old);
+            userRepository.delete(user); // 연관 엔티티 orphanRemoval=true면 함께 제거
+            return;
+        }
+
+        // ---- 소프트 삭제 ----
+        if (deletable) s3Uploader.deleteObjectByUrl(old);
+
+        // 민감 데이터 최소화 + 계정 비활성
+        user.changeProfileImage(defaultProfileImageUrl);
+        user.changeUsername("탈퇴한 사용자");
+        user.changePassword(null); // 이메일 비번 로그인 불가(소셜만 있던 계정이면 그대로 null)
+
+        user.setStatus(Status.DELETED); // 상태 전이 (필드가 enum Status에 포함돼야 함)
+        // 필요 시 deletedAt 필드가 있으면 기록: user.setDeletedAt(LocalDateTime.now());
+
+        // 이메일 처리 정책
+        // 1) 유지: 아무것도 안 함
+        // 2) 익명화: user.setEmail("deleted_" + user.getId() + "@example.invalid"); 또는 해시
+        // 3) 재사용 허용: 익명화하여 unique 제약 충족
+
+        // 사유 기록하고 싶으면 별도 테이블에 저장 (UserDeletionLog 등)
+        // deletionLogRepository.save(UserDeletionLog.of(userId, req.getReason()));
     }
 }

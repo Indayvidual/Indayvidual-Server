@@ -1,11 +1,14 @@
 package com.indayvidual.server.domain.user.controller;
 
+import com.indayvidual.server.domain.user.dto.request.DeleteAccountRequest;
 import com.indayvidual.server.domain.user.dto.request.UserRequestDTO;
+import com.indayvidual.server.domain.user.dto.response.SimpleMessageResponse;
 import com.indayvidual.server.domain.user.dto.response.UserResponseDTO;
 import com.indayvidual.server.domain.user.service.AuthService.ReauthService;
 import com.indayvidual.server.domain.user.service.UserService.UserProfileService;
 import com.indayvidual.server.global.api.response.ApiResponse;
 import com.indayvidual.server.global.config.security.JwtUserPrincipal;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -65,5 +68,19 @@ public class UserProfileController {
         reauthService.assertReauthOrThrow(principal.userId(), reauthToken, false);
         String url = userProfileService.updateProfileImage(principal.userId(), image);
         return ResponseEntity.ok(ApiResponse.onSuccess(url));
+    }
+
+    @Operation(summary = "회원 탈퇴", description = "재인증 토큰(X-Reauth-Token) 필요. 기본은 소프트 삭제")
+    @DeleteMapping
+    public ResponseEntity<ApiResponse<SimpleMessageResponse>> deleteMe(
+            @AuthenticationPrincipal JwtUserPrincipal principal,
+            @RequestHeader("X-Reauth-Token") String reauthToken,
+            @RequestBody(required = false) DeleteAccountRequest req
+    ) {
+        if (req == null) req = new DeleteAccountRequest(); // 기본값
+        userProfileService.deleteMyAccount(principal.userId(), reauthToken, req);
+        return ResponseEntity.ok(ApiResponse.onSuccess(
+                SimpleMessageResponse.builder().message("탈퇴가 완료되었습니다.").build()
+        ));
     }
 }

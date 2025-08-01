@@ -3,6 +3,7 @@ package com.indayvidual.server.domain.user.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -23,11 +24,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
@@ -52,7 +48,8 @@ public class User extends BaseEntity {
 	@Column(name = "profile_image", length = 512)
 	private String profile_image;
 
-	@Enumerated(EnumType.STRING)
+	@Setter
+    @Enumerated(EnumType.STRING)
 	private Status status;
 
 	@Enumerated(EnumType.STRING)
@@ -70,7 +67,7 @@ public class User extends BaseEntity {
 	@Builder.Default
 	private List<Habit> habits = new ArrayList<>();
 
-	public void changeUsername(String username) { this.username = username; }
+    public void changeUsername(String username) { this.username = username; }
 	public void changePassword(String encodedPassword) { this.password = encodedPassword; }
 	public void changeProfileImage(String imageUrl) { this.profile_image = imageUrl; }
 

@@ -39,10 +39,7 @@ public class HabitQueryServiceImpl implements HabitQueryService {
 	public HabitSliceResponseDTO getHabits(Long userId, Integer page, Integer size) {
 		int pageNumber = (page != null && page >= 0) ? page : 0;
 		int pageSize = Utils.validatePageSize(size);
-
-		// 사용자 검증
-		getCurrentUser(userId);
-
+		
 		Pageable pageable = PageRequest.of(pageNumber, pageSize);
 
 		Slice<Habit> habitSlice = habitRepository.findByUserIdOrderByCreatedAtDescIdDesc(userId, pageable);

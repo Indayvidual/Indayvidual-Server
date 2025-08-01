@@ -70,6 +70,7 @@ logging:
     com.indayvidual: INFO
 
 kakao:
+  api-base: https://kapi.kakao.com
   oauth:
     client-id:       ${KAKAO_REST_API_KEY}
     client-secret:   ${KAKAO_CLIENT_SECRET:}   # 없으면 빈 값

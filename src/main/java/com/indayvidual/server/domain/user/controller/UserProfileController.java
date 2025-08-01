@@ -71,7 +71,7 @@ public class UserProfileController {
     }
 
     @Operation(summary = "회원 탈퇴", description = "재인증 토큰(X-Reauth-Token) 필요. 기본은 소프트 삭제")
-    @DeleteMapping
+    @DeleteMapping("/delete")
     public ResponseEntity<ApiResponse<SimpleMessageResponse>> deleteMe(
             @AuthenticationPrincipal JwtUserPrincipal principal,
             @RequestHeader("X-Reauth-Token") String reauthToken,

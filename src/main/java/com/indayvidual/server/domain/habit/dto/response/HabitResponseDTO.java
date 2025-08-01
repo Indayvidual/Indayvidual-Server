@@ -35,6 +35,7 @@ public class HabitResponseDTO {
 
 	public static HabitResponseDTO from(Habit habit) {
 		return HabitResponseDTO.builder()
+			.habitId(habit.getId())
 			.title(habit.getTitle())
 			.colorCode(habit.getColorCode())
 			.isChecked(false)

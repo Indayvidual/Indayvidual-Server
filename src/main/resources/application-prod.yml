@@ -49,6 +49,13 @@ spring:
         accessKey: ${AWS_ACCESS_KEY_ID}
         secretKey: ${AWS_SECRET_ACCESS_KEY}
 
+  data:
+    redis:
+      repositories:
+        enabled: false
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
+
 server:
   port: 8080
 

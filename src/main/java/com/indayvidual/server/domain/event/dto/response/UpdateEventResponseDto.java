@@ -33,8 +33,8 @@ public class UpdateEventResponseDto {
     @JsonFormat(pattern = "HH:mm")
     private LocalTime endTime;
 
-    @Schema(description = "색상 ID", example = "1")
-    private Long colorId;
+    @Schema(description = "색상 코드", example = "#CD7AFB")
+    private String color;
 
     @Schema(description = "하루종일 여부", example = "false")
     private Boolean isAllDay;

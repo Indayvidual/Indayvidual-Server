@@ -20,6 +20,6 @@ public class GetMonthlyCalendarResponseDto {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate date;
 
-    @Schema(description = "해당 날짜에 포함된 일정의 색상 ID 리스트", example = "[1, 2]")
-    private List<Long> colorIds;
+    @Schema(description = "해당 날짜에 포함된 일정의 색상 코드 리스트", example = "[\"#FF0000\", \"#00FF00\"]")
+    private List<String> colors;
 }

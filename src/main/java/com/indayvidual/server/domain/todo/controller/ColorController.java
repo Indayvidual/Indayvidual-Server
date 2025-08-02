@@ -1,7 +1,6 @@
 package com.indayvidual.server.domain.todo.controller;
 
-import com.indayvidual.server.domain.todo.dto.response.ColorResponseDTO;
-import com.indayvidual.server.domain.todo.service.color.ColorQueryService;
+import com.indayvidual.server.domain.todo.service.color.ColorService;
 import com.indayvidual.server.global.api.code.status.SuccessStatus;
 import com.indayvidual.server.global.api.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,13 +18,13 @@ import java.util.List;
 @RequestMapping("/api/colors")
 public class ColorController {
 
-    private final ColorQueryService colorQueryService;
+    private final ColorService colorService;
 
     @Operation(summary = "색상 목록 조회", description = "색상 목록을 조회합니다.")
     @GetMapping("")
-    public ApiResponse<List<ColorResponseDTO>> getColors() {
+    public ApiResponse<List<String>> getColors() {
         return ApiResponse.onSuccess(
-                colorQueryService.findAll(),
+                colorService.findAll(),
                 SuccessStatus.GET_COLORS_SUCCESS.getCode(),
                 SuccessStatus.GET_COLORS_SUCCESS.getMessage());
     }

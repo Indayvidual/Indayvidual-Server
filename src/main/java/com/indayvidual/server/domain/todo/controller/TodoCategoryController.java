@@ -46,6 +46,19 @@ public class TodoCategoryController {
                 SuccessStatus.GET_CATEGORIES_SUCCESS.getMessage());
     }
 
+    @Operation(summary = "카테고리 수정", description = "카테고리 제목과 색상을 수정합니다.")
+    @PatchMapping("/{categoryId}")
+    public ApiResponse<CategoryResponseDTO> updateCategoryTitleAndColor(
+            @PathVariable Long categoryId,
+            @RequestBody @Valid CategoryCreateRequestDTO request
+    ) {
+        Long userId = Utils.getUserId();
+        return ApiResponse.onSuccess(
+                categoryCommandService.updateCategoryTitleAndColor(request, userId, categoryId),
+                SuccessStatus.UPDATE_CATEGORY_SUCCESS.getCode(),
+                SuccessStatus.UPDATE_CATEGORY_SUCCESS.getMessage());
+    }
+
     @Operation(summary = "카테고리 삭제", description = """
             카테고리를 삭제합니다.\n
             **카테고리 내 할 일도 모두 삭제됩니다.**""")

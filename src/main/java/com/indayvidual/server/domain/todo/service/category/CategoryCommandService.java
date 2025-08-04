@@ -40,6 +40,20 @@ public class CategoryCommandService {
     }
 
     @Transactional
+    public CategoryResponseDTO updateCategoryTitleAndColor(CategoryCreateRequestDTO request, Long userId, Long categoryId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.USER_NOT_FOUND));
+
+        Category category = categoryRepository.findByIdAndUserId(categoryId, userId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.TASK_CATEGORY_NOT_FOUND));
+
+        category.updateTitle(request.getName());
+        category.updateColor(request.getColor());
+        return categoryConverter.toResponse(category);
+    }
+
+    @Transactional
     public void delete(Long userId, Long categoryId) {
         Category category = categoryRepository.findByIdAndUserId(categoryId, userId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.TASK_CATEGORY_NOT_FOUND));

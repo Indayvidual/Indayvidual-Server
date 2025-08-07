@@ -45,6 +45,7 @@ public class HabitResponseDTO {
 
 	public static HabitResponseDTO of(Habit habit, boolean isChecked, LocalDate checkedAt) {
 		return HabitResponseDTO.builder()
+			.habitId(habit.getId())
 			.title(habit.getTitle())
 			.colorCode(habit.getColorCode())
 			.isChecked(isChecked)

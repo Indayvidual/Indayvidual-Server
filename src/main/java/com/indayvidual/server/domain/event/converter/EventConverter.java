@@ -110,6 +110,7 @@ public class EventConverter {
                 .startTime(event.getStartTime().format(TIME_FORMATTER))
                 .endTime(event.getEndTime() != null ? event.getEndTime().format(TIME_FORMATTER) : null)
                 .color(event.getColorCode())
+                .isAllDay(event.getIsAllDay())
                 .build();
     }
 

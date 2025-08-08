@@ -22,4 +22,6 @@ public class GetDayEventResponseDto {
     private String endTime;
 
     private String color;
+
+    private Boolean isAllDay;
 }

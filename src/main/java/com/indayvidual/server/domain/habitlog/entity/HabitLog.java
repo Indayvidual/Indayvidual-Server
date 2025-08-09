@@ -59,8 +59,8 @@ public class HabitLog extends BaseEntity {
 	}
 
 	//== 더티체킹 메서드 ==//
-	public void updateCheck(Boolean isChecked) {
+	public void updateCheck(Boolean isChecked, LocalDate checkedAt) {
 		this.isChecked = isChecked;
-		this.checkedAt = isChecked ? LocalDate.now() : null;
+		this.checkedAt = checkedAt;
 	}
 }

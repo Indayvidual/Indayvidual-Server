@@ -134,7 +134,7 @@ public class Habit extends BaseEntity {
 		}
 
 		// 상태 업데이트
-		targetLog.updateCheck(checked);
+		targetLog.updateCheck(checked, checkDate);
 	}
 
 }

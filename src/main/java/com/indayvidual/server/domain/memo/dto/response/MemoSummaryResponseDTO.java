@@ -36,6 +36,7 @@ public class MemoSummaryResponseDTO {
 	public static MemoSummaryResponseDTO from(Memo memo) {
 		return MemoSummaryResponseDTO.builder()
 			.id(memo.getId())
+			.title(memo.getTitle())
 			.contentPreview(memo.getContent())
 			.createdAt(memo.getCreatedAt())
 			.updatedAt(memo.getUpdatedAt())

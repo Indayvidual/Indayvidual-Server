@@ -36,21 +36,17 @@ public class UserProfileController {
 
     @Operation(
             summary = "내 프로필 조회",
-            description = "재인증 토큰(X-Reauth-Token) 검증 후 내 프로필을 반환합니다."
+            description = "액세스 토큰만으로 내 프로필을 반환합니다. 재인증 토큰은 필요하지 않습니다."
     )
     @io.swagger.v3.oas.annotations.responses.ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "재인증 필요 혹은 인증 실패"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 실패(액세스 토큰 누락/무효)"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사용자 없음")
     })
     @GetMapping("/profile")
     public ResponseEntity<ApiResponse<UserResponseDTO.Profile>> getMyProfile(
-            @Parameter(name = "X-Reauth-Token", in = ParameterIn.HEADER, required = true,
-                    description = "재인증 토큰", example = "reauth_base64url_token")
-            @RequestHeader("X-Reauth-Token") String reauthToken,
             @AuthenticationPrincipal JwtUserPrincipal principal
     ) {
-        reauthService.assertReauthOrThrow(principal.userId(), reauthToken, false);
         var profile = userProfileService.getMyProfile(principal.userId());
         return ResponseEntity.ok(ApiResponse.onSuccess(profile));
     }
@@ -79,7 +75,8 @@ public class UserProfileController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "변경 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "새 비밀번호가 현재와 동일"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "재인증 필요 또는 현재 비밀번호 불일치"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사용자 없음")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사용자 없음"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "비밀번호 기반 변경이 불가능한 계정(소셜-only/LOCAL 미연동)")
     })
     @PatchMapping("/update_password")
     public ResponseEntity<ApiResponse<String>> updatePassword(

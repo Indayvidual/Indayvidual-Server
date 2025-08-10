@@ -3,8 +3,11 @@ package com.indayvidual.server.domain.user.service.UserService;
 import com.indayvidual.server.domain.user.dto.request.DeleteAccountRequest;
 import com.indayvidual.server.domain.user.dto.response.UserResponseDTO;
 import com.indayvidual.server.domain.user.entity.User;
+import com.indayvidual.server.domain.user.entity.UserProvider;
+import com.indayvidual.server.domain.user.entity.enums.Provider;
 import com.indayvidual.server.domain.user.entity.enums.Status;
 import com.indayvidual.server.domain.user.repository.RefreshTokenRepository;
+import com.indayvidual.server.domain.user.repository.UserProviderRepository;
 import com.indayvidual.server.domain.user.repository.UserRepository;
 import com.indayvidual.server.domain.user.service.AuthService.ReauthService;
 import com.indayvidual.server.global.api.code.status.ErrorStatus;
@@ -22,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserProfileService {
 
     private final UserRepository userRepository;
+    private final UserProviderRepository userProviderRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final ReauthService reauthService;
     private final PasswordEncoder passwordEncoder;
@@ -56,6 +60,15 @@ public class UserProfileService {
     public void updatePassword(Long userId, String currentPassword, String newPassword) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.MYPAGE_USER_NOT_FOUND));
+
+        // 비밀번호 기반 변경 불가(소셜-only 또는 LOCAL 미연동) 차단
+        boolean hasLocalProvider = userProviderRepository
+                .findByUserAndProvider(user, Provider.LOCAL)
+                .filter(UserProvider::getIsActive)
+                .isPresent();
+        if (!hasLocalProvider || user.getPassword() == null) {
+            throw new GeneralException(ErrorStatus.MYPAGE_PASSWORD_NOT_SUPPORTED);
+        }
 
         if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
             throw new GeneralException(ErrorStatus.MYPAGE_PASSWORD_MISMATCH);

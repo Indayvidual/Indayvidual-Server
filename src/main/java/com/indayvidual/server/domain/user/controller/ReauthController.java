@@ -29,7 +29,8 @@ public class ReauthController {
     @Operation(summary = "비밀번호 재인증", description = "현재 비밀번호 검증 후 reauth_token 발급(TTL=10분)")
     @io.swagger.v3.oas.annotations.responses.ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "재인증 성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "비밀번호 불일치 / 재인증 실패")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "비밀번호 불일치 / 재인증 실패"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "비밀번호 재인증을 사용할 수 없는 계정(소셜-only/LOCAL 미연동)")
     })
     @PostMapping("/password")
     public ResponseEntity<ApiResponse<ReauthResponse>> reauthByPassword(
@@ -42,7 +43,8 @@ public class ReauthController {
     @Operation(summary = "카카오 재인증", description = "카카오 accessToken 검증 후 reauth_token 발급(TTL=10분)")
     @io.swagger.v3.oas.annotations.responses.ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "재인증 성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "연동된 카카오 계정 아님 / 토큰 무효")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "토큰 무효"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "카카오 연동이 없는 계정")
     })
     @PostMapping("/kakao")
     public ResponseEntity<ApiResponse<ReauthResponse>> reauthByKakao(

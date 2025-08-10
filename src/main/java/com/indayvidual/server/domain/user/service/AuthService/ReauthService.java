@@ -38,6 +38,15 @@ public class ReauthService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.REAUTH_USER_NOT_FOUND));
 
+        // 소셜-only 계정(비밀번호 미설정) 또는 LOCAL 미연동 계정은 차단
+        boolean hasLocalProvider = userProviderRepository
+                .findByUserAndProvider(user, Provider.LOCAL)
+                .filter(UserProvider::getIsActive)
+                .isPresent();
+        if (!hasLocalProvider || user.getPassword() == null) {
+            throw new GeneralException(ErrorStatus.REAUTH_NO_LOCAL);
+        }
+
         if (user.getPassword() == null || !passwordEncoder.matches(currentPassword, user.getPassword())) {
             throw new GeneralException(ErrorStatus.REAUTH_PASSWORD_MISMATCH);
         }
@@ -57,7 +66,7 @@ public class ReauthService {
                 .map(up -> Objects.equals(up.getProviderId(), String.valueOf(profile.getId())))
                 .orElse(false);
 
-        if (!linked) throw new GeneralException(ErrorStatus.REAUTH_PROVIDER_NOT_LINKED);
+        if (!linked) throw new GeneralException(ErrorStatus.REAUTH_NO_KAKAO);
 
         return issueToken(userId, "KAKAO");
     }

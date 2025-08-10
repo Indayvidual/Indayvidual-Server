@@ -20,7 +20,7 @@ public class TimetableCommandServiceImpl implements TimetableCommandService {
     private final S3Uploader s3Uploader;
 
     @Override
-    public Timetable createTimetableWithImage(String schoolId, Semester semester, MultipartFile image, Long userId) {
+    public Timetable createTimetableWithImage(String schoolId, String schoolName, Semester semester, MultipartFile image, Long userId) {
         if (timetableRepository.existsByUserIdAndSemester(userId, semester)) {
             throw new TimetableException(ErrorStatus.TIMETABLE_DUPLICATE_SEMESTER);
         }
@@ -29,6 +29,7 @@ public class TimetableCommandServiceImpl implements TimetableCommandService {
         Timetable timetable = Timetable.builder()
                 .userId(userId)
                 .schoolId(schoolId)
+                .schoolName(schoolName)
                 .semester(semester)
                 .timeTableImage(imageUrl)
                 .build();

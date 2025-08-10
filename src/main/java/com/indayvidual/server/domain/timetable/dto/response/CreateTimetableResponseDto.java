@@ -10,13 +10,15 @@ public class CreateTimetableResponseDto {
 
     private Long timetableId;
     private String schoolId;
+    private String schoolName;
     private Semester semester;
     private String imageUrl;
 
-    public static CreateTimetableResponseDto of(Long timetableId, String schoolId, Semester semester, String imageUrl) {
+    public static CreateTimetableResponseDto of(Long timetableId, String schoolId, String schoolName, Semester semester, String imageUrl) {
         return CreateTimetableResponseDto.builder()
                 .timetableId(timetableId)
                 .schoolId(schoolId)
+                .schoolName(schoolName)
                 .semester(semester)
                 .imageUrl(imageUrl)
                 .build();

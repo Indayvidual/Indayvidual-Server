@@ -23,6 +23,9 @@ public class Timetable extends BaseEntity {
     @Column(name = "school_id", nullable = false)
     private String schoolId;
 
+    @Column(name = "school_name", nullable = false)
+    private String schoolName;
+
     @Column(name = "semester", nullable = false)
     private Semester semester;
 
@@ -30,9 +33,10 @@ public class Timetable extends BaseEntity {
     private String timeTableImage;
 
     @Builder
-    public Timetable(Long userId, String schoolId, Semester semester, String timeTableImage) {
+    public Timetable(Long userId, String schoolId, String schoolName, Semester semester, String timeTableImage) {
         this.userId = userId;
         this.schoolId = schoolId;
+        this.schoolName = schoolName;
         this.semester = semester;
         this.timeTableImage = timeTableImage;
     }

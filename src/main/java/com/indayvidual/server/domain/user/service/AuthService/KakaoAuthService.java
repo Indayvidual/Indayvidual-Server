@@ -10,12 +10,16 @@ import com.indayvidual.server.domain.user.entity.enums.Status;
 import com.indayvidual.server.domain.user.repository.UserProviderRepository;
 import com.indayvidual.server.domain.user.repository.UserRepository;
 import com.indayvidual.server.domain.user.service.UserService.RefreshTokenService;
+import com.indayvidual.server.global.api.code.status.ErrorStatus;
 import com.indayvidual.server.global.client.KakaoApiClient;
 import com.indayvidual.server.global.config.security.JwtTokenProvider;
+import com.indayvidual.server.global.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 
 @Slf4j
@@ -31,8 +35,15 @@ public class KakaoAuthService {
 
     @Transactional
     public LoginResponseDTO loginWithKakao(String kakaoAccessToken) {
-        // 1. 카카오 access token 검증 + 프로필 조회
-        KakaoProfile profile = kakaoApiClient.fetchProfile(kakaoAccessToken);
+        KakaoProfile profile;
+        try {
+            // 1. 카카오 access token 검증 + 프로필 조회
+            profile = kakaoApiClient.fetchProfile(kakaoAccessToken);
+            } catch (GeneralException e) {
+                throw e; // 이미 매핑된 ErrorStatus
+            } catch (Exception e) {
+                throw new GeneralException(ErrorStatus.AUTH_OAUTH_PROVIDER_ERROR);
+        }
 
         // 2. 우리 서비스의 User 조회 or 신규 생성
         User user = userProviderRepository
@@ -56,9 +67,17 @@ public class KakaoAuthService {
     }
 
     private User signUpKakaoUser(KakaoProfile profile) {
-        String email = profile.getKakao_account().getEmail();
-        String nickname = profile.getKakao_account().getProfile().getNickname();
-        String image = profile.getKakao_account().getProfile().getProfile_image_url();
+        String email = Optional.ofNullable(profile.getKakao_account())
+                .map(KakaoProfile.KakaoAccount::getEmail)
+                .orElse(null); // 이메일 동의 X 케이스 고려
+        String nickname = Optional.ofNullable(profile.getKakao_account())
+                .map(KakaoProfile.KakaoAccount::getProfile)
+                .map(KakaoProfile.KakaoAccount.Profile::getNickname)
+                .orElse("카카오 사용자");
+        String image = Optional.ofNullable(profile.getKakao_account())
+                .map(KakaoProfile.KakaoAccount::getProfile)
+                .map(KakaoProfile.KakaoAccount.Profile::getProfile_image_url)
+                .orElse(null);
 
         User newUser = User.builder()
                 .email(email)

@@ -12,19 +12,18 @@ import com.indayvidual.server.domain.user.entity.enums.Status;
 import com.indayvidual.server.domain.user.repository.RefreshTokenRepository;
 import com.indayvidual.server.domain.user.repository.UserProviderRepository;
 import com.indayvidual.server.domain.user.repository.UserRepository;
+import com.indayvidual.server.global.api.code.status.ErrorStatus;
 import com.indayvidual.server.global.config.security.JwtTokenProvider;
-import com.indayvidual.server.global.config.security.JwtValidationType;
-import com.indayvidual.server.global.config.security.UserAuthentication;
+import com.indayvidual.server.global.exception.GeneralException;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +40,7 @@ public class UserAuthServiceImpl implements UserAuthService {
     public SignupResponseDTO signupWithEmail(SignupRequestDTO request) {
 
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
+            throw new GeneralException(ErrorStatus.AUTH_EMAIL_DUPLICATED);
         }
         String encodedPassword = passwordEncoder.encode(request.getPassword());
 
@@ -74,9 +73,10 @@ public class UserAuthServiceImpl implements UserAuthService {
     }
 
     @Override
+    @Transactional
     public LoginResponseDTO loginWithEmailAndPassword(String email, String rawPassword) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+                .orElseThrow(() -> new GeneralException(ErrorStatus.AUTH_INVALID_CREDENTIALS));
 
         boolean hasLocalProvider = userProviderRepository
                 .findByUserAndProvider(user, Provider.LOCAL)
@@ -84,17 +84,12 @@ public class UserAuthServiceImpl implements UserAuthService {
                 .isPresent();
 
         // UserProvider에서 LOCAL provider 확인
-        if (!hasLocalProvider) {
-            throw new IllegalArgumentException("소셜 로그인 유저입니다. 이메일 로그인 불가");
-        }
-
-        // 비밀번호가 null인 경우 (소셜 로그인만 있는 경우)
-        if (user.getPassword() == null) {
-            throw new IllegalArgumentException("소셜 로그인 유저입니다. 이메일 로그인 불가");
+        if (!hasLocalProvider || user.getPassword() == null) {
+            throw new GeneralException(ErrorStatus.AUTH_LOCAL_NOT_AVAILABLE);
         }
 
         if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            throw new GeneralException(ErrorStatus.AUTH_INVALID_CREDENTIALS);
         }
 
         return createLoginResponse(user);

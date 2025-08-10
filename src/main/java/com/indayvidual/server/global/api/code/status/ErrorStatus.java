@@ -41,6 +41,19 @@ public enum ErrorStatus implements BaseErrorCode {
     USER_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "USER4013", "토큰이 만료되었습니다."),
     USER_INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "USER4014", "아이디 또는 비밀번호가 올바르지 않습니다."),
 
+    // ===== AUTH =====
+    AUTH_EMAIL_DUPLICATED(HttpStatus.CONFLICT, "AUTH4091", "이미 가입된 이메일입니다."),
+    AUTH_INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "AUTH4010", "이메일 또는 비밀번호가 올바르지 않습니다."),
+    AUTH_LOCAL_NOT_AVAILABLE(HttpStatus.BAD_REQUEST, "AUTH4001", "소셜 전용 계정으로 이메일 로그인이 불가합니다."),
+    AUTH_REFRESH_MISSING(HttpStatus.BAD_REQUEST, "AUTH4002", "Refresh-Token 헤더가 없습니다."),
+    AUTH_REFRESH_INVALID(HttpStatus.UNAUTHORIZED, "AUTH4011", "유효하지 않은 리프레시 토큰입니다."),
+    AUTH_REFRESH_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH4012", "만료된 리프레시 토큰입니다."),
+    AUTH_REFRESH_NOT_FOUND(HttpStatus.UNAUTHORIZED, "AUTH4013", "저장된 리프레시 토큰이 없습니다."),
+    AUTH_REFRESH_REVOKED(HttpStatus.UNAUTHORIZED, "AUTH4014", "이미 사용되었거나 취소된 리프레시 토큰입니다."),
+    AUTH_USER_NOT_FOUND(HttpStatus.UNAUTHORIZED, "AUTH4015", "존재하지 않는 사용자입니다."),
+    AUTH_OAUTH_INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH4016", "소셜 액세스 토큰이 유효하지 않습니다."),
+    AUTH_OAUTH_PROVIDER_ERROR(HttpStatus.BAD_GATEWAY, "AUTH5021", "소셜 인증 제공자와의 통신에 실패했습니다."),
+
     // 계정 관련
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER4041", "사용자를 찾을 수 없습니다."),
     USER_ALREADY_EXISTS(HttpStatus.CONFLICT, "USER4091", "이미 존재하는 사용자입니다."),

@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,10 +22,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/auth/re-auth")
 @RequiredArgsConstructor
+@Validated
 public class ReauthController {
     private final ReauthService reauthService;
 
-    @Operation(summary = "비밀번호 재인증", description = "현재 비밀번호 검증 후 reauth_token 발급(TTL=5분)")
+    @Operation(summary = "비밀번호 재인증", description = "현재 비밀번호 검증 후 reauth_token 발급(TTL=10분)")
+    @io.swagger.v3.oas.annotations.responses.ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "재인증 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "비밀번호 불일치 / 재인증 실패")
+    })
     @PostMapping("/password")
     public ResponseEntity<ApiResponse<ReauthResponse>> reauthByPassword(
             @AuthenticationPrincipal JwtUserPrincipal principal,
@@ -33,7 +39,11 @@ public class ReauthController {
         return ResponseEntity.ok(ApiResponse.onSuccess(res));
     }
 
-    @Operation(summary = "카카오 재인증", description = "카카오 accessToken 검증 후 reauth_token 발급(TTL=5분)")
+    @Operation(summary = "카카오 재인증", description = "카카오 accessToken 검증 후 reauth_token 발급(TTL=10분)")
+    @io.swagger.v3.oas.annotations.responses.ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "재인증 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "연동된 카카오 계정 아님 / 토큰 무효")
+    })
     @PostMapping("/kakao")
     public ResponseEntity<ApiResponse<ReauthResponse>> reauthByKakao(
             @AuthenticationPrincipal JwtUserPrincipal principal,

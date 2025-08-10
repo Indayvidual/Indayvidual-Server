@@ -60,6 +60,12 @@ public enum ErrorStatus implements BaseErrorCode {
     EMAIL_CODE_MISMATCH(HttpStatus.BAD_REQUEST, "EMAIL4001", "인증번호가 일치하지 않습니다."),
     EMAIL_CODE_EXPIRED(HttpStatus.GONE, "EMAIL4100", "인증번호가 만료되었습니다."),
 
+    // ===== RE-AUTH =====
+    REAUTH_REQUIRED(HttpStatus.UNAUTHORIZED, "REAUTH4010", "재인증이 필요합니다."),
+    REAUTH_PASSWORD_MISMATCH(HttpStatus.UNAUTHORIZED, "REAUTH4011", "비밀번호가 일치하지 않습니다."),
+    REAUTH_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "REAUTH4040", "사용자를 찾을 수 없습니다."),
+    REAUTH_PROVIDER_NOT_LINKED(HttpStatus.UNAUTHORIZED, "REAUTH4012", "연결된 카카오 계정이 아닙니다."),
+
     // 계정 관련
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER4041", "사용자를 찾을 수 없습니다."),
     USER_ALREADY_EXISTS(HttpStatus.CONFLICT, "USER4091", "이미 존재하는 사용자입니다."),

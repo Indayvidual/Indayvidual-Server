@@ -12,6 +12,7 @@ public class TimetableConverter {
         return CreateTimetableResponseDto.of(
                 timetable.getId(),
                 timetable.getSchoolId(),
+                timetable.getSchoolName(),
                 timetable.getSemester(),
                 timetable.getTimeTableImage()
         );
@@ -21,6 +22,7 @@ public class TimetableConverter {
         return GetTimetableResponseDto.of(
                 timetable.getId(),
                 schoolId,
+                timetable.getSchoolName(),
                 timetable.getSemester(),
                 timetable.getTimeTableImage()
         );

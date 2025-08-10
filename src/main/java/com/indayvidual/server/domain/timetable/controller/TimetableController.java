@@ -46,6 +46,10 @@ public class TimetableController {
             @Parameter(description = "학교 ID (커리어넷 학교 정보 오픈API의 seq 값, 예: '767', '14')", required = true)
             String schoolId,
 
+            @RequestParam("schoolName")
+            @Parameter(description = "학교 이름", required = true)
+            String schoolName,
+
             @RequestParam("semester")
             @Parameter(
                     description = "학기",
@@ -69,7 +73,7 @@ public class TimetableController {
 
         Semester semester = Semester.from(semesterLabel);
         Long userId = Utils.getUserId();
-        Timetable createdTimetable = timetableCommandService.createTimetableWithImage(schoolId, semester, image, userId);
+        Timetable createdTimetable = timetableCommandService.createTimetableWithImage(schoolId, schoolName, semester, image, userId);
         CreateTimetableResponseDto response = timetableConverter.toCreateResponse(createdTimetable);
 
         return ApiResponse.onSuccess(response,

@@ -6,7 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface TimetableCommandService {
 
-    Timetable createTimetableWithImage(String schoolId, Semester semester, MultipartFile image, Long userId);
+    Timetable createTimetableWithImage(String schoolId, String schoolName, Semester semester, MultipartFile image, Long userId);
 
     void deleteTimetable(Long userId, Long timetableId);
 }

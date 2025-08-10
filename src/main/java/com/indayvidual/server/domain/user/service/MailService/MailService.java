@@ -1,9 +1,14 @@
 package com.indayvidual.server.domain.user.service.MailService;
 
+import com.indayvidual.server.global.api.code.status.ErrorStatus;
+import com.indayvidual.server.global.exception.GeneralException;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 
@@ -26,4 +31,17 @@ public class MailService {
     }
 
     // HTML 템플릿/FreeMarker/Thymeleaf 등으로 확장 가능
+    public void sendHtmlMessage(String to, String subject, String html) {
+        MimeMessage message = mailSender.createMimeMessage();
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
+            helper.setFrom(from);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(html, true); // HTML 모드
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            throw new GeneralException(ErrorStatus.EMAIL_SEND_FAILED);
+        }
+    }
 }

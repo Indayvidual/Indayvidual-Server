@@ -54,6 +54,12 @@ public enum ErrorStatus implements BaseErrorCode {
     AUTH_OAUTH_INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH4016", "소셜 액세스 토큰이 유효하지 않습니다."),
     AUTH_OAUTH_PROVIDER_ERROR(HttpStatus.BAD_GATEWAY, "AUTH5021", "소셜 인증 제공자와의 통신에 실패했습니다."),
 
+    // ===== EMAIL VERIFICATION =====
+    EMAIL_RESEND_COOLDOWN(HttpStatus.TOO_MANY_REQUESTS, "EMAIL4290", "요청이 너무 잦습니다. 잠시 후 다시 시도해 주세요."),
+    EMAIL_SEND_FAILED(HttpStatus.BAD_GATEWAY, "EMAIL5020", "이메일 전송에 실패했습니다."),
+    EMAIL_CODE_MISMATCH(HttpStatus.BAD_REQUEST, "EMAIL4001", "인증번호가 일치하지 않습니다."),
+    EMAIL_CODE_EXPIRED(HttpStatus.GONE, "EMAIL4100", "인증번호가 만료되었습니다."),
+
     // 계정 관련
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER4041", "사용자를 찾을 수 없습니다."),
     USER_ALREADY_EXISTS(HttpStatus.CONFLICT, "USER4091", "이미 존재하는 사용자입니다."),

@@ -7,6 +7,8 @@ import com.indayvidual.server.domain.user.entity.enums.Status;
 import com.indayvidual.server.domain.user.repository.RefreshTokenRepository;
 import com.indayvidual.server.domain.user.repository.UserRepository;
 import com.indayvidual.server.domain.user.service.AuthService.ReauthService;
+import com.indayvidual.server.global.api.code.status.ErrorStatus;
+import com.indayvidual.server.global.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,7 +33,7 @@ public class UserProfileService {
     @Transactional(readOnly = true)
     public UserResponseDTO.Profile getMyProfile(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new GeneralException(ErrorStatus.MYPAGE_USER_NOT_FOUND));
 
         String img = (user.getProfile_image() == null || user.getProfile_image().isBlank())
                 ? defaultProfileImageUrl
@@ -47,37 +49,57 @@ public class UserProfileService {
 
     public void updateUsername(Long userId, String newUsername) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new GeneralException(ErrorStatus.MYPAGE_USER_NOT_FOUND));
         user.changeUsername(newUsername);
     }
 
     public void updatePassword(Long userId, String currentPassword, String newPassword) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new GeneralException(ErrorStatus.MYPAGE_USER_NOT_FOUND));
 
         if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
-            throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
+            throw new GeneralException(ErrorStatus.MYPAGE_PASSWORD_MISMATCH);
         }
         if (passwordEncoder.matches(newPassword, user.getPassword())) {
-            throw new IllegalArgumentException("기존 비밀번호와 동일합니다.");
+            throw new GeneralException(ErrorStatus.MYPAGE_PASSWORD_SAME);
         }
         user.changePassword(passwordEncoder.encode(newPassword));
     }
 
     public String updateProfileImage(Long userId, MultipartFile image) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new GeneralException(ErrorStatus.MYPAGE_USER_NOT_FOUND));
+
+        if (image == null || image.isEmpty()) {
+            throw new GeneralException(ErrorStatus.MYPAGE_IMAGE_EMPTY);
+        }
+
+        // 허용 형식 & 크기(최대 5MB)
+        final long MAX = 5L * 1024 * 1024;
+        String ctype = image.getContentType() == null ? "" : image.getContentType().toLowerCase();
+        boolean allowed = ctype.startsWith("image/jpeg") || ctype.startsWith("image/png") || ctype.startsWith("image/webp");
+        if (!allowed) throw new GeneralException(ErrorStatus.MYPAGE_IMAGE_TYPE_INVALID);
+        if (image.getSize() > MAX) throw new GeneralException(ErrorStatus.MYPAGE_IMAGE_TOO_LARGE);
 
         String oldUrl = user.getProfile_image();
 
         // 업로드
-        String newUrl = s3Uploader.uploadProfileImage(userId, image);
+        String newUrl;
+        try {
+            newUrl = s3Uploader.uploadProfileImage(userId, image);
+        } catch (GeneralException ge) {
+            // S3Uploader가 내부 에러를 래핑했을 수 있으니 그대로 전파
+            throw ge;
+        } catch (Exception e) {
+            throw new GeneralException(ErrorStatus.MYPAGE_IMAGE_UPLOAD_FAILED);
+        }
         user.changeProfileImage(newUrl);
 
         // 이전 이미지가 기본이미지가 아닌 경우 삭제
         if (oldUrl != null && !oldUrl.isBlank() && !oldUrl.equals(defaultProfileImageUrl)) {
             s3Uploader.deleteObjectByUrl(oldUrl);
         }
+
         return newUrl;
     }
 
@@ -88,7 +110,7 @@ public class UserProfileService {
 
         // 2) 유저 로드
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new GeneralException(ErrorStatus.MYPAGE_USER_NOT_FOUND));
 
         // 3) RefreshToken 전부 무효화
         refreshTokenRepository.deleteAllByUserId(userId);

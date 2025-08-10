@@ -9,12 +9,17 @@ import com.indayvidual.server.domain.user.service.UserService.UserProfileService
 import com.indayvidual.server.global.api.response.ApiResponse;
 import com.indayvidual.server.global.config.security.JwtUserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,13 +27,26 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/mypage")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
+@Validated
 public class UserProfileController {
 
     private final UserProfileService userProfileService;
     private final ReauthService reauthService;
 
+    @Operation(
+            summary = "내 프로필 조회",
+            description = "재인증 토큰(X-Reauth-Token) 검증 후 내 프로필을 반환합니다."
+    )
+    @io.swagger.v3.oas.annotations.responses.ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "재인증 필요 혹은 인증 실패"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사용자 없음")
+    })
     @GetMapping("/profile")
     public ResponseEntity<ApiResponse<UserResponseDTO.Profile>> getMyProfile(
+            @Parameter(name = "X-Reauth-Token", in = ParameterIn.HEADER, required = true,
+                    description = "재인증 토큰", example = "reauth_base64url_token")
             @RequestHeader("X-Reauth-Token") String reauthToken,
             @AuthenticationPrincipal JwtUserPrincipal principal
     ) {
@@ -37,9 +55,17 @@ public class UserProfileController {
         return ResponseEntity.ok(ApiResponse.onSuccess(profile));
     }
 
+    @Operation(summary = "닉네임 변경", description = "재인증 토큰 검증 후 닉네임을 변경합니다.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "변경 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "재인증 필요"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사용자 없음")
+    })
     @PatchMapping("/update_username")
     public ResponseEntity<ApiResponse<String>> updateUsername(
             @AuthenticationPrincipal JwtUserPrincipal principal,
+            @Parameter(name = "X-Reauth-Token", in = ParameterIn.HEADER, required = true,
+                    description = "재인증 토큰", example = "reauth_base64url_token")
             @RequestHeader("X-Reauth-Token") String reauthToken,
             @RequestBody @Valid UserRequestDTO.UpdateUsername dto
     ) {
@@ -48,9 +74,18 @@ public class UserProfileController {
         return ResponseEntity.ok(ApiResponse.onSuccess("닉네임이 변경되었습니다."));
     }
 
+    @Operation(summary = "비밀번호 변경", description = "재인증 토큰 1회용 검증 후 비밀번호를 변경합니다.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "변경 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "새 비밀번호가 현재와 동일"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "재인증 필요 또는 현재 비밀번호 불일치"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사용자 없음")
+    })
     @PatchMapping("/update_password")
     public ResponseEntity<ApiResponse<String>> updatePassword(
             @AuthenticationPrincipal JwtUserPrincipal principal,
+            @Parameter(name = "X-Reauth-Token", in = ParameterIn.HEADER, required = true,
+                    description = "재인증 토큰", example = "reauth_base64url_token")
             @RequestHeader("X-Reauth-Token") String reauthToken,
             @RequestBody @Valid UserRequestDTO.UpdatePassword dto
     ) {
@@ -59,9 +94,20 @@ public class UserProfileController {
         return ResponseEntity.ok(ApiResponse.onSuccess("비밀번호가 변경되었습니다."));
     }
 
+    @Operation(summary = "프로필 이미지 변경",
+                           description = "재인증 토큰 검증 후 이미지를 업로드합니다. 허용 형식: JPEG/PNG/WEBP, 최대 5MB.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "변경 성공 (프리사인드 URL 반환)"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 파일 혹은 허용되지 않은 형식"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "재인증 필요"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "413", description = "파일 용량 초과"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "502", description = "업로드 실패")
+    })
     @PatchMapping(value = "/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<String>> updateProfileImage(
             @AuthenticationPrincipal JwtUserPrincipal principal,
+            @Parameter(name = "X-Reauth-Token", in = ParameterIn.HEADER, required = true,
+                    description = "재인증 토큰", example = "reauth_base64url_token")
             @RequestHeader("X-Reauth-Token") String reauthToken,
             @RequestPart("image") MultipartFile image
     ) {
@@ -71,9 +117,16 @@ public class UserProfileController {
     }
 
     @Operation(summary = "회원 탈퇴", description = "재인증 토큰(X-Reauth-Token) 필요. 기본은 소프트 삭제")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "탈퇴 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "재인증 필요"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사용자 없음")
+    })
     @DeleteMapping("/delete")
     public ResponseEntity<ApiResponse<SimpleMessageResponse>> deleteMe(
             @AuthenticationPrincipal JwtUserPrincipal principal,
+            @Parameter(name = "X-Reauth-Token", in = ParameterIn.HEADER, required = true,
+                    description = "재인증 토큰", example = "reauth_base64url_token")
             @RequestHeader("X-Reauth-Token") String reauthToken,
             @RequestBody(required = false) DeleteAccountRequest req
     ) {

@@ -53,6 +53,7 @@ public enum ErrorStatus implements BaseErrorCode {
     AUTH_USER_NOT_FOUND(HttpStatus.UNAUTHORIZED, "AUTH4015", "존재하지 않는 사용자입니다."),
     AUTH_OAUTH_INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH4016", "소셜 액세스 토큰이 유효하지 않습니다."),
     AUTH_OAUTH_PROVIDER_ERROR(HttpStatus.BAD_GATEWAY, "AUTH5021", "소셜 인증 제공자와의 통신에 실패했습니다."),
+    AUTH_USERNAME_DUPLICATED(HttpStatus.CONFLICT, "AUTH4092", "이미 사용 중인 닉네임입니다."),
 
     // ===== EMAIL VERIFICATION =====
     EMAIL_RESEND_COOLDOWN(HttpStatus.TOO_MANY_REQUESTS, "EMAIL4290", "요청이 너무 잦습니다. 잠시 후 다시 시도해 주세요."),

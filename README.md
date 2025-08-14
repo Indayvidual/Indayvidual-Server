@@ -1,9 +1,9 @@
-# 인데이비주얼 (Indayvidual)
+# Indayvidual (인데이비주얼)
 > **Indayvidual**은 **Day + Individual**의 합성어로,  
 개인의 라이프스타일에 맞춘 맞춤형 일정 관리 솔루션입니다.  
 여러 앱을 오가며 일정을 관리하는 불편함을 해소하고, 필요한 기능만 선택해 사용할 수 있는 통합 생산성 플랫폼을 제공합니다.
 
-<img width="3000" height="2000" alt="Image" src="https://github.com/user-attachments/assets/d75a382f-2ef9-4bd6-93ef-915e885a6249" />
+<img width="1500" height="1000" alt="Image" src="https://github.com/user-attachments/assets/d75a382f-2ef9-4bd6-93ef-915e885a6249" />
 
 <br/>
 
@@ -34,7 +34,12 @@
 <br/>
 
 ## 🗂 ERD
-<img width="1599" height="1018" alt="Image" src="https://github.com/user-attachments/assets/37a4daa0-b684-459e-8fb3-0de3daae9504" />
+<img width="700" height="500" alt="Image" src="https://github.com/user-attachments/assets/37a4daa0-b684-459e-8fb3-0de3daae9504" />
+
+<br/>
+
+## 🖥 System Architecture
+<img width="500" height="450" alt="Image" src="https://github.com/user-attachments/assets/64a6160e-c805-43fd-b3d7-6cb0a1172431" />
 
 <br/>
 

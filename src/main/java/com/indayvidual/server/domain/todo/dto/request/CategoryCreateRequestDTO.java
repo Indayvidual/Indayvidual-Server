@@ -1,7 +1,6 @@
 package com.indayvidual.server.domain.todo.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

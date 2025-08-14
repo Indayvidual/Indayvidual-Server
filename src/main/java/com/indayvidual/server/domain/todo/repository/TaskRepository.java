@@ -20,16 +20,15 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findByUserIdAndCategoryIdAndDueDate(Long userId, Long categoryId, LocalDate date);
 
     /**
-     * 특정 날짜와 카테고리 내에서 현재 등록된 Task의 최대 position을 조회합니다.
+     * 특정 날짜와 카테고리 내에서 현재 등록된 Task 중 최대 position인 Task을 조회합니다.
      * <p>
      * - 새로운 Task 생성 시 position 지정에 사용됩니다.
-     * - 값이 없으면 null을 반환합니다.
      *
      * @param categoryId
-     * @param date
-     * @return max position 값 (null 가능)
+     * @param dueDate
+     * @return max position 값의 task
      */
-    Integer findTopByCategoryIdAndDueDateOrderByPositionDesc(Long categoryId, LocalDate date);
+    Optional<Task> findTopByCategoryIdAndDueDateOrderByPositionDesc(Long categoryId, LocalDate dueDate);
 
     List<Task> findAllByUserIdAndCategoryId(Long userId, Long categoryId);
 

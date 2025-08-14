@@ -66,7 +66,11 @@ public class TaskCommandServiceImpl implements TaskCommandService {
      * @return 새로운 할 일의 position
      */
     private Integer generateNextPosition(Long categoryId, LocalDate date) {
-        Integer max = taskRepository.findTopByCategoryIdAndDueDateOrderByPositionDesc(categoryId, date);
+        Integer max = taskRepository
+                .findTopByCategoryIdAndDueDateOrderByPositionDesc(categoryId, date)
+                .map(Task::getPosition)
+                .orElse(null); // empty -> null
+
         if (max == null) {
             log.debug("[TASK][generateNextPosition] max가 null이므로 기본값 0으로 시작합니다.");
             return 0;

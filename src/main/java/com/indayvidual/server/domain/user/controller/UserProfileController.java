@@ -1,5 +1,6 @@
 package com.indayvidual.server.domain.user.controller;
 
+import com.indayvidual.server.common.Patterns;
 import com.indayvidual.server.domain.user.dto.request.DeleteAccountRequest;
 import com.indayvidual.server.domain.user.dto.request.UserRequestDTO;
 import com.indayvidual.server.domain.user.dto.response.SimpleMessageResponse;
@@ -69,7 +70,7 @@ public class UserProfileController {
             @Parameter(description = "확인할 닉네임", example = "감자도리")
             @RequestParam @NotBlank(message = "username은 필수입니다.")
             @Size(min = 2, max = 20, message = "닉네임은 2~20자여야 합니다.")
-            @Pattern(regexp = "^[\\p{L}0-9 _-]{2,20}$", message = "닉네임은 한글/영문/숫자/공백/[_-]만 허용합니다.")
+            @Pattern(regexp = Patterns.USERNAME_JS_COMPAT, message = "닉네임은 한글/영문/숫자/공백/[_-]만 허용합니다.")
             String username
     ) {
                 boolean available = userProfileService.isUsernameAvailable(username, principal.userId());

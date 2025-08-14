@@ -33,6 +33,13 @@ public class TaskCommandServiceImpl implements TaskCommandService {
     private final TaskConverter taskConverter;
     private final UserRepository userRepository;
 
+    // 유니크키(user, category, dueDate, position) 충돌 회피용 임시 position 베이스
+    private static final int TEMP_BASE = 1_000_000;
+
+    // 버킷 키: (categoryId, dueDate) – userId는 메서드 인자로 고정
+    private record BucketKey(Long categoryId, LocalDate dueDate) {
+    }
+
     /**
      * 할 일을 등록합니다.
      */
@@ -164,6 +171,11 @@ public class TaskCommandServiceImpl implements TaskCommandService {
 
     /**
      * 할 일의 순서 변경 또는 카테고리를 변경합니다.
+     * <p>
+     * - 버킷 단위: (userId, categoryId, dueDate)
+     * - 슬롯 방식: order를 최종 인덱스(절대 위치)로 해석
+     * - 부분 요청 허용: 요청에 없는 것은 기존 순서대로 빈 칸 채움
+     * - 유니크키 회피: 임시 pos → flush → 최종 pos → flush
      *
      * @param userId
      * @param requestList
@@ -177,54 +189,87 @@ public class TaskCommandServiceImpl implements TaskCommandService {
     ) {
         Set<Long> affectedCategories = new HashSet<>();
 
-        // 1. 요청을 카테고리별로 groupBy
-        Map<Long, List<TaskOrderCategoryUpdateRequestDTO>> groupedRequests =
-                requestList.stream().collect(Collectors.groupingBy(TaskOrderCategoryUpdateRequestDTO::getCategoryId));
+        // 1) 요청을 (categoryId, dueDate) 버킷으로 그룹핑
+        //    * task의 현재 dueDate 사용
+        Map<BucketKey, List<TaskOrderCategoryUpdateRequestDTO>> groupedRequests =
+                requestList.stream().collect(Collectors.groupingBy(dto -> {
+                    Task t = taskMap.get(dto.getTaskId());
+                    LocalDate due = t.getDueDate();
+                    return new BucketKey(dto.getCategoryId(), due);
+                }));
 
-        for (Map.Entry<Long, List<TaskOrderCategoryUpdateRequestDTO>> entry : groupedRequests.entrySet()) {
-            Long categoryId = entry.getKey();
+        // 2) 각 버킷별로 정렬 수행
+        for (Map.Entry<BucketKey, List<TaskOrderCategoryUpdateRequestDTO>> entry : groupedRequests.entrySet()) {
+            BucketKey bucket = entry.getKey();
+            Long categoryId = bucket.categoryId();
+            LocalDate dueDate = bucket.dueDate();
             List<TaskOrderCategoryUpdateRequestDTO> requestTasks = entry.getValue();
 
             Category category = categoryRepository.findById(categoryId)
                     .orElseThrow(() -> new GeneralException(ErrorStatus.TASK_CATEGORY_NOT_FOUND));
 
-            log.debug("[TASK][REORDER] categoryId={} - 요청된 task 수: {}", categoryId, requestTasks.size());
+            log.debug("[TASK][REORDER] bucket(categoryId={}, dueDate={}) - 요청 task 수: {}",
+                    categoryId, dueDate, requestTasks.size());
 
-            // 2. 해당 카테고리의 전체 task 조회
-            List<Task> allTasksInCategory = taskRepository.findAllByUserIdAndCategoryId(userId, categoryId);
-            log.debug("[TASK][REORDER] categoryId={} - DB 내 전체 task 수: {}", categoryId, allTasksInCategory.size());
+            // 2-1) 버킷 전체 조회 (기존 position 오름차순 보장되어야 함)
+            List<Task> allTasksInBucket = taskRepository
+                    .findAllByUserIdAndCategoryIdAndDueDateOrderByPosition(userId, categoryId, dueDate);
 
-            // 3. 요청된 task 정렬용 Map
+            log.debug("[TASK][REORDER] bucket(categoryId={}, dueDate={}) - DB 내 전체 task 수: {}",
+                    categoryId, dueDate, allTasksInBucket.size());
+
+            // 2-2) 요청된 task → 절대 인덱스 맵
             Map<Long, Integer> requestedOrderMap = requestTasks.stream()
                     .collect(Collectors.toMap(TaskOrderCategoryUpdateRequestDTO::getTaskId, TaskOrderCategoryUpdateRequestDTO::getOrder));
+            Set<Long> requestedIds = new HashSet<>(requestedOrderMap.keySet());
 
-            // 4. 요청된 task 정렬
-            List<Task> requestedTasks = requestTasks.stream()
-                    .map(dto -> taskMap.get(dto.getTaskId()))
-                    .sorted(Comparator.comparingInt(task -> requestedOrderMap.get(task.getId())))
+            // 2-3) 슬롯 방식: order를 최종 인덱스로 사용
+            int n = allTasksInBucket.size();
+            Task[] slots = new Task[n];
+            List<Task> overflow = new ArrayList<>();
+
+            // 요청된 task들을 order 오름차순으로 정렬
+            List<Task> requestedTasksForAbsolute = allTasksInBucket.stream()
+                    .filter(t -> requestedIds.contains(t.getId()))
+                    .sorted(Comparator.comparingInt(t -> requestedOrderMap.get(t.getId())))
                     .toList();
 
-            log.debug("[TASK][REORDER] 요청된 task 순서:");
-            for (int i = 0; i < requestedTasks.size(); i++) {
-                Task t = requestedTasks.get(i);
-                log.debug("  - [{}] taskId={}, 요청 order={}", i, t.getId(), requestedOrderMap.get(t.getId()));
+            for (Task t : requestedTasksForAbsolute) {
+                Integer target = requestedOrderMap.get(t.getId());
+                if (target == null || target < 0 || target >= n) {
+                    overflow.add(t); // 범위 밖은 뒤에 채움
+                    continue;
+                }
+                if (slots[target] == null) {
+                    slots[target] = t; // 지정 슬롯에 배치
+                } else {
+                    overflow.add(t);   // 중복 order는 뒤에 채움
+                }
             }
 
-            // 5. 요청되지 않은 task
-            Set<Long> requestedIds = new HashSet<>(requestedOrderMap.keySet());
-            List<Task> untouchedTasks = allTasksInCategory.stream()
-                    .filter(task -> !requestedIds.contains(task.getId()))
-                    .toList();
+            // 2-4) 빈 칸을 untouched(요청 미포함) → overflow 순으로 채움
+            Iterator<Task> untouchedIt = allTasksInBucket.stream()
+                    .filter(t -> !requestedIds.contains(t.getId()))
+                    .iterator();
+            Iterator<Task> overflowIt = overflow.iterator();
 
-            log.debug("[TASK][REORDER] 포함되지 않은 task 수: {}", untouchedTasks.size());
+            for (int i = 0; i < n; i++) {
+                if (slots[i] == null) {
+                    if (untouchedIt.hasNext()) {
+                        slots[i] = untouchedIt.next();
+                    } else if (overflowIt.hasNext()) {
+                        slots[i] = overflowIt.next();
+                    }
+                }
+            }
 
-            // 6. 최종 정렬 리스트 구성
-            List<Task> finalSortedTasks = new ArrayList<>();
-            finalSortedTasks.addAll(requestedTasks);
-            finalSortedTasks.addAll(untouchedTasks);
+            // 2-5) 최종 리스트 확정
+            List<Task> finalSortedTasks = Arrays.stream(slots).filter(Objects::nonNull).toList();
 
-            log.debug("[TASK][REORDER] 최종 정렬 후 position 재할당:");
+            log.debug("[TASK][REORDER] 최종 정렬 후 position 재할당 (bucket={},{}):",
+                    categoryId, dueDate);
 
+            // 2-6) 임시 pos 부여(유니크키 충돌 회피) + 카테고리 변경 반영 → flush
             for (int i = 0; i < finalSortedTasks.size(); i++) {
                 Task task = finalSortedTasks.get(i);
 
@@ -234,15 +279,24 @@ public class TaskCommandServiceImpl implements TaskCommandService {
                     task.updateCategory(category);
                 }
 
-                // position 재할당
-                log.debug("  - taskId={}, 기존 position={}, 신규 position={}", task.getId(), task.getPosition(), i);
+                task.updatePosition(TEMP_BASE + i);
+            }
+            taskRepository.flush(); // 중간 flush로 일시 중복 상태 제거
+
+            // 2-7) 최종 pos 0..N-1 부여 → flush
+            for (int i = 0; i < finalSortedTasks.size(); i++) {
+                Task task = finalSortedTasks.get(i);
+                log.debug("  - taskId={}, 최종 position={}", task.getId(), i);
                 task.updatePosition(i);
             }
+            taskRepository.flush();
 
             affectedCategories.add(categoryId);
         }
 
-        log.debug("[TASK][REORDER] 전체 변경 완료 - userId={}, 변경된 카테고리 수: {}", userId, affectedCategories.size());
+        log.debug("[TASK][REORDER] 전체 변경 완료 - userId={}, 변경된 카테고리 수: {}",
+                userId, affectedCategories.size());
+
         return affectedCategories;
     }
 
@@ -285,6 +339,22 @@ public class TaskCommandServiceImpl implements TaskCommandService {
         if (tasks == null || tasks.isEmpty()) {
             log.warn("[TASK] 빈 taskOrder 요청");
             throw new GeneralException(ErrorStatus.TASK_INVALID_ORDER);
+        }
+        // 추가 방어: taskId 중복 및 order 음수 방지
+        Set<Long> seen = new HashSet<>();
+        for (TaskOrderCategoryUpdateRequestDTO t : tasks) {
+            if (t.getTaskId() == null || !seen.add(t.getTaskId())) {
+                log.warn("[TASK] taskId 중복 또는 null");
+                throw new GeneralException(ErrorStatus.TASK_INVALID_ORDER);
+            }
+            if (t.getOrder() == null || t.getOrder() < 0) {
+                log.warn("[TASK] order가 null 또는 음수");
+                throw new GeneralException(ErrorStatus.TASK_INVALID_ORDER);
+            }
+            if (t.getCategoryId() == null) {
+                log.warn("[TASK] categoryId가 null");
+                throw new GeneralException(ErrorStatus.TASK_INVALID_ORDER);
+            }
         }
         return tasks;
     }

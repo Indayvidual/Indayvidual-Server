@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -46,7 +47,7 @@ public class TaskCommandServiceImpl implements TaskCommandService {
                 .orElseThrow(() -> new GeneralException(ErrorStatus.TASK_CATEGORY_NOT_FOUND));
 
         // position 지정
-        Integer position = generateNextPosition(categoryId);
+        Integer position = generateNextPosition(categoryId, request.getDate());
 
         Task task = taskConverter.toEntity(request, category, user, position);
         taskRepository.save(task);
@@ -57,19 +58,24 @@ public class TaskCommandServiceImpl implements TaskCommandService {
 
     /**
      * 새로운 할 일의 position 을 계산합니다.
-     * 카테고리 내 task의 최대 position을 조회한 후,
-     * 없으면 0번, 있으면 max+1로 지정합니다.
+     * 특정 날짜와 카테고리 내 task의 최대 position을 조회한 후,
+     * 없으면 0, 있으면 max+1로 지정합니다.
      *
      * @param categoryId
+     * @param date
      * @return 새로운 할 일의 position
      */
-    private Integer generateNextPosition(Long categoryId) {
-        Integer max = taskRepository.findMaxPositionByCategoryId(categoryId);
+    private Integer generateNextPosition(Long categoryId, LocalDate date) {
+        Integer max = taskRepository.findTopByCategoryIdAndDueDateOrderByPositionDesc(categoryId, date);
         if (max == null) {
             log.debug("[TASK][generateNextPosition] max가 null이므로 기본값 0으로 시작합니다.");
             return 0;
         }
-        return max + 1;
+        int next = max + 1;
+        log.debug("[TASK][generateNextPosition] date={}, categoryId={} 의 max={} -> next={}",
+                date, categoryId, max, next);
+
+        return next;
     }
 
     /**

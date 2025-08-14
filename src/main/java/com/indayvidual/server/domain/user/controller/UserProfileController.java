@@ -15,6 +15,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -49,6 +52,28 @@ public class UserProfileController {
     ) {
         var profile = userProfileService.getMyProfile(principal.userId());
         return ResponseEntity.ok(ApiResponse.onSuccess(profile));
+    }
+
+    @Operation(
+            summary = "닉네임 중복 확인",
+            description = "입력한 닉네임이 사용 가능한지 확인합니다. (본인 닉네임은 중복으로 간주하지 않음)"
+    )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "사용 가능 여부 반환"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "형식 오류"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 실패")
+    })
+    @GetMapping("/username/check")
+    public ResponseEntity<ApiResponse<Boolean>> checkUsername(
+            @AuthenticationPrincipal JwtUserPrincipal principal,
+            @Parameter(description = "확인할 닉네임", example = "감자도리")
+            @RequestParam @NotBlank(message = "username은 필수입니다.")
+            @Size(min = 2, max = 20, message = "닉네임은 2~20자여야 합니다.")
+            @Pattern(regexp = "^[\\p{L}0-9 _-]{2,20}$", message = "닉네임은 한글/영문/숫자/공백/[_-]만 허용합니다.")
+            String username
+    ) {
+                boolean available = userProfileService.isUsernameAvailable(username, principal.userId());
+                return ResponseEntity.ok(ApiResponse.onSuccess(available));
     }
 
     @Operation(summary = "닉네임 변경", description = "재인증 토큰 검증 후 닉네임을 변경합니다.")

@@ -54,7 +54,31 @@ public class UserProfileService {
     public void updateUsername(Long userId, String newUsername) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.MYPAGE_USER_NOT_FOUND));
-        user.changeUsername(newUsername);
+        String target = newUsername == null ? "" : newUsername.trim();
+        if (target.isEmpty()) throw new GeneralException(ErrorStatus._BAD_REQUEST);
+        // 동일 닉네임(대소문자/공백 무시)인 경우 변경 스킵
+        if (user.getUsername() != null && user.getUsername().trim().equalsIgnoreCase(target)) {
+            return;
+        }
+        // 타 유저가 사용 중이면 차단
+        boolean exists = userRepository.existsByUsernameIgnoreCaseAndIdNot(target, userId);
+        if (exists) throw new GeneralException(ErrorStatus.MYPAGE_USERNAME_DUPLICATED);
+        user.changeUsername(target);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isUsernameAvailable(String candidate, Long currentUserId) {
+        String target = candidate == null ? "" : candidate.trim();
+        if (target.isEmpty()) return false;
+        if (currentUserId != null) {
+            // 본인 닉네임은 중복으로 간주하지 않음
+            boolean sameAsMine = userRepository.findById(currentUserId)
+                    .map(u -> u.getUsername() != null && u.getUsername().trim().equalsIgnoreCase(target))
+                    .orElse(false);
+            if (sameAsMine) return true;
+            return !userRepository.existsByUsernameIgnoreCaseAndIdNot(target, currentUserId);
+        }
+        return !userRepository.existsByUsernameIgnoreCase(target);
     }
 
     public void updatePassword(Long userId, String currentPassword, String newPassword) {

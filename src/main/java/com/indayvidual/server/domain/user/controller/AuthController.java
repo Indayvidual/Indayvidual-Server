@@ -11,6 +11,7 @@ import com.indayvidual.server.domain.user.service.UserService.UserAuthService;
 import com.indayvidual.server.global.api.response.ApiResponse;
 import com.indayvidual.server.global.exception.GeneralException;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import com.indayvidual.server.global.api.code.status.ErrorStatus;
 import jakarta.validation.Valid;
@@ -34,6 +35,11 @@ public class AuthController {
             summary = "회원가입",
             description = "이메일과 비밀번호, 이름, 전화번호를 입력하여 회원가입을 진행합니다. 이미 가입된 이메일인 경우 실패합니다."
     )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "가입 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "요청 검증 실패"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "이메일/닉네임 중복")
+    })
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse<SignupResponseDTO>> signup(@RequestBody @Valid SignupRequestDTO request) {
         SignupResponseDTO response = userAuthService.signupWithEmail(request);

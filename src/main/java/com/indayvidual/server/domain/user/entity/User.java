@@ -42,6 +42,8 @@ public class User extends BaseEntity {
 
 	private String email;
 	private String password;  // (소셜 로그인 시 null)
+
+	@Column(unique = true)
 	private String username;
 	private String phone_number;
 

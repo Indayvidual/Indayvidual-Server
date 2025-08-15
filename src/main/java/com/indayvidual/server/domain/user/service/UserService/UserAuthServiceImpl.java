@@ -39,9 +39,15 @@ public class UserAuthServiceImpl implements UserAuthService {
     @Override
     public SignupResponseDTO signupWithEmail(SignupRequestDTO request) {
 
+        // 1) 이메일 중복
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new GeneralException(ErrorStatus.AUTH_EMAIL_DUPLICATED);
         }
+        // 2) 닉네임 중복 (대소문자 무시)
+        if (userRepository.existsByUsernameIgnoreCase(request.getUsername())) {
+            throw new GeneralException(ErrorStatus.AUTH_USERNAME_DUPLICATED);
+        }
+
         String encodedPassword = passwordEncoder.encode(request.getPassword());
 
         User user = User.builder()

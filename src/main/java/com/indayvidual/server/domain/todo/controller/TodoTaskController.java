@@ -122,7 +122,7 @@ public class TodoTaskController {
 
         Long userId = Utils.getUserId();
         return ApiResponse.onSuccess(
-                taskCommandService.updateTaskOrders(userId, request),
+                taskCommandService.updateTaskOrderAndCategory(userId, request),
                 SuccessStatus.UPDATE_TASK_ORDER_SUCCESS.getCode(),
                 SuccessStatus.UPDATE_TASK_ORDER_SUCCESS.getMessage());
     }

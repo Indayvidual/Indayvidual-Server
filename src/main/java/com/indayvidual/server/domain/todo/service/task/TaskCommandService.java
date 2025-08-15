@@ -47,7 +47,7 @@ public interface TaskCommandService {
      * @param userId
      * @param request    요청 DTO
      */
-    TaskOrderCategoryUpdateResponseDTO updateTaskOrders(Long userId, TaskOrderCategoryUpdateBulkRequestDTO request);
+    TaskOrderCategoryUpdateResponseDTO updateTaskOrderAndCategory(Long userId, TaskOrderCategoryUpdateBulkRequestDTO request);
 
     /**
      * 할 일의 체크 상태를 토글합니다.

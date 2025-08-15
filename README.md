@@ -43,6 +43,34 @@
 
 <br/>
 
+## 📁 Project Structure
+```
+Indayvidual-Server/
+├── build.gradle
+├── settings.gradle
+├── src
+│   ├── main
+│   │   ├── java/com/indayvidual/server
+│   │   │   ├── IndayvidualServerApplication.java    # Spring Boot main application
+│   │   │   ├── common/                              # 공통 엔티티, 유틸
+│   │   │   ├── domain/                              # 기능별 도메인 모듈
+│   │   │   │   ├── calendar/                        # 캘린더 API
+│   │   │   │   ├── event/                           # 이벤트 관리
+│   │   │   │   ├── habit/                           # 습관 관리
+│   │   │   │   ├── memo/                            # 메모 기능
+│   │   │   │   ├── timetable/                       # 시간표
+│   │   │   │   ├── todo/                            # 할 일/카테고리
+│   │   │   │   └── user/                            # 회원/인증
+│   │   │   └── global/                              # 전역 설정, 보안, 예외, 공통 응답
+│   │   └── resources
+│   │       ├── application.yml                      # 메인 환경 설정
+│   │       ├── application-local.yml                 # 로컬 환경 설정
+│   │       └── application-prod.yml                  # 운영 환경 설정
+└── gradle/                                           # Gradle Wrapper
+```
+
+<br/>
+
 ## 👥 Contributors
 | 역할 | 이름 | GitHub | 담당 업무 |
 |------|------|--------|----------|

@@ -2,7 +2,7 @@ spring:
   # settings for profile
   profiles:
     active: prod  # if you want to have the environment of the develop server, then it should be local not dev
-    #include: secret
+    # include: secret
   # settings for multipart data such as image
 
   servlet:

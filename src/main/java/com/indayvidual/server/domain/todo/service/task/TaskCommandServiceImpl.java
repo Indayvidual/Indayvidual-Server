@@ -108,6 +108,10 @@ public class TaskCommandServiceImpl implements TaskCommandService {
     public TaskResponseDTO updateTaskDueDate(Long userId, Long taskId, TaskDueDateUpdateRequestDTO request) {
         Task task = findTaskByIdAndUserId(taskId, userId);
 
+        // position 지정
+        Integer position = generateNextPosition(task.getCategory().getId(), request.getDate());
+
+        task.updatePosition(position);
         task.updateDueDate(request.getDate());
 
         log.debug("[TASK] 날짜 수정 완료 - taskId={}, title={}", task.getId(), task.getTitle());
